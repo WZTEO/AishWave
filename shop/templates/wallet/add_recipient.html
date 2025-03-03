@@ -1,0 +1,67 @@
+
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<div class="contact-form">
+    <span class="heading">Add Recipient</span>
+    <form id="contact-form" method="post">
+        {% if messages %}
+            <div id="message-container">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% csrf_token %}
+       
+        <label for="provider_name">Mobile Money Provider:</label>
+        <select id="provider_name" name="provider_name" required>
+            <option value="MTN">MTN</option>
+            <option value="Vodafone">Vodafone</option>
+            <option value="AirtelTigo">AirtelTigo</option>
+        </select>
+        <br>
+
+        <label for="account_number">Mobile Money Number:</label>
+        <input type="text" name="account_number" required>
+        <label for="account_number">Name on number:</label>
+        <input type="text" name="recipient_name" required>
+
+        <button type="submit">Add Recipient</button>
+    </form>
+</div>   
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let providerSelect = document.getElementById("provider_name");
+        let accountNumberInput = document.querySelector("input[name='account_number']");
+        let form = document.querySelector("form");
+
+        function validateMoMoNumber() {
+            let provider = providerSelect.value;
+            let number = accountNumberInput.value.trim();
+            let momoPatterns = {
+                "MTN": /^(024|054|055|059|025|053)\d{7}$/,
+                "Vodafone": /^(020|050)\d{7}$/,
+                "AirtelTigo": /^(026|056|027|057)\d{7}$/
+            };
+
+            if (momoPatterns[provider] && !momoPatterns[provider].test(number)) {
+                alert("Invalid number format for " + provider);
+                return false;
+            }
+            return true;
+        }
+
+        form.addEventListener("submit", function (e) {
+            if (!validateMoMoNumber()) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+

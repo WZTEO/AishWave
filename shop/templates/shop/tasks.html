@@ -1,0 +1,102 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  AishWave Tasks
+{% endblock %}
+
+{% block content %}
+<div class="tasks-interface">
+    <button  hx-get="{% url 'finance' %}" hx-target="body" hx-push-url="true"  class="tasks-close" id="tasks-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    
+    <div class="tasks-content">
+      <h2 class="tasks-header">Daily Tasks</h2>
+      <p class="tasks-description">Complete social media tasks to earn rewards</p>
+      
+      <div class="tasks-grid">
+        <div class="task-card" data-platform="youtube">
+          <div class="task-platform">
+            <i class="fab fa-youtube"></i>
+            <span>YouTube</span>
+          </div>
+          <div class="task-info">
+            <h3><a href="https://youtube.com/@trustbytecom" target="_blank">Subscribe to our Channel <i class="fas fa-external-link-alt"></i></a></h3>
+            <p>Subscribe to our YouTube channel and stay updated with the latest gaming content, tutorials, and platform updates.</p>
+          </div>
+          <div class="task-reward">
+            <span class="reward-amount">$0.20</span>
+            <button class="claim-btn" data-platform="youtube">
+              <i class="fas fa-check"></i>
+              Claim Reward
+            </button>
+          </div>
+        </div>
+
+        <div class="task-card" data-platform="twitter">
+          <div class="task-platform">
+            <i class="fab fa-twitter"></i>
+            <span>Twitter</span>
+          </div>
+          <div class="task-info">
+            <h3><a href="https://twitter.com/trustbytecom" target="_blank">Follow on Twitter <i class="fas fa-external-link-alt"></i></a></h3>
+            <p>Follow us on Twitter for real-time updates, announcements, and exclusive promotions for our community.</p>
+          </div>
+          <div class="task-reward">
+            <span class="reward-amount">$0.20</span>
+            <button class="claim-btn" data-platform="twitter">
+              <i class="fas fa-check"></i>
+              Claim Reward
+            </button>
+          </div>
+        </div>
+
+        <div class="task-card" data-platform="tiktok">
+          <div class="task-platform">
+            <i class="fab fa-tiktok"></i>
+            <span>TikTok</span>
+          </div>
+          <div class="task-info">
+            <h3><a href="https://tiktok.com/@trustbyte.com" target="_blank">Follow on TikTok <i class="fas fa-external-link-alt"></i></a></h3>
+            <p>Join our TikTok community for engaging content, gaming highlights, and trending challenges.</p>
+          </div>
+          <div class="task-reward">
+            <span class="reward-amount">$0.20</span>
+            <button class="claim-btn" data-platform="tiktok">
+              <i class="fas fa-check"></i>
+              Claim Reward
+            </button>
+          </div>
+        </div>
+
+        <div class="task-card" data-platform="instagram">
+          <div class="task-platform">
+            <i class="fab fa-instagram"></i>
+            <span>Instagram</span>
+          </div>
+          <div class="task-info">
+            <h3><a href="https://instagram.com/trustbytecom" target="_blank">Follow on Instagram <i class="fas fa-external-link-alt"></i></a></h3>
+            <p>Follow our Instagram for behind-the-scenes content, community spotlights, and daily gaming inspiration.</p>
+          </div>
+          <div class="task-reward">
+            <span class="reward-amount">$0.20</span>
+            <button class="claim-btn" data-platform="instagram">
+              <i class="fas fa-check"></i>
+              Claim Reward
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning Modal -->
+      <div class="warning-modal" id="warning-modal">
+        <div class="warning-content">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Warning!</h3>
+          <p>Attempting to claim rewards without completing tasks will result in a permanent account ban.</p>
+          <button class="warning-close">I Understand</button>
+        </div>
+      </div>
+    </div>
+</div>    
+{% endblock %}

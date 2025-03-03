@@ -1,0 +1,59 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  Steam Gift Cards
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-interface">
+    <button hx-get="{% url 'shop' %}" hx-target="body" hx-replace-url="true" class="product-detail-close" id="steam-detail-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="product-detail-content">
+      <div class="product-detail-header">
+        <h2>Steam (US)</h2>
+        <p>Enter your details to receive the voucher</p>
+      </div>
+      
+      <form id="steam-detail-form" method="post" action="{% url 'purchase_product' %}">
+        {% csrf_token %}
+        <div class="recipient-details">
+          <label for="steam-email">Email Address</label>
+          <input type="email" name="player_id" class="player-id-input" placeholder="Enter your email address" required>
+        </div>
+        
+        <input type="hidden" id="selected-item" name="selected_item">
+        <div class="diamond-options">
+            <label class="diamond-option">
+                <input type="radio" name="option" value="Steam US $10,10" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">Steam US $10</span>
+                <span class="diamond-price">$10</span>
+            </label>
+            
+            <label class="diamond-option">
+                <input type="radio" name="option" value="Steam US $20,20" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">Steam US $20</span>
+                <span class="diamond-price">$20</span>
+            </label>
+            
+            <label class="diamond-option">
+                <input type="radio" name="option" value="Steam US $50,50" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">Steam US $50</span>
+                <span class="diamond-price">$50</span>
+            </label>
+            
+            <label class="diamond-option">
+                <input type="radio" name="option" value="Steam US $75,75" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">Steam US $75</span>
+                <span class="diamond-price">$75</span>
+            </label>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="button" class="cancel-btn" id="steam-detail-cancel">Cancel</button>
+          <button type="submit" class="confirm-btn">Confirm Purchase</button>
+        </div>
+      </form>
+    </div>
+</div>  
+{% endblock %}

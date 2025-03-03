@@ -1,0 +1,60 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  CODM Points
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-interface">
+    <button hx-get="{% url 'shop' %}" hx-target="body" hx-replace-url="true" class="product-detail-close" id="codm-detail-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="product-detail-content">
+      <div class="product-detail-header">
+        <h2>Call of Duty: Mobile</h2>
+        <p>Enter your details to proceed with the purchase</p>
+      </div>
+      
+      <form id="codm-detail-form" method="post" action="{% url 'purchase_product' %}">
+        {% csrf_token %}
+        <div class="recipient-details">
+          <label for="codm-player-id">Player ID</label>
+          <input type="text" name="player_id" class="player-id-input" placeholder="Enter your Player ID" required>
+        </div>
+        
+        <input type="hidden" id="selected-item" name="selected_item">
+        <div class="diamond-options">
+          <label class="diamond-option">
+              <input type="radio" name="option" value="90 CP,1" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">90 CP</span>
+              <span class="diamond-price">$1</span>
+          </label>
+
+          <label class="diamond-option">
+              <input type="radio" name="option" value="420 CP,4" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">420 CP</span>
+              <span class="diamond-price">$4</span>
+          </label>
+
+          <label class="diamond-option">
+              <input type="radio" name="option" value="2400 CP,21" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">2400 CP</span>
+              <span class="diamond-price">$21</span>
+          </label>
+
+          <label class="diamond-option">
+              <input type="radio" name="option" value="5000 CP,45" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">5000 CP</span>
+              <span class="diamond-price">$45</span>
+          </label>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="button" class="cancel-btn" id="codm-detail-cancel">Cancel</button>
+          <button type="submit" class="confirm-btn">Confirm Purchase</button>
+        </div>
+      </form>
+    </div>
+</div>  
+{% endblock %}
+

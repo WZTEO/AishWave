@@ -1,0 +1,145 @@
+{% extends 'shop/base.html' %}
+{% load investment_filters %}
+
+{% block title %}
+  AishWave Investment
+{% endblock %}
+
+{% block content %}
+<div class="investment-interface">
+    <button hx-get="{% url 'finance' %}" hx-target="body" hx-push-url="true" class="investment-close" id="investment-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="investment-content">
+      <h2 class="investment-header">Choose Your Investment Plan</h2>
+      
+      <div class="padlocks-container">
+        <form method="post" action="{% url 'create_investment' %}">
+          <input type="hidden" name="plan" value="quick">
+          {% csrf_token %}
+        <div class="padlock-card">
+          <div class="padlock-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <div class="padlock-info">
+            <h3>Quick Returns Plan</h3>
+            <div class="info-item">
+              <i class="fas fa-money-bill-wave"></i>
+              <span>Range: $25 - $499</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-chart-line"></i>
+              <span>Daily Returns: 4%</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-clock"></i>
+              <span>Duration: Up to 31 days</span>
+            </div>
+          </div>
+          {% if messages %}
+            {% if "investment" in message.tags %}
+            <div class="errorlist" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+          {% endif %}
+          <div class="investment-input">
+            <label for="amount1">Investment Amount</label>
+            <div class="input-wrapper">
+              <span class="currency-symbol">$</span>
+              <input type="number" name="amount" id="amount1" min="25" max="499" placeholder="0">
+            </div>
+            <div class="range-hint">
+              <span>Min: $25</span>
+              <span>Max: $499</span>
+            </div>
+          </div>
+          <button class="invest-btn">
+            <span class="btn-content">Lock Investment</span>
+          </button>
+                      {% for investment in investment_list %}
+                      {% if investment.plan == "quick" %}
+                         <div id="investment-{{ investment.id }}" 
+                          hx-get="{% url 'status_investment' investment.id %}" 
+                          hx-trigger="load, every 15s" 
+                          hx-target="#investment-{{ investment.id }}" 
+                          hx-swap="innerHTML">
+                          {% include 'shop/investment_status.html' %}
+                      </div>
+                      {% endif %}
+                     
+                      {% empty %}
+                      {% endfor %}
+          
+        </div>
+        </form>
+
+        <form method="post" action="{% url 'create_investment' %}">
+          <input type="hidden" name="plan" value="premium">
+          {% csrf_token %}
+        <div class="padlock-card">
+          <div class="padlock-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <div class="padlock-info">
+            <h3>Premium Returns Plan</h3>
+            <div class="info-item">
+              <i class="fas fa-money-bill-wave"></i>
+              <span>Range: $699 - $999</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-chart-line"></i>
+              <span>Daily Returns: 3%</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-clock"></i>
+              <span>Duration: 61 days</span>
+            </div>
+          </div>
+          {% if messages %}
+              {% for message in messages %}
+              {% if "investment" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endif %}
+              {% endfor %}
+          {% endif %}
+          <div class="investment-input">
+            <label for="amount2">Investment Amount</label>
+            <div class="input-wrapper">
+              <span class="currency-symbol">$</span>
+              <input name="amount" type="number" id="amount2" min="699" max="999" placeholder="0">
+            </div>
+            <div class="range-hint">
+              <span>Min: $699</span>
+              <span>Max: $999</span>
+            </div>
+          </div>
+                <button class="invest-btn">
+                  <span class="btn-content">Lock Investment</span>
+                </button>
+                      {% for investment in investment_list %}
+                      {% if investment.plan == "premium" %}
+                         <div id="investment-{{ investment.id }}" 
+                          hx-get="{% url 'status_investment' investment.id %}" 
+                          hx-trigger="load, every 15s" 
+                          hx-target="#investment-{{ investment.id }}" 
+                          hx-swap="innerHTML">
+                          loading..
+                          {% include 'shop/investment_status.html' %}
+                      </div>
+                      {% endif %}
+                     
+                      {% empty %}
+                      {% endfor %}
+                    
+        </div>
+        </form>
+      
+      </div>
+    </div>
+</div>    
+{% endblock %}

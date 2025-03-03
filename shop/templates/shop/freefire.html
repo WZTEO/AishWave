@@ -1,0 +1,59 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  Free Fire Gems
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-interface">
+    <button hx-get="{% url 'shop' %}" hx-target="body" hx-replace-url="true" class="product-detail-close" id="product-detail-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="product-detail-content">
+      <div class="product-detail-header">
+        <h2>Free Fire Direct Top-Up</h2>
+        <p>Enter your details to proceed with the purchase</p>
+      </div>
+      
+      <form id="product-detail-form" method="post" action="{% url 'purchase_product' %}">
+        {% csrf_token %}
+        <div class="recipient-details">
+          <label for="player-id">Player ID</label>
+          <input type="text" name="player_id" class="player-id-input" placeholder="Enter your Player ID" required>
+        </div>
+        
+        <input type="hidden" id="selected-item" name="selected_item">
+          <div class="diamond-options">
+              <label class="diamond-option">
+                  <input type="radio" name="option" value="100 💎,1" onchange="document.getElementById('selected-item').value=this.value">
+                  <span class="diamond-amount">100 💎</span>
+                  <span class="diamond-price">$1</span>
+              </label>
+
+              <label class="diamond-option">
+                  <input type="radio" name="option" value="210 💎,2" onchange="document.getElementById('selected-item').value=this.value">
+                  <span class="diamond-amount">210 💎</span>
+                  <span class="diamond-price">$2</span>
+              </label>
+
+              <label class="diamond-option">
+                  <input type="radio" name="option" value="530 💎,5" onchange="document.getElementById('selected-item').value=this.value">
+                  <span class="diamond-amount">530 💎</span>
+                  <span class="diamond-price">$5</span>
+              </label>
+
+              <label class="diamond-option">
+                  <input type="radio" name="option" value="2100 💎,20" onchange="document.getElementById('selected-item').value=this.value">
+                  <span class="diamond-amount">2100 💎</span>
+                  <span class="diamond-price">$20</span>
+              </label>
+          </div>
+
+        <div class="action-buttons">
+          <button type="button" class="cancel-btn" id="product-detail-cancel">Cancel</button>
+          <button type="submit" class="confirm-btn">Confirm Purchase</button>
+        </div>
+      </form>
+    </div>
+</div>  
+{% endblock %}

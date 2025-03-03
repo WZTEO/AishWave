@@ -1,0 +1,54 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  Profile
+{% endblock %}
+
+{% block content %}
+<div>
+    <button hx-get="{% url 'finance' %}" hx-target="body" hx-push-url="true" class="profile-close" id="profile-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="profile-form">
+      <span class="heading">Profile</span>
+      <div class="profile-info">
+        <div class="profile-section">
+          <label>Email Address</label>
+          <div class="info-value">{{ user.email }}</div>
+        </div>
+        
+        <div class="profile-section">
+          <label>Last Login History</label>
+          <div class="login-history">
+
+            {% for log in history %}
+
+             {% if log.device_type == "Mobile" %}
+              <div class="history-item">
+              <div class="device"><i class="fas fa-mobile-alt"></i> {{ log.device_info }}</div>
+              <div class="timestamp">{{ log.timestamp }}</div>
+            </div>
+
+            
+            {% elif log.device_type == "Laptop/Desktop" %}
+              <div class="history-item">
+                <div class="device"><i class="fas fa-laptop"></i> {{ log.device_info }} </div>
+                <div class="timestamp">{{ log.timestamp }}</div>
+              </div>
+
+              {% endif %}
+              {% empty %}
+              <h5>No data</h5>
+            {% endfor %}
+          
+          </div>
+        </div>
+              <button hx-post="{% url 'account_logout' %}" hx-target="body" hx-headers='{"X-CSRFToken": "{{csrf_token}}"}'  class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+
+      </div>
+    </div>
+</div>    
+{% endblock %}

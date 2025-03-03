@@ -1,0 +1,36 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+
+
+
+    <button hx-get="{% url 'finance' %}" hx-target="body" hx-push-url="true" class="profile-close" id="profile-close">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="contact-form">
+        <span class="heading">Deposit Funds</span>
+        <form id="contact-form" method="post" action="{% url 'wallet_deposit' %}">
+            {% csrf_token %}
+            <label for="amount">Amount to deposit</label>
+
+            <input type="number" name="amount" id="amount1" placeholder="0">
+
+          <button type="submit">Proceed to Pay</button>
+        </form>
+      </div>
+    <!-- <div class="profile-form">
+        <span class="heading">Deposit Funds</span>
+        <div class="profile-info">
+            <div class="investment-input">
+              <div class="input-wrapper">
+                <span class="currency-symbol">$</span>
+              </div>
+              <div class="range-hint">
+                <span>Min: $25</span>
+                <span>Max: $499</span>
+              </div> 
+            </div>     
+        </div>
+          <button class="submit-btn" type="submit">Proceed to Paystack</button>
+    </div> -->
+{% endblock %}

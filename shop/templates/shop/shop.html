@@ -1,0 +1,126 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}
+  AishWave
+{% endblock %}
+
+{% block content %}
+
+
+<!-- Shop Interface -->
+<div class="shop-interface" id="shop-interface">
+  <div class="top-nav">
+    <button hx-get="{% url 'finance' %}" hx-target="body" hx-replace-url="true" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <span class="page-title">Shop</span>
+    <button class="cart-btn">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="notification-badge">2</span>
+    </button>
+  </div>
+
+  <div class="shop-billboard">
+    <div class="banner-slider">
+      {% for image in images %}
+      
+      <div class="slide">
+        <div class="gradient-overlay"></div>
+        <img src="{{ image.image_url.url }}" alt="Game Banner 1">
+      </div>
+      {% endfor %}
+      
+  </div>
+  {% for discount in discounts %}
+  
+  <div class="products-grid">
+    <!-- Games Section -->
+    <div hx-get="{% url 'freefire' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.free_fire}}% OFF</div>
+        <img src="{% static 'trustbyte/img/free_fire.jpg' %}" alt="Free Fire" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>FREEFIRE</h3>
+      </div>
+    </div>
+
+    <div hx-get="{% url 'pubg' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.pubg}}% OFF</div>
+        <img src="{% static 'trustbyte/img/pubg.jpg' %}" alt="PUBG Mobile" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>PUBG</h3>
+      </div>
+    </div>
+
+    <div hx-get="{% url 'codm' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.codm}}% OFF</div>
+        <img src="{% static 'trustbyte/img/codm.jpg' %}" alt="Call of Duty Mobile" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>CODM</h3>
+      </div>
+    </div>
+
+    <div hx-get="{% url 'fortnite' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.fortnite}}% OFF</div>
+        <img src="{% static 'trustbyte/img/fortnite.jpg' %}" alt="Fortnite" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>FORTNITE</h3>
+      </div>
+    </div>
+
+    <!-- Gift Cards Section -->
+    <div hx-get="{% url 'apple' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.apple}}% OFF</div>
+        <img src="{% static 'trustbyte/img/apple.jpg' %}" alt="Apple Gift Card" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>APPLE GIFT CARD</h3>
+      </div>
+    </div>
+
+    <div hx-get="{% url 'googleplay' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.google}}% OFF</div>
+        <img src="{% static 'trustbyte/img/google.jpg' %}" alt="Google Play Gift Card" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>GOOGLE PLAY</h3>
+      </div>
+    </div>
+
+    <div hx-get="{% url 'steam' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.steam}}% OFF</div>
+        <img src="{% static 'trustbyte/img/steam.jpg' %}" alt="Steam Gift Card" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>STEAM GIFT CARD</h3>
+      </div>
+    </div>
+
+    <div hx-get="{% url 'playstation' %}" hx-target="body" hx-replace-url="true" class="product-card">
+      <div class="product-image">
+        <div class="sale-badge">{{discount.play_station}}% OFF</div>
+        <img src="{% static 'trustbyte/img/ps.jpg' %}" alt="PlayStation Gift Card" class="placeholder-img" style="object-fit: cover; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      </div>
+      <div class="product-info">
+        <h3>PLAYSTATION</h3>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+
+
+{% endblock %}

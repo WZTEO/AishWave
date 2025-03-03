@@ -1,0 +1,58 @@
+{% extends 'wallet/base.html' %}
+
+{% block content %}
+<a href="{% url 'finance' %}" class="back-btn">
+    <i class="fas fa-arrow-left"></i>
+</a>
+<div class="container">
+    <h1>Withdrawal</h1>
+    <p class="subtitle">Select your preferred payment method</p>
+
+    <form method="post" action="{% url 'withdrawal_request' %}">
+        {% csrf_token %}
+
+        <div class="payment-options-container">
+            <div class="payment-options">
+                <div class="payment-option" data-provider="mtn">
+                    <div class="logo">
+                        <svg viewBox="0 0 50 50" class="provider-logo mtn-logo">
+                            <rect x="5" y="5" width="40" height="40" rx="5" fill="#FFCC00"/>
+                            <text x="25" y="32" text-anchor="middle" font-weight="bold" font-size="14" fill="#000">MTN</text>
+                        </svg>
+                    </div>
+                    <div class="provider-name">MTN Ghana</div>
+                </div>
+
+                <div class="payment-option" data-provider="vodafone">
+                    <div class="logo">
+                        <svg viewBox="0 0 50 50" class="provider-logo vodafone-logo">
+                            <rect x="5" y="5" width="40" height="40" rx="5" fill="#E60000"/>
+                            <text x="25" y="32" text-anchor="middle" font-weight="bold" font-size="11" fill="#fff">Vodafone</text>
+                        </svg>
+                    </div>
+                    <div class="provider-name">Vodafone Ghana</div>
+                </div>
+
+                <div class="payment-option" data-provider="binance">
+                    <div class="logo">
+                        <svg viewBox="0 0 50 50" class="provider-logo binance-logo">
+                            <rect x="5" y="5" width="40" height="40" rx="5" fill="#F0B90B"/>
+                            <text x="25" y="32" text-anchor="middle" font-weight="bold" font-size="10" fill="#000">Binance</text>
+                        </svg>
+                    </div>
+                    <div class="provider-name">Binance</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamically generated input fields go here -->
+        <div id="input-fields" class="input-fields-container"></div>
+
+
+        <div class="action-buttons">
+            <button type="button" id="cancel-btn" class="btn cancel">Cancel</button>
+            <button type="submit" id="proceed-btn" class="btn proceed" disabled>Proceed</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

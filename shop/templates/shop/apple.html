@@ -1,0 +1,59 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  Apple Gift Cards
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-interface">
+    <button hx-get="{% url 'shop' %}" hx-target="body" hx-replace-url="true" class="product-detail-close" id="apple-detail-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="product-detail-content">
+      <div class="product-detail-header">
+        <h2>Apple Gift Card US</h2>
+        <p>Enter your details to receive the voucher</p>
+      </div>
+      
+      <form id="apple-detail-form" method="post" action="{% url 'purchase_product' %}">
+        {% csrf_token %}
+        <div class="recipient-details">
+          <label for="apple-email">Email Address</label>
+          <input type="email" name="player_id" class="player-id-input" placeholder="Enter your email address" required>
+        </div>
+        
+        <input type="hidden" id="selected-item" name="selected_item">
+        <div class="diamond-options">
+            <label class="diamond-option">
+                <input type="radio" name="option" value="US $5,5" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">US $5</span>
+                <span class="diamond-price">$5</span>
+            </label>
+        
+            <label class="diamond-option">
+                <input type="radio" name="option" value="US $10,10" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">US $10</span>
+                <span class="diamond-price">$10</span>
+            </label>
+        
+            <label class="diamond-option">
+                <input type="radio" name="option" value="US $20,20" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">US $20</span>
+                <span class="diamond-price">$20</span>
+            </label>
+        
+            <label class="diamond-option">
+                <input type="radio" name="option" value="US $50,50" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">US $50</span>
+                <span class="diamond-price">$50</span>
+            </label>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="button" class="cancel-btn" id="apple-detail-cancel">Cancel</button>
+          <button type="submit" class="confirm-btn">Confirm Purchase</button>
+        </div>
+      </form>
+    </div>
+</div>  
+{% endblock %}

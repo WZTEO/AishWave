@@ -1,0 +1,59 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  Fortnite V-Bucks
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-interface">
+    <button hx-get="{% url 'shop' %}" hx-target="body" hx-replace-url="true" class="product-detail-close" id="fortnite-detail-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="product-detail-content">
+      <div class="product-detail-header">
+        <h2>Fortnite V-Bucks Purchase</h2>
+        <p>Enter your details to proceed with the purchase</p>
+      </div>
+      
+      <form id="fortnite-detail-form" method="post" action="{% url 'purchase_product' %}">
+        {% csrf_token %}
+        <div class="recipient-details">
+          <label for="fortnite-player-id">Player ID</label>
+          <input type="text" name="player_id" class="player-id-input" placeholder="Enter your Player ID" required>
+        </div>
+        
+        <input type="hidden" id="selected-item" name="selected_item">
+        <div class="diamond-options">
+            <label class="diamond-option">
+                <input type="radio" name="option" value="1,000 V-B,12" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">1,000 V-B</span>
+                <span class="diamond-price">$12</span>
+            </label>
+        
+            <label class="diamond-option">
+                <input type="radio" name="option" value="2,800 V-B,30" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">2,800 V-B</span>
+                <span class="diamond-price">$30</span>
+            </label>
+        
+            <label class="diamond-option">
+                <input type="radio" name="option" value="5,000 V-B,45" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">5,000 V-B</span>
+                <span class="diamond-price">$45</span>
+            </label>
+        
+            <label class="diamond-option">
+                <input type="radio" name="option" value="13,500 V-B,110" onchange="document.getElementById('selected-item').value=this.value">
+                <span class="diamond-amount">13,500 V-B</span>
+                <span class="diamond-price">$110</span>
+            </label>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="button" class="cancel-btn" id="fortnite-detail-cancel">Cancel</button>
+          <button type="submit" class="confirm-btn">Confirm Purchase</button>
+        </div>
+      </form>
+    </div>
+</div>  
+{% endblock %}

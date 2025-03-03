@@ -1,0 +1,46 @@
+{% extends 'account/base.html' %}
+{% load socialaccount %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="page-container" id="auth-container">
+    <div class="container" id="login-container">
+      <div class="brand-header">
+        <h1 class="brand-name">AishWave</h1>
+        <p class="brand-tagline">Earn daily, play endlessly</p><!--Slogan-->
+      </div>
+      <h2 class="heading">Login</h2>
+      
+      {% if form.non_field_errors %}      
+          {{ form.non_field_errors }}
+      {% endif %}
+      <form class="form" method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        {{ form.login.errors | safe }}
+        {% render_field form.login id="login" name="login" type="text" autocomplete="current-password" required="True" class="input" %}
+        {{ form.password.errors | safe }}
+        {% render_field form.password id="password" name="password" type="password" autocomplete="current-password" required="True" class="input" %}        <div class="forgot-password">
+          <a href="#" id="forgot-link">Forgot Password?</a>
+        </div>
+        <button type="submit" class="login-button">Login</button>
+      </form>
+      <div class="social-account-container">
+        <span class="title">Or Sign in with</span>
+        <div class="social-accounts">
+          <a href="{% provider_login_url 'google' %}">
+          <button class="social-button google">
+            <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 488 512">
+              <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"/>
+            </svg>
+          </button>
+          </a>
+        </div>
+      </div>
+      <div class="agreement">
+        <a href="{% url 'account_signup' %}">Don't have an account? Sign up</a>
+      </div>
+    </div> 
+</div>
+
+{% endblock %}
+
+

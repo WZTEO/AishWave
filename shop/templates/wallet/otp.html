@@ -1,0 +1,18 @@
+{% extends 'shop/base.html' %}
+
+
+{% block content %}
+<h2>Confirm Withdrawal</h2>
+<p>Enter the OTP sent to your phone to complete the withdrawal.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <label>Enter OTP:</label>
+    <input type="text" name="otp" required>
+
+    <input type="hidden" name="transfer_code" value="{{ transfer_code }}">
+
+    <button type="submit">Confirm Withdrawal</button>
+    <button hx-post="{% url 'resend_otp'  %}">Resend OTP</button>
+</form>    
+{% endblock %}

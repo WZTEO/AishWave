@@ -1,0 +1,9 @@
+{% if error %}
+    <p>{{ error }}</p>
+{% else %}
+    <div class="investment-countdown">
+        <div class="countdown-title">Investment: ${{ investment.amount }}</div>
+        <div class="countdown-time" id="time-left-{{ investment.id }}">{{ time_left.days }}d {{ time_left.hours }}h {{ time_left.minutes }}m</div>
+        <div class="countdown-returns" id="earnings-{{ investment.id }}">Earned so far: ${{ earned }}</div>
+    </div>
+{% endif %}

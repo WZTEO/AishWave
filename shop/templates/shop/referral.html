@@ -1,0 +1,66 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  Referral
+{% endblock %}
+
+{% block content %}
+<div >
+    <button hx-get="{% url 'finance' %}" hx-target="body" hx-push-url="true" class="referral-close" id="referral-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="referral-content">
+      <h2 class="referral-header">Referral Program</h2>
+      
+      <div class="referral-stats">
+        <div class="stat-card">
+          <div class="value">${{ total_earnings }}</div>
+          <div class="label">Total Earnings</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">{{ total_referrals }}</div>
+          <div class="label">Referrals</div>
+        </div>
+      </div>
+      
+      <div class="rewards-info">
+        <div class="reward-item">
+          <div class="reward-icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div class="reward-details">
+            <div class="reward-amount2">$0.40</div>
+            <div class="reward-description">Per Sign-up</div>
+          </div>
+        </div>
+        <div class="reward-item">
+          <div class="reward-icon">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="reward-details">
+            <div class="reward-amount2">$4.00</div>
+            <div class="reward-description">Per Purchase</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="referral-code-container">
+        <h3>Your Referral Code</h3>
+        <div class="referral-code">
+          <div id="referral-code" class="code-display">{{ referral_code }}</div>
+          <button class="copy-btn" onclick="copyToClipboard('referral-code')">
+            <i class="far fa-copy"></i>
+            Copy
+          </button>
+        </div>
+        <div class="referral-code">
+          <input type="text" class="code-display" id="referral-link" value="{{ request.build_absolute_uri|cut:'/referral' }}accounts/signup/?referral_code={{ referral_code }}" readonly>
+          <button class="copy-btn" onclick="copyToClipboard('referral-link')">
+              <i class="far fa-copy"></i> Copy Link
+          </button>
+      </div>
+      </div>
+    </div>
+</div>  
+
+{% endblock %}

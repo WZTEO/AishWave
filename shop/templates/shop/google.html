@@ -1,0 +1,58 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  Google Play Gift Cards
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-interface" id="google-detail-interface">
+    <button hx-get="{% url 'shop' %}" hx-target="body" hx-replace-url="true" class="product-detail-close" id="google-detail-close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="product-detail-content">
+      <div class="product-detail-header">
+        <h2>Google Play Gift Card US</h2>
+        <p>Enter your details to receive the voucher</p>
+      </div>
+      
+      <form id="google-detail-form" method="post" action="{% url 'purchase_product' %}">
+        {% csrf_token %}
+        <div class="recipient-details">
+          <label for="google-email">Email Address</label>
+          <input type="email" name="player_id" class="player-id-input" placeholder="Enter your email address" required>
+        </div>
+        
+        <div class="diamond-options">
+          <label class="diamond-option">
+              <input type="radio" name="option" value="Google Play Gift Card $5,5" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">Google Play Gift Card $5</span>
+              <span class="diamond-price">$5</span>
+          </label>
+      
+          <label class="diamond-option">
+              <input type="radio" name="option" value="Google Play Gift Card $10,10" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">Google Play Gift Card $10</span>
+              <span class="diamond-price">$10</span>
+          </label>
+      
+          <label class="diamond-option">
+              <input type="radio" name="option" value="Google Play Gift Card $15,15" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">Google Play Gift Card $15</span>
+              <span class="diamond-price">$15</span>
+          </label>
+      
+          <label class="diamond-option">
+              <input type="radio" name="option" value="Google Play Gift Card $100,100" onchange="document.getElementById('selected-item').value=this.value">
+              <span class="diamond-amount">Google Play Gift Card $100</span>
+              <span class="diamond-price">$100</span>
+          </label>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="button" class="cancel-btn" id="google-detail-cancel">Cancel</button>
+          <button type="submit" class="confirm-btn">Confirm Purchase</button>
+        </div>
+      </form>
+    </div>
+</div>  
+{% endblock %}

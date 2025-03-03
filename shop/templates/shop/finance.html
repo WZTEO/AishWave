@@ -1,0 +1,289 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  AishWave
+{% endblock %}
+
+
+{% block content %}
+<div class="finance-interface">
+    <div class="top-nav">
+      <button class="menu-btn" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <button hx-get="{% url 'shop' %}" hx-target="body" hx-push-url="true" class="shop-btn">
+        <span class="btn-content">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="notification-badge">2</span>
+        </span>
+      </button>
+    </div>
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <div class="side-menu" id="side-menu">
+      <button class="menu-close" onclick="toggleMenu()" id="menu-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <button class="menu-item" onclick="showTournamentModal()">
+        <div class="inner">
+          <div class="top-white"></div>
+          <i class="fas fa-trophy"></i>
+          <span class="text">Tournament</span>
+        </div>
+      </button>
+      <button class="menu-item">
+        <div class="inner" hx-get="{% url 'contact-form' %}" hx-target="body" hx-push-url="true">
+          <div class="top-white"></div>
+          <i class="fas fa-envelope"></i>
+          <span class="text">Contact Us</span>
+        </div>
+      </button>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          document.querySelector(".follow-us-btn").addEventListener("click", function () {
+              const socialIcons = document.querySelector(".social-icons");
+              if (socialIcons.style.display === "none" || socialIcons.style.display === "") {
+                  socialIcons.style.display = "grid";  // Change to block if needed
+              } else {
+                  socialIcons.style.display = "none";
+              }
+          });
+      });
+      </script>
+      <button class="menu-item follow-us-btn">
+        <div class="inner">
+          <div class="top-white"></div>
+          <i class="fas fa-heart"></i>
+          <span class="text">Follow Us</span>
+        </div>
+      </button>
+      <style>
+        .hidden {
+          display: none;
+        }
+      </style>
+      <div class="social-icons" style="display: none;">
+        <a href="https://youtube.com/@trustbytecom" target="_blank" class="social-link youtube">
+          <i class="fab fa-youtube"></i>
+        </a>
+        <a href="https://twitter.com/trustbytecom" target="_blank" class="social-link twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="https://tiktok.com/@trustbyte.com" target="_blank" class="social-link tiktok">
+          <i class="fab fa-tiktok"></i>
+        </a>
+        <a href="https://instagram.com/trustbytecom" target="_blank" class="social-link instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+      </div>
+    </div>
+   
+    <div id="tournamentModal" class="warning-modal">
+      <div class="warning-content">
+        <div class="gearbox">
+          <div class="overlay"></div>
+          <div class="gear one">
+            <div class="gear-inner">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div class="gear two">
+            <div class="gear-inner">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div class="gear three">
+            <div class="gear-inner">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div class="gear four large">
+            <div class="gear-inner">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
+        </div>
+        <i class="fas fa-trophy" style="color: #FFD700;"></i>
+        <h3>Tournaments Coming Soon!</h3>
+        <p>We're working hard to bring you exciting tournaments with amazing prizes. Stay tuned!</p>
+        <button class="warning-close">Got it!</button>
+      </div>
+    </div>
+
+    <script>
+      const showTournamentModal = () => {
+        const modal = document.getElementById("tournamentModal");
+        modal.classList.add("open");
+      };
+      
+      // Close the modal when clicking the button or outside
+      document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("tournamentModal");
+        const closeBtn = modal.querySelector(".warning-close");
+      
+        closeBtn.addEventListener("click", () => {
+          modal.classList.remove("open");
+        });
+      
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) {
+            modal.classList.remove("open");
+          }
+        });
+      });
+    </script>
+
+
+
+    <div class="balance-card">
+      <div class="balance-info">
+        <div class="balance-main">
+          <h2>Total Balance</h2>
+          <h1>GHS{{ wallet.balance }}</h1>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <a class="action-btn withdraw" href="{% url 'withdrawal_request' %}">
+          <i class="fas fa-arrow-up"></i>
+          Withdraw
+        </a>
+        <a class="action-btn deposit" href="{% url 'wallet_deposit' %}" class="action-btn deposit">
+          <i class="fas fa-arrow-down"></i>
+          Deposit
+        </a>
+      </div>
+      <div class="secondary-actions">
+        <a href="{% url 'stocks' %}" class="secondary-btn">
+          <i class="fas fa-chart-bar"></i>
+          Stocks
+        </a>
+        <a href="{% url 'tasks' %}"  class="secondary-btn">
+          <i class="fas fa-tasks"></i>
+          Tasks
+        </a>
+      </div>
+    </div>
+  
+    <div class="recent-transactions">
+      <h3>Transaction History</h3>
+      <div class="transactions-list">
+        <!-- Transactions will be dynamically inserted here -->
+         {% for transaction in transactions %}
+          {% if transaction.transaction_type == 'deposit' %}
+            <div class="transaction">
+            <div class="transaction-icon deposit">
+              <i class="fas fa-arrow-down"></i>
+            </div>
+            <div class="transaction-details">
+              <span class="transaction-title">Deposit {{ transaction.status }}</span>
+              <span class="transaction-date">
+      
+                  {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                      Today, {{ transaction.created_at|date:"g:i A" }}
+                  {% else %}
+                      {{ transaction.created_at|date:"M d, Y g:i A" }}
+                  {% endif %}
+              
+              </span>
+            </div>
+            <span class="transaction-amount deposit">+GHS{{ transaction.amount}}</span>
+            </div>
+          {% elif transaction.transaction_type == 'withdrawal' %}
+            <div class="transaction">
+            <div class="transaction-icon withdraw">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="transaction-details">
+              <span class="transaction-title">Withdrawal {{ transaction.status }}</span>
+              <span class="transaction-date">
+                {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                      Today, {{ transaction.created_at|date:"g:i A" }}
+                  {% else %}
+                      {{ transaction.created_at|date:"M d, Y g:i A" }}
+                  {% endif %}
+              </span>
+            </div>
+            <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
+            </div>
+
+          {% elif transaction.transaction_type == 'investment' %}
+          <div class="transaction">
+            <div class="transaction-icon withdraw">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="transaction-details">
+              <span class="transaction-title">Investment({{invest}}) {{ transaction.status }}</span>
+              <span class="transaction-date">
+                {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                      Today, {{ transaction.created_at|date:"g:i A" }}
+                  {% else %}
+                      {{ transaction.created_at|date:"M d, Y g:i A" }}
+                  {% endif %}
+              </span>
+            </div>
+            <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
+            </div>
+          {% elif transaction.transaction_type == 'purchase'  %}
+            {% for order in orders %}
+              <div class="transaction">
+            <div class="transaction-icon withdraw">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="transaction-details">
+              <span class="transaction-title">Purchase {{ order.status }}</span>
+              <span class="transaction-date">
+                {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                      Today, {{ transaction.created_at|date:"g:i A" }}
+                  {% else %}
+                      {{ transaction.created_at|date:"M d, Y g:i A" }}
+                  {% endif %}
+              </span>
+            </div>
+            <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
+            </div>
+            {% endfor %}
+          
+            {% else %}
+            No
+          {% endif %}
+          
+         {% endfor %}
+        
+        
+      </div>
+    </div>
+  
+   
+  
+    <nav class="bottom-nav">
+      <button hx-get="{% url 'finance' %}" hx-target="body" hx-replace-url="true" class="nav-btn active">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </button>
+      <button hx-get="{% url 'create_investment' %}" hx-target="body" hx-push-url="true" class="nav-btn">
+        <i class="fas fa-chart-line"></i>
+        <span>Invest</span>
+      </button>
+      <button hx-get="{% url 'referral' %}" hx-target="body" hx-push-url="true" class="nav-btn">
+        <i class="fas fa-users"></i>
+        <span>Referral</span>
+      </button>
+      <button hx-get="{% url 'profile' %}" hx-target="body" hx-push-url="true" class="nav-btn">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </button>
+    </nav>
+    
+</div>
+{% endblock %}
