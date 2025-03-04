@@ -30,7 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(',')
 
-
+PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 # Application definition
 
 INSTALLED_APPS = [

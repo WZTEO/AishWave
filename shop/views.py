@@ -128,7 +128,7 @@ def initiate_deposit(request):
             "email": email,
             "amount": amount,
             "currency": "GHS",
-            "callback_url": "http://127.0.0.1:8000/wallet/verify-deposit/"
+            "callback_url": f"{settings.PAYSTACK_CALLBACK}/wallet/verify-deposit/"
         }
         response = requests.post(url, json=payload, headers=headers)
         print(f"Paystack response:", response.text)
@@ -164,7 +164,7 @@ def verify_deposit(request):
         #return JsonResponse({"message": "Deposit successful", "balance": user_wallet.balance})
         return redirect("finance")
     #return JsonResponse({"error": "Deposit failed!"}, status=400)
-    return redirect("deposit_request")
+    return redirect("wallet_deposit")
 
 @login_required
 def add_recipient(request):
