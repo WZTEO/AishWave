@@ -538,7 +538,7 @@ def complete_task(request):
             status="completed"
         )
 
-        messages.success(request, f"You've been rewarded {task.reward_amount} GHS for completing the task!", extra_tags='task')
+        messages.success(request, f"You've been rewarded ${task.reward_amount} (GHS{reward_in_ghs}) for completing the task!", extra_tags='task')
         return redirect("tasks")
 
     messages.error(request, "Invalid request.")
