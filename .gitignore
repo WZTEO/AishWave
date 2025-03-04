@@ -1,8 +1,1 @@
-/src
-/dist
-/.venv
-LICENSE.txt
-README.md
-/withdraw
-/new_withdraw
-.env/
+.env

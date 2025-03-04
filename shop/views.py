@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
 from django.http import JsonResponse
-from .models import Wallet, Transaction, BillBoardImage, LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Discount, ExchangeRate, ReferralCode
+from .models import Wallet, Task, TaskCompletion, Transaction, BillBoardImage, LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Discount, ExchangeRate, ReferralCode
 from .utils import create_paystack_recipient
 from django.contrib.sessions.models import Session
 from decimal import Decimal
@@ -85,7 +85,8 @@ def investment(request):
 
 @login_required
 def tasks(request):
-    return render(request, 'shop/tasks.html')
+    tasks = Task.objects.all()
+    return render(request, 'shop/tasks.html', {"tasks": tasks})
 
 def freefire(request):
     return render(request, 'shop/freefire.html')
@@ -490,3 +491,55 @@ def investment_status(request, investment_id):
         return render(request, "shop/investment_status.html", context)
     except Investment.DoesNotExist:
         return render(request, "shop/investment_status.html", {"error": "Investment not found"})
+
+@login_required
+def complete_task(request):
+    print("🔍 Request Method:", request.method)
+    print("📦 Request Data:", request.POST)
+
+    if request.method == "POST":
+        print("✅ Got POST request.")
+
+        task_id = request.POST.get("task_id")
+        print("🆔 Task ID:", task_id)
+
+        if not task_id:
+            messages.error(request, "Task ID is missing.")
+            return redirect("tasks")
+
+        task = get_object_or_404(Task, id=task_id)
+
+        last_completion = TaskCompletion.objects.filter(user=request.user, task=task).order_by('-completed_at').first()
+
+        if last_completion and last_completion.completed_at.date() == now().date():
+            messages.error(request, "You can only claim this task once per day.", extra_tags='task')
+            print("ONly once")
+            return redirect("tasks")
+
+        if TaskCompletion.objects.filter(user=request.user, task=task).exists():
+            messages.error(request, "You have already completed this task.")
+            print("You have already completed this task.")
+            return redirect("tasks")
+
+        # Reward the user
+        user_wallet, created = Wallet.objects.get_or_create(user=request.user)
+        reward_in_ghs = ExchangeRate.convert_to_ghs(task.reward_amount)
+        user_wallet.balance += reward_in_ghs
+        user_wallet.save()
+
+        # Mark task as completed
+        TaskCompletion.objects.create(user=request.user, task=task)
+
+        # Log the transaction
+        Transaction.objects.create(
+            wallet=user_wallet,
+            amount=task.reward_amount,
+            transaction_type="task_reward",
+            status="completed"
+        )
+
+        messages.success(request, f"You've been rewarded {task.reward_amount} GHS for completing the task!", extra_tags='task')
+        return redirect("tasks")
+
+    messages.error(request, "Invalid request.")
+    return redirect("tasks")

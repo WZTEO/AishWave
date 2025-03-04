@@ -12,81 +12,70 @@
     
     <div class="tasks-content">
       <h2 class="tasks-header">Daily Tasks</h2>
+      {% if messages %}
+                    {% for message in messages %}
+                        {% if "task" in message.tags %}  {# Ensure this matches your extra_tags #}
+                            <div class=" {% if 'error' in message.tags %}errorlist
+                            {% else %} successlist {% endif %}" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
       <p class="tasks-description">Complete social media tasks to earn rewards</p>
       
       <div class="tasks-grid">
-        <div class="task-card" data-platform="youtube">
-          <div class="task-platform">
-            <i class="fab fa-youtube"></i>
-            <span>YouTube</span>
-          </div>
-          <div class="task-info">
-            <h3><a href="https://youtube.com/@trustbytecom" target="_blank">Subscribe to our Channel <i class="fas fa-external-link-alt"></i></a></h3>
-            <p>Subscribe to our YouTube channel and stay updated with the latest gaming content, tutorials, and platform updates.</p>
-          </div>
-          <div class="task-reward">
-            <span class="reward-amount">$0.20</span>
-            <button class="claim-btn" data-platform="youtube">
-              <i class="fas fa-check"></i>
-              Claim Reward
-            </button>
-          </div>
+        {% for task in tasks %}
+        <div class="task-card" data-platform="{{ task.platform }}">
+            <div class="task-platform">
+                <i class="{{ task.get_icon }}"></i> <!-- Dynamic icon -->
+                <span>{{ task.platform|title }}</span> <!-- Capitalize platform name -->
+            </div>
+            <div class="task-info">
+                <h3>
+                    <a href="{{ task.url }}" target="_blank" class="task-link" data-platform="{{ task.platform }}">
+                        {{ task.name }} <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </h3>
+                <p>Complete the task and claim your reward.</p>
+            </div>
+           
+            <div class="task-reward">
+                <span class="reward-amount">${{ task.reward_amount }}</span>
+                <button 
+                    class="claim-btn" 
+                    data-platform="{{ task.platform }}"
+                    data-task-id="{{ task.id }}" 
+                    hx-target="body"
+                    hx-post="{% url 'rewards' %}" 
+                    hx-vals='{"task_id": "{{ task.id }}"}'
+                    hx-trigger="click"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    disabled>
+                    <i class="fas fa-check"></i> Claim Reward
+                </button>
+            </div>
         </div>
-
-        <div class="task-card" data-platform="twitter">
-          <div class="task-platform">
-            <i class="fab fa-twitter"></i>
-            <span>Twitter</span>
-          </div>
-          <div class="task-info">
-            <h3><a href="https://twitter.com/trustbytecom" target="_blank">Follow on Twitter <i class="fas fa-external-link-alt"></i></a></h3>
-            <p>Follow us on Twitter for real-time updates, announcements, and exclusive promotions for our community.</p>
-          </div>
-          <div class="task-reward">
-            <span class="reward-amount">$0.20</span>
-            <button class="claim-btn" data-platform="twitter">
-              <i class="fas fa-check"></i>
-              Claim Reward
-            </button>
-          </div>
-        </div>
-
-        <div class="task-card" data-platform="tiktok">
-          <div class="task-platform">
-            <i class="fab fa-tiktok"></i>
-            <span>TikTok</span>
-          </div>
-          <div class="task-info">
-            <h3><a href="https://tiktok.com/@trustbyte.com" target="_blank">Follow on TikTok <i class="fas fa-external-link-alt"></i></a></h3>
-            <p>Join our TikTok community for engaging content, gaming highlights, and trending challenges.</p>
-          </div>
-          <div class="task-reward">
-            <span class="reward-amount">$0.20</span>
-            <button class="claim-btn" data-platform="tiktok">
-              <i class="fas fa-check"></i>
-              Claim Reward
-            </button>
-          </div>
-        </div>
-
-        <div class="task-card" data-platform="instagram">
-          <div class="task-platform">
-            <i class="fab fa-instagram"></i>
-            <span>Instagram</span>
-          </div>
-          <div class="task-info">
-            <h3><a href="https://instagram.com/trustbytecom" target="_blank">Follow on Instagram <i class="fas fa-external-link-alt"></i></a></h3>
-            <p>Follow our Instagram for behind-the-scenes content, community spotlights, and daily gaming inspiration.</p>
-          </div>
-          <div class="task-reward">
-            <span class="reward-amount">$0.20</span>
-            <button class="claim-btn" data-platform="instagram">
-              <i class="fas fa-check"></i>
-              Claim Reward
-            </button>
-          </div>
-        </div>
+        {% endfor %}
+       
       </div>
+      <script>
+        document.querySelectorAll('.task-link').forEach(link => {
+          link.addEventListener('click', function(event) {
+              const platform = this.getAttribute('data-platform');
+              const button = document.querySelector(`.claim-btn[data-platform="${platform}"]`);
+              
+              // Disable button initially
+              button.disabled = true;
+      
+              // Wait for 5 seconds, then enable the button
+              setTimeout(() => {
+                  button.disabled = false;
+              }, 5000);
+          });
+      });
+      </script>
 
       <!-- Warning Modal -->
       <div class="warning-modal" id="warning-modal">

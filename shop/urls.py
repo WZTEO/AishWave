@@ -27,6 +27,7 @@ urlpatterns = [
     path('withdraw/finalize/<str:transfer_code>/', finalize_withdrawal, name='finalize_withdrawal'),
     path('resend-otp/', resend_paystack_otp, name='resend_otp'),
     path('purchase/', purchase_product, name='purchase_product'),
-    path('investment/<int:investment_id>/', investment_status, name='status_investment')
+    path('investment/<int:investment_id>/', investment_status, name='status_investment'),
+    path('rewards/', complete_task, name='rewards')
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

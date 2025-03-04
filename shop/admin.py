@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.core.mail import send_mail
 from django.contrib import messages
-from .models import Order, ExchangeRate,LoginHistory, BillBoardImage, Investment, Transaction, Referral, WithdrawalRequest, Wallet, Discount
+from .models import Order, ExchangeRate,LoginHistory, BillBoardImage, Task, TaskCompletion,Investment, Transaction, Referral, WithdrawalRequest, Wallet, Discount
 from django.contrib.auth.models import Group
 from allauth.socialaccount.models import SocialToken, SocialApp, SocialAccount
 from django.contrib.admin.views.decorators import staff_member_required
@@ -106,3 +106,7 @@ class LoginHistoryAdmin(admin.ModelAdmin):
 @admin.register(ExchangeRate)
 class ExchangeRateAdmin(admin.ModelAdmin):
     list_display = ['currency', 'rate_to_ghs']
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ['name', 'url', 'platform', 'reward_amount']

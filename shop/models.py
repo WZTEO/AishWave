@@ -117,11 +117,12 @@ class Transaction(models.Model):
         ('purchase', 'Purchase'),
         ('withdrawal', 'Withdrawal'),
         ('investment', 'Investment'),
-        ('refund', 'Refund')
+        ('refund', 'Refund'),
+        ('task_reward', 'Task Reward')
     ]
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_type =models.CharField(max_length=10, choices=TRANSACTION_TYPES)
+    transaction_type =models.CharField(max_length=20, choices=TRANSACTION_TYPES)
     reference = models.CharField(max_length=100, unique=True)
     status = models.CharField(max_length=20, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -276,3 +277,42 @@ class ExchangeRate(models.Model):
         rate_obj = cls.objects.filter(currency=currency).first()
 
         return rate_obj.rate_to_ghs if rate_obj else 1
+
+class Task(models.Model):
+    SOCIAL_MEDIA_CHOICES = [
+        ('twitter', 'Twitter'),
+        ('youtube', 'YouTube'),
+        ('instagram', 'Instagram'),
+        ('tiktok', 'TikTok'),
+    ]
+    name = models.CharField(max_length=255)
+    platform = models.CharField(max_length=20, choices=SOCIAL_MEDIA_CHOICES)
+    url = models.URLField()
+    reward_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_icon(self):
+        """Returns the font awesome icons"""
+        icons = {
+            "youtube": "fab fa-youtube",
+            "twitter": "fab fa-twitter",
+            "instagram": "fab fa-instagram",
+            "tiktok": "fab fa-tiktok"
+        }
+
+        return icons.get(self.platform, "fas fas-question-circle")
+
+    def __str__(self):
+        return f"{self.name} ({self.platform})"
+
+class TaskCompletion(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'task')
+
+    def __str__(self):
+        return f"{self.user.username} completed {self.task.name}"
+

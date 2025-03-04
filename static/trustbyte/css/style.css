@@ -106,11 +106,25 @@ body {
   background: #ffe6e6; /* Light red background */
   border: 1px solid #ff4d4d;
   border-radius: 4px;
+  text-align: center;
 }
 .errorlist li {
   list-style: none;
 }
 
+.successlist {
+  color: #4dff88; /* Red color for errors */
+  font-size: 14px;
+  margin-top: 15px;
+  padding: 5px;
+  background: #e9ffe6; /* Light red background */
+  border: 1px solid #4dff88;
+  border-radius: 4px;
+  text-align: center;
+}
+.successlist li {
+  list-style: none;
+}
 /* Optional: Highlight input fields with errors */
 
 
@@ -3176,6 +3190,13 @@ select {
 
 .claim-btn:active {
   transform: translateY(1px);
+}
+.claim-btn:disabled {
+  background: gray;  /* Set background to gray */
+  color: white; /* Adjust text color for contrast */
+  cursor: not-allowed; /* Show the canceled slash pointer */
+  opacity: 0.6; /* Slight transparency to indicate it's disabled */
+  border: 1px solid #999; /* Optional: subtle border */
 }
 
 .claim-btn.claimed {

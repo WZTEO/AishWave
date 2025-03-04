@@ -216,42 +216,60 @@
             </div>
             <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
             </div>
-
+          {% elif transaction.transaction_type == 'task_reward' %}
+            <div class="transaction">
+              <div class="transaction-icon deposit">
+                <i class="fas fa-arrow-down"></i>
+              </div>
+              <div class="transaction-details">
+                <span class="transaction-title">Task Reward {{ transaction.status }}</span>
+                <span class="transaction-date">
+        
+                    {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                        Today, {{ transaction.created_at|date:"g:i A" }}
+                    {% else %}
+                        {{ transaction.created_at|date:"M d, Y g:i A" }}
+                    {% endif %}
+                
+                </span>
+              </div>
+              <span class="transaction-amount deposit">+GHS{{ transaction.amount}}</span>
+            </div>
           {% elif transaction.transaction_type == 'investment' %}
-          <div class="transaction">
-            <div class="transaction-icon withdraw">
-              <i class="fas fa-arrow-up"></i>
-            </div>
-            <div class="transaction-details">
-              <span class="transaction-title">Investment({{invest}}) {{ transaction.status }}</span>
-              <span class="transaction-date">
-                {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                      Today, {{ transaction.created_at|date:"g:i A" }}
-                  {% else %}
-                      {{ transaction.created_at|date:"M d, Y g:i A" }}
-                  {% endif %}
-              </span>
-            </div>
-            <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
+            <div class="transaction">
+              <div class="transaction-icon withdraw">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+              <div class="transaction-details">
+                <span class="transaction-title">Investment({{invest}}) {{ transaction.status }}</span>
+                <span class="transaction-date">
+                  {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                        Today, {{ transaction.created_at|date:"g:i A" }}
+                    {% else %}
+                        {{ transaction.created_at|date:"M d, Y g:i A" }}
+                    {% endif %}
+                </span>
+              </div>
+              <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
             </div>
           {% elif transaction.transaction_type == 'purchase'  %}
             {% for order in orders %}
               <div class="transaction">
-            <div class="transaction-icon withdraw">
+                <div class="transaction-icon withdraw">
               <i class="fas fa-arrow-up"></i>
-            </div>
-            <div class="transaction-details">
-              <span class="transaction-title">Purchase {{ order.status }}</span>
-              <span class="transaction-date">
-                {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                      Today, {{ transaction.created_at|date:"g:i A" }}
-                  {% else %}
-                      {{ transaction.created_at|date:"M d, Y g:i A" }}
-                  {% endif %}
-              </span>
-            </div>
-            <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
-            </div>
+                </div>
+                <div class="transaction-details">
+                  <span class="transaction-title">Purchase {{ order.status }}</span>
+                  <span class="transaction-date">
+                    {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                          Today, {{ transaction.created_at|date:"g:i A" }}
+                      {% else %}
+                          {{ transaction.created_at|date:"M d, Y g:i A" }}
+                      {% endif %}
+                  </span>
+                </div>
+                <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
+                </div>
             {% endfor %}
           
             {% else %}
