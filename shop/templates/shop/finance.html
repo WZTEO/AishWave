@@ -241,7 +241,7 @@
                 <i class="fas fa-arrow-up"></i>
               </div>
               <div class="transaction-details">
-                <span class="transaction-title">Investment({{invest}}) {{ transaction.status }}</span>
+                <span class="transaction-title">Investment {{ transaction.status }}</span>
                 <span class="transaction-date">
                   {% if transaction.created_at|date:"Y-m-d" == today_date %}
                         Today, {{ transaction.created_at|date:"g:i A" }}
