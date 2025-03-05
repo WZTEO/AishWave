@@ -57,7 +57,7 @@ class OrderAdmin(admin.ModelAdmin):
         
 @admin.register(Investment)
 class InvestmentAdmin(admin.ModelAdmin):
-    list_display = ("plan", "amount", "end_date", "daily_return")
+    list_display = ("user", "plan", "amount", "end_date", "daily_return")
     list_filter = ("plan", "end_date")
 
 @admin.register(Transaction)
