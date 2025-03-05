@@ -54,7 +54,7 @@ def contact_form(request):
             subject=f"New Contact Form Submission from {name}",
             message=f"Name: {name} \nEmail: {email}\n\n Message: \n{message}", 
             from_email="aishwave001@gmail.com", #email address
-            recipient_list=settings.RECIPIENT_EMAIL, #admin email
+            recipient_list=[settings.RECIPIENT_EMAIL], #admin email
             fail_silently=False,
         )
         messages.success(request, "Your request has been submitted")
