@@ -212,6 +212,25 @@ class Investment(models.Model):
             self.status = "completed"
             self.save(update_fields=["status"])
 
+    def claim_earnings(self):
+        """Transfers earnings to the user wallet after investment completion"""
+
+        total_earnings = self.calculate_earnings()
+
+        wallet = Wallet.objects.get(user=self.user)
+        total_earnings_in_ghs = ExchangeRate.convert_to_ghs(total_earnings)
+        wallet.balance += total_earnings_in_ghs
+        wallet.save(update_fields=['balance'])
+
+        Transaction.objects.create(
+            wallet=wallet,
+            amount=total_earnings_in_ghs,
+            transaction_type="deposit",
+            status="complete"
+        )
+        self.status = "completed"
+        self.save(update_fields=['status'])
+
     
     def save(self, *args, **kwargs):
         if not self.end_date:

@@ -19,6 +19,7 @@ def shop(request):
     images = BillBoardImage.objects.all()
     return render(request, 'shop/shop.html', {"discounts": discount, "images": images})
 
+@login_required
 def finance(request):
     user_wallet = None
     transactions = []
@@ -58,8 +59,6 @@ def contact_form(request):
         )
         messages.success(request, "Your request has been submitted")
         return redirect("finance")
-        
-
     return render(request, 'shop/contact-form.html')
 
 def stocks(request):
@@ -425,17 +424,17 @@ def create_investment(request):
 
     if request.method == 'POST':
         plan = request.POST.get("plan")
-        amount = Decimal(str(request.POST.get("amount")))
+        amount = int(request.POST.get("amount") or 0)
         price_in_ghs = ExchangeRate.convert_to_ghs(amount)
 
         # Check if the user already has an active investment in this tier
         if Investment.objects.filter(user=request.user, plan=plan, end_date__gt=now()).exists():            
-            messages.error(request, "You already have an active investment in this tier!")
+            messages.error(request, "You already have an active investment in this tier!", extra_tags="investment")
             print("You already have an active investment in this tier!")
             return redirect("create_investment")
 
         if plan not in plans:
-            messages.error(request, "Invalid investment plan")
+            messages.error(request, "Invalid investment plan", extra_tags="investment")
             print("Invalid investment plan")
             return redirect("create_investment")
 
@@ -471,13 +470,24 @@ def create_investment(request):
         )
 
         print("Investment successfully created")
-        messages.success(request, "Investment created successfully")
+        messages.success(request, "Investment created successfully", extra_tags="investment")
         return redirect("create_investment")
 
     return render(request, "shop/investment.html", {
         "plans": plans,
         "investment_list": active_investments
     })
+
+@login_required
+def claim_investment_earnings(request, investment_id):
+    investment = get_object_or_404(Investment, id=investment_id, user=request.user)
+
+    if investment.claim_earnings():
+        messages.success(request, "Earnings successfully claimed!", extra_tags="investment")
+    else:
+        messages.error(request, "Earnings cannot be claimed yet.", extra_tags="investment")
+
+    return redirect("create_investment")  # Redirect to the investment page
 
 @login_required
 def investment_status(request, investment_id):
@@ -511,8 +521,8 @@ def complete_task(request):
 
         last_completion = TaskCompletion.objects.filter(user=request.user, task=task).order_by('-completed_at').first()
 
-        if last_completion and last_completion.completed_at.date() == now().date():
-            messages.error(request, "You can only claim this task once per day.", extra_tags='task')
+        if last_completion and (now().date() - last_completion.completed_at.date()).days < 7:
+            messages.error(request, "You can only claim this task once per week.", extra_tags='task')
             print("ONly once")
             return redirect("tasks")
 

@@ -12,7 +12,17 @@
     </button>
     <div class="investment-content">
       <h2 class="investment-header">Choose Your Investment Plan</h2>
-      
+      {% if messages %}
+              {% for message in messages %}
+                {% if "investment" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+          
       <div class="padlocks-container">
         <form method="post" action="{% url 'create_investment' %}">
           <input type="hidden" name="plan" value="quick">
@@ -36,14 +46,17 @@
               <span>Duration: Up to 31 days</span>
             </div>
           </div>
-          {% if messages %}
-            {% if "investment" in message.tags %}
-            <div class="errorlist" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endif %}
-          {% endif %}
+          
+          {% for investment in investment_list %}
+          {{investment.status}}
+              {% if investment.status == "completed" %}
+                {% csrf_token %}
+                <button hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="{% url 'claim-earnings' investment_id=investment.id %}" hx-target="body" type="button" class="invest-btn">
+                  <span class="btn-content">Claim</span>
+                </button>
+              {% endif %}
+              {% empty %}
+          {% endfor %}
           <div class="investment-input">
             <label for="amount1">Investment Amount</label>
             <div class="input-wrapper">
@@ -55,6 +68,7 @@
               <span>Max: $499</span>
             </div>
           </div>
+         
           <button class="invest-btn">
             <span class="btn-content">Lock Investment</span>
           </button>
@@ -73,8 +87,10 @@
                       {% endfor %}
           
         </div>
+        
         </form>
 
+    
         <form method="post" action="{% url 'create_investment' %}">
           <input type="hidden" name="plan" value="premium">
           {% csrf_token %}
@@ -97,16 +113,14 @@
               <span>Duration: 61 days</span>
             </div>
           </div>
-          {% if messages %}
-              {% for message in messages %}
-              {% if "investment" in message.tags %}
-                  <div class="errorlist" role="alert">
-                      {{ message }}
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                  {% endif %}
-              {% endfor %}
-          {% endif %}
+
+          {% for investment in investment_list%}
+          {{investment.status}}
+              {% csrf_token %}
+              <button hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="{% url 'claim-earnings' investment_id=investment.id %}" hx-target="body" type="button" class="invest-btn">
+                <span class="btn-content">Claim</span>
+              </button>
+          {% endfor %}
           <div class="investment-input">
             <label for="amount2">Investment Amount</label>
             <div class="input-wrapper">

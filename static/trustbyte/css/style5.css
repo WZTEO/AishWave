@@ -1,0 +1,243 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f7fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 350px;
+    background: #F8F9FD;
+    background: linear-gradient(0deg, rgb(255, 255, 255) 0%, rgb(244, 247, 251) 100%);
+    border-radius: 40px;
+    padding: 25px 35px;
+    border: 5px solid rgb(255, 255, 255);
+    box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 30px 30px -20px;
+    margin: 20px;
+}
+
+.card {
+    text-align: center;
+    transform: translateY(20px);
+    opacity: 0;
+    animation: slide-up 0.5s ease forwards;
+}
+
+@keyframes slide-up {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.icon-container {
+    margin-bottom: 25px;
+}
+
+h1 {
+    color: rgb(16, 137, 211);
+    font-weight: 900;
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+a {
+    font-weight: bold;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    padding: 15px 20px;
+    text-decoration: none;
+}
+
+.contact-button {
+    background: linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%);
+    color: white;
+    box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 20px 10px -15px;
+}
+
+.contact-button:hover {
+    transform: scale(1.03);
+    box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 23px 10px -20px;
+}
+
+.contact-button:active {
+    transform: scale(0.95);
+    box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 15px 10px -10px;
+}
+
+.return-button {
+    background-color: white;
+    border: 2px solid #ccc;
+    color: rgb(16, 137, 211);
+    box-shadow: rgba(133, 189, 215, 0.4) 0px 10px 10px -10px;
+}
+
+.return-button:hover {
+    background-color: #f8f9fd;
+    transform: scale(1.03);
+}
+
+.return-button:active {
+    transform: scale(0.95);
+}
+
+/* Checkmark animation */
+.checkmark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto;
+    background: white;
+    padding: 5px;
+    border: 5px solid white;
+    box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 12px 10px -8px;
+}
+
+.checkmark-circle {
+    stroke: rgb(16, 137, 211);
+    stroke-width: 2;
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    stroke: rgb(18, 177, 209);
+    stroke-width: 3;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .card {
+        padding: 10px 5px;
+    }
+    
+    .container {
+        padding: 20px 25px;
+        max-width: 300px;
+        margin: 10px;
+        border-radius: 30px;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    p {
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    button {
+        padding: 12px 15px;
+    }
+    
+    .checkmark {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+@media (min-width: 501px) and (max-width: 768px) {
+    /* Tablet/iPad styles */
+    .container {
+        max-width: 450px;
+    }
+    
+    .button-container {
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    button {
+        min-width: 160px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* Small desktop styles */
+    .container {
+        max-width: 500px;
+        padding: 30px 40px;
+    }
+    
+    .button-container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    button {
+        min-width: 180px;
+    }
+    
+    h1 {
+        font-size: 32px;
+    }
+}
+
+@media (min-width: 1025px) {
+    /* Large desktop styles */
+    .container {
+        max-width: 550px;
+        padding: 35px 45px;
+    }
+    
+    .button-container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 25px;
+    }
+    
+    button {
+        min-width: 200px;
+        padding: 18px 25px;
+    }
+    
+    h1 {
+        font-size: 34px;
+    }
+    
+    p {
+        font-size: 16px;
+        margin-bottom: 35px;
+    }
+    
+    .checkmark {
+        width: 90px;
+        height: 90px;
+    }
+}

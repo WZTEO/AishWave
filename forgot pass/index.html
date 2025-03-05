@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+    <link rel="stylesheet" href="{% static 'trustbyte/css/styles6.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <svg class="mail-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48">
+                    <path fill="none" stroke="#4a90e2" stroke-width="2" d="M22,6 L12,13 L2,6 M2,6 L2,18 L22,18 L22,6 L2,6 Z"></path>
+                </svg>
+                <h1>Password Reset</h1>
+            </div>
+            <div class="card-body">
+                <p>We have sent you an email with instructions to reset your password. If you have not received it, please check your spam folder. If you still do not receive it within a few minutes, please contact us for assistance.</p>
+                <div class="loading-indicator">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <p class="timer">Resend available in <span id="countdown">60</span> seconds</p>
+                <button id="resend-btn" disabled>Resend Email</button>
+            </div>
+            <div class="card-footer">
+                <a href="#" class="sign-in-link">Back to Sign In</a>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'trustbyte/js/script6.js' %}"></script>
+</body>
+</html>

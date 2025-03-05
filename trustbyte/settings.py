@@ -120,6 +120,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+
 ]
 
 
@@ -130,17 +131,18 @@ SITE_ID = 1
 SOCIALACCOUNT_QUERY_EMAIL = True  # Force allauth to request email
 SOCIALACCOUNT_STORE_TOKENS = True  # Store authentication tokens
 SOCIALACCOUNT_ADAPTER = "authentication.adapters.MySocialAccountAdapter"
+
 ACCOUNT_LOGIN_METHODS = {'email'}
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT=True
 ACCOUNT_EMAIL_REQUIRED = True  # Ensure email is required
 ACCOUNT_USERNAME_REQUIRED = False  # Ensure username is required
-ACCOUNT_SIGNUP_REDIRECT_URL = '/'  # Prevent immediate redirectACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_REDIRECT_URL = '/dashboard'  # Prevent immediate redirectACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_FORMS = {
     'signup': 'authentication.forms.CustomSignupForm',
 }
 SOCIALACCOUNT_LOGOUT_ON_GET = True  # Logs out immediately when visiting the logout URL
-LOGIN_REDIRECT_URL = "/"  # Change this as needed
+LOGIN_REDIRECT_URL = "/dashboard"  # Change this as needed
 LOGOUT_REDIRECT_URL = "/accounts/login"
 
 ROOT_URLCONF = 'trustbyte.urls'
@@ -148,7 +150,6 @@ ROOT_URLCONF = 'trustbyte.urls'
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.getenv("EMAIL_HOST")  # Change based on your provider
 EMAIL_PORT = os.getenv("EMAIL_PORT")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Replace with your email
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Use an environment variable for security

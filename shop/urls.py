@@ -3,8 +3,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import *
 urlpatterns = [
-    path('shop/', shop, name='shop'),
-    path('', finance, name='finance'),
+    path('dashboard/', finance, name='finance'),
+    path('', shop, name='shop'),
     path('profile/', profile, name='profile'),
     path('contact-form/', contact_form, name='contact-form'),
     path('stocks/', stocks, name='stocks'),
@@ -28,6 +28,7 @@ urlpatterns = [
     path('resend-otp/', resend_paystack_otp, name='resend_otp'),
     path('purchase/', purchase_product, name='purchase_product'),
     path('investment/<int:investment_id>/', investment_status, name='status_investment'),
-    path('rewards/', complete_task, name='rewards')
+    path('rewards/', complete_task, name='rewards'),
+    path('claim/<int:investment_id>/', claim_investment_earnings, name='claim-earnings')
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
