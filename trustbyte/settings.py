@@ -170,6 +170,7 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Replace with your email
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Use an environment variable for security
 RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
+DEFAULT_FROM_MAIL = EMAIL_HOST_USER
 
 TEMPLATES = [
     {
