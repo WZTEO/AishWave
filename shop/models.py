@@ -276,7 +276,7 @@ class LoginHistory(models.Model):
         return f"{self.user.username} - {self.device_type}- {self.timestamp}"
 
 class BillBoardImage(models.Model):
-    image_url = models.ImageField(upload_to="billboard_images/")
+    image_url = models.URLField()
 
     def __str__(self):
         return f"Billboard Image"
