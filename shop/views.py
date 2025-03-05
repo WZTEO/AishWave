@@ -53,7 +53,7 @@ def contact_form(request):
         send_mail(
             subject=f"New Contact Form Submission from {name}",
             message=f"Name: {name} \nEmail: {email}\n\n Message: \n{message}", 
-            from_email="aishwave001@gmail.com", #email address
+            from_email=settings.DEFAULT_FROM_EMAIL, #email address
             recipient_list=[settings.RECIPIENT_EMAIL], #admin email
             fail_silently=False,
         )
