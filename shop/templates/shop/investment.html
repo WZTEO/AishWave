@@ -48,12 +48,12 @@
           </div>
           
           {% for investment in investment_list %}
-          {{investment.status}}
               {% if investment.status == "completed" %}
                 {% csrf_token %}
                 <button hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="{% url 'claim-earnings' investment_id=investment.id %}" hx-target="body" type="button" class="invest-btn">
                   <span class="btn-content">Claim</span>
                 </button>
+                {% else %}
               {% endif %}
               {% empty %}
           {% endfor %}
@@ -114,12 +114,15 @@
             </div>
           </div>
 
-          {% for investment in investment_list%}
-          {{investment.status}}
-              {% csrf_token %}
-              <button hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="{% url 'claim-earnings' investment_id=investment.id %}" hx-target="body" type="button" class="invest-btn">
-                <span class="btn-content">Claim</span>
-              </button>
+          {% for investment in investment_list %}
+              {% if investment.status == "completed" %}
+                {% csrf_token %}
+                <button hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="{% url 'claim-earnings' investment_id=investment.id %}" hx-target="body" type="button" class="invest-btn">
+                  <span class="btn-content">Claim</span>
+                </button>
+                {% else %}
+              {% endif %}
+              {% empty %}
           {% endfor %}
           <div class="investment-input">
             <label for="amount2">Investment Amount</label>

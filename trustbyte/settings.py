@@ -54,9 +54,25 @@ INSTALLED_APPS = [
 ]
 
 JAZZMIN_SETTINGS = {
-    "site_title": "My Custom Admin",
-    "site_header": "My Admin Panel",
-    "welcome_sign": "Welcome to My Admin",
+    "site_title": "AishWave",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "AishWave",
+
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "AishWave",
+
+    # Logo to use for your site, must be present in static files, used for brand on top left
+    "site_logo": "trustbyte/img/logo.jpg",
+
+    # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
+    "login_logo": None,
+
+    # Logo to use for login form in dark themes (defaults to login_logo)
+    "login_logo_dark": None,
+
+    # CSS classes that are applied to the logo above
+    "site_logo_classes": "img-circle",
     "related_modal_active": True,
     "icons": {
         "auth": "fas fa-users-cog",
