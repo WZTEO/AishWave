@@ -37,7 +37,7 @@ def send_welcome_email(request, user, **kwargs):
     subject = "Welcome to Aish Wave!"
     message = f"Hello {user.username},\n\nThank you for signing up on our platform. We’re excited to have you on board!"
     from_email = settings.DEFAULT_FROM_EMAIL  # Use DEFAULT_FROM_EMAIL if configured
-    recipient_list = [settings.RECIPIENT_EMAIL], #admin email
+    recipient_list = settings.RECIPIENT_EMAIL, #admin email
     fail_silently = False,
     
     send_mail(subject, message, from_email, recipient_list)
