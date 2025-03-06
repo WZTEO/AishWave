@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv("DEBUGGER")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(',')
 
 PAYSTACK_CALLBACK = os.getenv("PAYSTACK_CALLBACK")
