@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(',')
 
 PAYSTACK_CALLBACK = os.getenv("PAYSTACK_CALLBACK")
@@ -157,7 +157,7 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_FORMS = {
     'signup': 'authentication.forms.CustomSignupForm',
 }
-SOCIALACCOUNT_LOGOUT_ON_GET = True  # Logs out immediately when visiting the logout URL
+SOCIALACCOUNT_LOGOUT_ON_GET = False  # Logs out immediately when visiting the logout URL
 LOGIN_REDIRECT_URL = "/dashboard"  # Change this as needed
 LOGOUT_REDIRECT_URL = "/accounts/login"
 

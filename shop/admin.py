@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.core.mail import send_mail
 from django.contrib import messages
-from .models import Order, ExchangeRate,LoginHistory, BillBoardImage, Task, TaskCompletion,Investment, Transaction, Referral, WithdrawalRequest, Wallet, Discount
+from .models import Order, ExchangeRate,LoginHistory, BillBoardImage, Task,Investment, Transaction, Referral, WithdrawalRequest, Wallet, Discount
 from django.contrib.auth.models import Group
 from allauth.socialaccount.models import SocialToken, SocialApp, SocialAccount
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
+from decimal import Decimal
 
 admin.site.unregister(Group)
 
@@ -29,9 +30,35 @@ class OrderAdmin(admin.ModelAdmin):
 
     @admin.action(description="Approve selected orders")
     def approve_orders(self, request, queryset):
-        count = queryset.update(status="approved")
-        self.message_user(request, f"{count} orders marked as Approved.", messages.SUCCESS)
+        count = 0
+        for order in queryset:
+            if order.status == "canceled":  # Prevent duplicate refunds
+                user_wallet, created = Wallet.objects.get_or_create(user=order.user)
+                user_wallet.balance -= order.amount
+                user_wallet.save()
 
+            order.status = "approved"
+            order.save()
+
+            # Update all related transactions (if any)
+            order.transaction.all().update(status="completed")
+
+            # Find the correct referrer and reward them
+            referral = Referral.objects.filter(referred_user=order.user).first()
+            if referral and referral.referrer and order.amount >= ExchangeRate.convert_to_ghs(10):  # Ensure referrer exists
+                referral.earned_from_purchases += Decimal('2')
+                referral.received_reward = True  # Track that the reward was given
+                referral.save()
+
+                referrer_wallet, created = Wallet.objects.get_or_create(user=referral.referrer)
+                referrer_wallet.balance += Decimal(str(ExchangeRate.convert_to_ghs(2)))
+                referrer_wallet.save()
+
+
+            count += 1
+
+        self.message_user(request, f"{count} orders approved, transactions marked as completed, and referral rewards updated.", messages.SUCCESS)  
+    
     @admin.action(description="Cancel selected orders")
     def cancel_orders(self, request, queryset):
         count = 0
@@ -40,21 +67,27 @@ class OrderAdmin(admin.ModelAdmin):
                 user_wallet, created = Wallet.objects.get_or_create(user=order.user)
                 user_wallet.balance += order.amount
                 user_wallet.save()
-                
-                # Log the refund transaction
-                Transaction.objects.create(
-                    wallet=user_wallet,
-                    amount=order.amount,
-                    transaction_type="refund",
-                    status="completed"
-                )
-                
+
+                # Mark transaction as canceled
+                order.transaction.all().update(status="canceled")
                 order.status = "canceled"
                 order.save()
+
+                # Find the referrer and remove reward *only if it was previously given*
+                referral = Referral.objects.filter(referred_user=order.user).first()
+                if referral and referral.referrer and referral.received_reward:
+                    referral.earned_from_purchases -= Decimal('2')
+                    referral.received_reward = False  # Reset reward status
+                    referral.save()
+
+                    referrer_wallet, created = Wallet.objects.get_or_create(user=referral.referrer)
+                    referrer_wallet.balance -= Decimal(str(ExchangeRate.convert_to_ghs(2)))
+                    referrer_wallet.save()
+
                 count += 1
 
-        self.message_user(request, f"{count} orders refunded and marked as Canceled.", messages.WARNING)
-        
+        self.message_user(request, f"{count} orders refunded and marked as Canceled.", messages.WARNING)                
+
 @admin.register(Investment)
 class InvestmentAdmin(admin.ModelAdmin):
     list_display = ("user", "plan", "amount", "end_date", "daily_return")

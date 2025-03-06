@@ -111,30 +111,6 @@ class Discount(models.Model):
     steam = models.IntegerField()
     play_station = models.IntegerField()
 
-class Transaction(models.Model):
-    TRANSACTION_TYPES = [
-        ('deposit', 'Deposit'),
-        ('purchase', 'Purchase'),
-        ('withdrawal', 'Withdrawal'),
-        ('investment', 'Investment'),
-        ('refund', 'Refund'),
-        ('task_reward', 'Task Reward')
-    ]
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_type =models.CharField(max_length=20, choices=TRANSACTION_TYPES)
-    reference = models.CharField(max_length=100, unique=True)
-    status = models.CharField(max_length=20, default='pending')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        if not self.reference:
-            self.reference = str(uuid.uuid4())
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.wallet.user.username} - {self.transaction_type} - GHS{self.amount}"
-
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -151,7 +127,32 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.username} - {self.status}"
-    
+   
+class Transaction(models.Model):
+    TRANSACTION_TYPES = [
+        ('deposit', 'Deposit'),
+        ('purchase', 'Purchase'),
+        ('withdrawal', 'Withdrawal'),
+        ('investment', 'Investment'),
+        ('refund', 'Refund'),
+        ('task_reward', 'Task Reward')
+    ]
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, related_name='transaction')
+    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    transaction_type =models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    reference = models.CharField(max_length=100, unique=True)
+    status = models.CharField(max_length=20, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.reference:
+            self.reference = str(uuid.uuid4())
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.wallet.user.username} - {self.transaction_type} - GHS{self.amount}"
+  
 class InvestmentPlan(models.TextChoices):
     QUICK_RETURNS = "quick", "Quick Returns Plan"
     PREMIUM_RETURNS = "premium", "Premium Returns Plans"
@@ -253,6 +254,7 @@ class Referral(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     earned_from_signup = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     earned_from_purchases = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    received_reward = models.BooleanField(default=False)
     referral_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
 
     def total_earnings(self):
@@ -264,7 +266,6 @@ class Referral(models.Model):
         return cls.objects.filter(referrer=user).aggregate(
             total_earned=Sum(F('earned_from_signup') + F('earned_from_purchases'))
         )['total_earned'] or 0
-
 
 class LoginHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

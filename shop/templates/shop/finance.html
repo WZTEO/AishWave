@@ -174,49 +174,13 @@
       <div class="transactions-list">
         <!-- Transactions will be dynamically inserted here -->
          {% for transaction in transactions %}
-          {% if transaction.transaction_type == 'deposit' %}
-            <div class="transaction">
-            <div class="transaction-icon deposit">
-              <i class="fas fa-arrow-down"></i>
-            </div>
-            <div class="transaction-details">
-              <span class="transaction-title">Deposit {{ transaction.status }}</span>
-              <span class="transaction-date">
-      
-                  {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                      Today, {{ transaction.created_at|date:"g:i A" }}
-                  {% else %}
-                      {{ transaction.created_at|date:"M d, Y g:i A" }}
-                  {% endif %}
-              
-              </span>
-            </div>
-            <span class="transaction-amount deposit">+GHS{{ transaction.amount}}</span>
-            </div>
-          {% elif transaction.transaction_type == 'withdrawal' %}
-            <div class="transaction">
-            <div class="transaction-icon withdraw">
-              <i class="fas fa-arrow-up"></i>
-            </div>
-            <div class="transaction-details">
-              <span class="transaction-title">Withdrawal {{ transaction.status }}</span>
-              <span class="transaction-date">
-                {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                      Today, {{ transaction.created_at|date:"g:i A" }}
-                  {% else %}
-                      {{ transaction.created_at|date:"M d, Y g:i A" }}
-                  {% endif %}
-              </span>
-            </div>
-            <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
-            </div>
-          {% elif transaction.transaction_type == 'task_reward' %}
-            <div class="transaction">
+            {% if transaction.transaction_type == 'deposit' %}
+              <div class="transaction">
               <div class="transaction-icon deposit">
                 <i class="fas fa-arrow-down"></i>
               </div>
               <div class="transaction-details">
-                <span class="transaction-title">Task Reward {{ transaction.status }}</span>
+                <span class="transaction-title">Deposit {{ transaction.status }}</span>
                 <span class="transaction-date">
         
                     {% if transaction.created_at|date:"Y-m-d" == today_date %}
@@ -227,33 +191,15 @@
                 
                 </span>
               </div>
-              <span class="transaction-amount deposit">+${{ transaction.amount}}</span>
-            </div>
-          {% elif transaction.transaction_type == 'investment' %}
-            <div class="transaction">
-              <div class="transaction-icon withdraw">
-                <i class="fas fa-arrow-up"></i>
+              <span class="transaction-amount deposit">+GHS{{ transaction.amount}}</span>
               </div>
-              <div class="transaction-details">
-                <span class="transaction-title">Investment {{ transaction.status }}</span>
-                <span class="transaction-date">
-                  {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                        Today, {{ transaction.created_at|date:"g:i A" }}
-                    {% else %}
-                        {{ transaction.created_at|date:"M d, Y g:i A" }}
-                    {% endif %}
-                </span>
-              </div>
-              <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
-            </div>
-          {% elif transaction.transaction_type == 'purchase'  %}
-            {% for order in orders %}
-              <div class="transaction">
+            {% elif transaction.transaction_type == 'withdrawal' %}
+                <div class="transaction">
                 <div class="transaction-icon withdraw">
-              <i class="fas fa-arrow-up"></i>
+                  <i class="fas fa-arrow-up"></i>
                 </div>
                 <div class="transaction-details">
-                  <span class="transaction-title">Purchase {{ order.status }}</span>
+                  <span class="transaction-title">Withdrawal {{ transaction.status }}</span>
                   <span class="transaction-date">
                     {% if transaction.created_at|date:"Y-m-d" == today_date %}
                           Today, {{ transaction.created_at|date:"g:i A" }}
@@ -264,10 +210,60 @@
                 </div>
                 <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
                 </div>
-            {% endfor %}
+            {% elif transaction.transaction_type == 'task_reward' %}
+              <div class="transaction">
+                <div class="transaction-icon deposit">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="transaction-details">
+                  <span class="transaction-title">Task Reward {{ transaction.status }}</span>
+                  <span class="transaction-date">
           
-            {% else %}
-            No
+                      {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                          Today, {{ transaction.created_at|date:"g:i A" }}
+                      {% else %}
+                          {{ transaction.created_at|date:"M d, Y g:i A" }}
+                      {% endif %}
+                  
+                  </span>
+                </div>
+                <span class="transaction-amount deposit">+${{ transaction.amount}}</span>
+              </div>
+            {% elif transaction.transaction_type == 'investment' %}
+              <div class="transaction">
+                <div class="transaction-icon withdraw">
+                  <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="transaction-details">
+                  <span class="transaction-title">Investment {{ transaction.status }}</span>
+                  <span class="transaction-date">
+                    {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                          Today, {{ transaction.created_at|date:"g:i A" }}
+                      {% else %}
+                          {{ transaction.created_at|date:"M d, Y g:i A" }}
+                      {% endif %}
+                  </span>
+                </div>
+                <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
+              </div>
+            {% elif transaction.transaction_type == 'purchase'  %}
+                <div class="transaction">
+                  <div class="transaction-icon withdraw">
+                <i class="fas fa-arrow-up"></i>
+                  </div>
+                  <div class="transaction-details">
+                    <span class="transaction-title">Purchase {{ transaction.status }}</span>
+                    <span class="transaction-date">
+                      {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                            Today, {{ transaction.created_at|date:"g:i A" }}
+                        {% else %}
+                            {{ transaction.created_at|date:"M d, Y g:i A" }}
+                        {% endif %}
+                    </span>
+                  </div>
+                  <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
+                  </div>
+          
           {% endif %}
           
          {% endfor %}

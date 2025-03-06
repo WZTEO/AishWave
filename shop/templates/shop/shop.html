@@ -32,6 +32,16 @@
       {% endfor %}
       
   </div>
+  {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
   {% for discount in discounts %}
   
   <div class="products-grid">

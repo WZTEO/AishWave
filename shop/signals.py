@@ -1,7 +1,11 @@
 from .models import LoginHistory
+from django.conf import settings
 from user_agents import parse
 from django.dispatch import receiver
 from django.contrib.auth.signals import user_logged_in
+from django.core.mail import send_mail
+from allauth.account.signals import user_signed_up
+
 
 
 @receiver(user_logged_in)
@@ -26,3 +30,14 @@ def log_login(sender, request, user, **kwargs):
         device_info=device_info,
         device_type=device_type
     )
+
+
+@receiver(user_signed_up)
+def send_welcome_email(request, user, **kwargs):
+    subject = "Welcome to Aish Wave!"
+    message = f"Hello {user.username},\n\nThank you for signing up on our platform. We’re excited to have you on board!"
+    from_email = settings.DEFAULT_FROM_EMAIL  # Use DEFAULT_FROM_EMAIL if configured
+    recipient_list = [settings.RECIPIENT_EMAIL], #admin email
+    fail_silently = False,
+    
+    send_mail(subject, message, from_email, recipient_list)

@@ -363,11 +363,6 @@ def purchase_product(request):
         player_id = request.POST.get('player_id')
         if not selected_item:
             pass
-    
-    referral = Referral.objects.filter(referred_user=request.user).first()
-    if referral:
-        referral.earned_from_purchases += Decimal(str(4.00))
-        referral.save()
 
     user_wallet, created = Wallet.objects.get_or_create(user=request.user)
     
@@ -380,7 +375,7 @@ def purchase_product(request):
         if user_wallet.balance >= price_in_ghs:
             user_wallet.balance -= price_in_ghs
             user_wallet.save()
-            Order.objects.create(
+            order = Order.objects.create(
                     user=request.user,
                     player_id=player_id,
                     amount=price_in_ghs,
@@ -390,16 +385,21 @@ def purchase_product(request):
             Transaction.objects.create(
                     wallet=user_wallet,
                     amount=price_in_ghs,
-                    transaction_type="purchase"
+                    transaction_type="purchase",
+                    order=order
                 )
+      
         else:
-            messages.error(request, "Insufficient balance")
+            messages.error(request, "Insufficient balance", extra_tags='purchase')
             print("Insufficient balance")
+            return redirect('shop')
+
     except ValueError:
         print("Invalid product selection")
         messages.error(request, "Invalid product selection")
         return redirect('shop')
     return redirect('finance')
+
 
 @login_required
 def create_investment(request):
