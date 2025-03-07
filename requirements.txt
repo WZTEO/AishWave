@@ -22,3 +22,5 @@ ua-parser-builtins==0.18.0.post1
 urllib3==2.3.0
 user-agents==2.2.0
 whitenoise==6.9.0
+dj_database_url
+psycopg2-binary
