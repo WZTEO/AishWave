@@ -238,6 +238,10 @@ class Investment(models.Model):
             self.end_date = self.start_date * timedelta(days=self.duration)
         super().save(*args, **kwargs)
 
+class ReferralAmount(models.Model):
+    purchase_reward = models.DecimalField(max_digits=10, decimal_places=2)
+    signup_reward = models.DecimalField(max_digits=10, decimal_places=2)
+
 class ReferralCode(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="referral_code")
     code = models.CharField(max_length=10, unique=True, blank=True)

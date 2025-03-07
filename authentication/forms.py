@@ -1,6 +1,6 @@
 from django import forms
 from allauth.account.forms import SignupForm
-from shop.models import Referral, ReferralCode, ExchangeRate, Wallet
+from shop.models import Referral, ReferralCode, ExchangeRate, Wallet, ReferralAmount
 from django.core.exceptions import ObjectDoesNotExist
 from decimal import Decimal
 import uuid
@@ -25,15 +25,16 @@ class CustomSignupForm(SignupForm):
 
         # Check if the referral code exists
         if referral_code_input:
+            referral_amount = ReferralAmount.objects.first()
             try:
                 referrer_code = ReferralCode.objects.get(code=referral_code_input)
                 referrer = referrer_code.user
 
                 # Prevent self-referral
                 if referrer != user:
-                    Referral.objects.create(referrer=referrer, referred_user=user, earned_from_signup=0.2)
+                    Referral.objects.create(referrer=referrer, referred_user=user, earned_from_signup=referral_amount.signup_reward)
                     referrer_wallet, created = Wallet.objects.get_or_create(user=referrer)
-                    referrer_wallet.balance += Decimal(ExchangeRate.convert_to_ghs(Decimal('0.2')))
+                    referrer_wallet.balance += Decimal(ExchangeRate.convert_to_ghs(referral_amount.signup_reward))
                     referrer_wallet.save()
             except ReferralCode.DoesNotExist:
                 print(f"Referral code {referral_code_input} does not exist.")  # Debugging output
