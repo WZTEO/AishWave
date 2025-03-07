@@ -11,6 +11,17 @@
         <span class="heading">Deposit Funds</span>
         <form id="contact-form" method="post" action="{% url 'wallet_deposit' %}">
             {% csrf_token %}
+            {% if messages %}
+                {% for message in messages %}
+                    {% if "deposit" in message.tags %}  {# Ensure this matches your extra_tags #}
+                        <div class=" {% if 'error' in message.tags %}errorlist
+                            {% else %} successlist {% endif %}" role="alert">
+                                {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
             <label for="amount">Amount to deposit</label>
 
             <input type="number" name="amount" id="amount1" placeholder="0">

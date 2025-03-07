@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div class="form-group">
                     <label for="mtn-amount">Amount (GHS)</label>
-                    <input type="number" name="amount" id="mtn-amount" required>
+                    <input type="number"  name="amount" id="mtn-amount" required>
                 </div>
                 <input type="hidden" name="provider" value="mtn">
             `,
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div class="form-group">
                     <label for="vodafone-amount">Amount (GHS)</label>
-                    <input type="number" name="amount" id="vodafone-amount" required>
+                    <input type="number"  name="amount" id="vodafone-amount" required>
                 </div>
                 <input type="hidden" name="provider" value="vodafone">
             `,

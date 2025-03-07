@@ -116,18 +116,22 @@ class WithdrawalRequestAdmin(admin.ModelAdmin):
     actions = ["approve_withdrawals", "reject_withdrawals"]
 
     def approve_withdrawals(self, request, queryset):
+        """Approve selected withdrawals"""
         for withdrawal in queryset.filter(status="pending"):
             if withdrawal.approve():
-                self.message_user(request, f"Withdrawal for {withdrawal.user} approved.")
+                self.message_user(request, f"Withdrawal for {withdrawal.user} approved and deducted from wallet.")
             else:
                 self.message_user(request, f"Insufficient funds for {withdrawal.user}.", level="error")
-    
+
     def reject_withdrawals(self, request, queryset):
-        queryset.filter(status="pending").update(status="rejected", processed_at=timezone.now())
-        self.message_user(request, "Selected withdrawals have been rejected.")
+        """Reject selected withdrawals"""
+        for withdrawal in queryset.filter(status="pending"):
+            withdrawal.reject()
+            self.message_user(request, f"Withdrawal for {withdrawal.user} has been rejected.")
 
     approve_withdrawals.short_description = "Approve selected withdrawals"
     reject_withdrawals.short_description = "Reject selected withdrawals"
+
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):

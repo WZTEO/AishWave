@@ -117,7 +117,10 @@ def fortnite(request):
 def initiate_deposit(request):
     if request.method == 'POST':
         amount = int(request.POST.get("amount")) * 100 #convert to peswas
-
+        if int(request.POST.get("amount")) < 20:
+            messages.error(request, "Minimum deposit amount is GHS 20", extra_tags="deposit")
+            return redirect("wallet_deposit")
+        
         email = request.user.email
 
         url = "https://api.paystack.co/transaction/initialize"
@@ -239,8 +242,20 @@ def withdraw_request(request):
         account_number = request.POST.get("account_number")
         provider = request.POST.get("provider")
 
+        if provider in ["mtn", "vodafone"] and int(amount) < 100:
+            messages.error(request, "Minimum withrawal is GHS 100", extra_tags="withdrawal")
+            return redirect("withdrawal_request")
+
+        if provider == "binance" and int(amount) < 10:
+            messages.error(request, "Minimum withdrawal is $10", extra_tags="withdrawal")
+            return redirect("withdrawal_request")
+
+
+        if WithdrawalRequest.objects.filter(user=request.user, status="pending"):
+            messages.error(request, "You already have a pending withdrawal request!", extra_tags="withdrawal")
+            return redirect("withdrawal_request")
         if not amount or not recipient_name or not account_number:
-            messages.error(request,"This field is required")
+            messages.error(request,"This field is required", extra_tags="withdrawal")
             return redirect("withdrawal_request")
         user_wallet = Wallet.objects.get(user=request.user)
         recipient = PaystackRecipient.objects.create(
@@ -256,7 +271,7 @@ def withdraw_request(request):
 
         if Decimal(amount) > user_wallet.balance:
             print("Insufficient balance")
-            messages.error(request, "Insufficient balance.")
+            messages.error(request, "Insufficient balance.", extra_tags="withdrawal")
             return redirect("withdrawal_request")
         else:
             WithdrawalRequest.objects.create(
@@ -272,7 +287,7 @@ def withdraw_request(request):
                     transaction_type="withdrawal",
                     status="pending"
                 )
-            messages.success(request, "Withdrawal request submitted.")
+            messages.success(request, "Withdrawal request submitted.", extra_tags="withdrawal")
             return redirect("finance")
         
     momo_recipients = PaystackRecipient.objects.filter(user=request.user)

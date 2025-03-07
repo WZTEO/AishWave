@@ -10,7 +10,17 @@
 
     <form method="post" action="{% url 'withdrawal_request' %}">
         {% csrf_token %}
-
+        {% if messages %}
+            {% for message in messages %}
+                {% if "withdrawal" in message.tags %}  {# Ensure this matches your extra_tags #}
+                    <div class=" {% if 'error' in message.tags %}errorlist
+                        {% else %} successlist {% endif %}" role="alert">
+                            {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
         <div class="payment-options-container">
             <div class="payment-options">
                 <div class="payment-option" data-provider="mtn">

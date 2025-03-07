@@ -80,26 +80,39 @@ class WithdrawalRequest(models.Model):
         """Deduct balance and mark as approved."""
         if self.status == "pending":
             wallet = Wallet.objects.get(user=self.user)
-            transaction = Transaction.objects.filter(wallet=wallet, amount=self.amount, transaction_type="withdrawal").first()
-            if transaction:
-                transaction.status = "completed"
-                transaction.save()
+            transaction = Transaction.objects.filter(
+                wallet=wallet, amount=self.amount, transaction_type="withdrawal"
+            ).first()
+
             if wallet.balance >= self.amount:
                 wallet.balance -= self.amount
                 wallet.save()
-                
+
                 self.status = "approved"
                 self.processed_at = timezone.now()
                 self.save()
+
+                transaction.status = "completed"
+                transaction.save()
+
                 return True
+
         return False
-    
+
     def reject(self):
-        """Mark as rejected."""
+        """Mark as rejected and update transaction."""
         if self.status == "pending":
             self.status = "rejected"
             self.processed_at = timezone.now()
             self.save()
+
+            # Also update the transaction status
+            transaction = Transaction.objects.filter(
+                wallet__user=self.user, amount=self.amount, transaction_type="withdrawal"
+            ).first()
+            if transaction:
+                transaction.status = "rejected"
+                transaction.save()
             
 class Discount(models.Model):
     pubg = models.IntegerField()
