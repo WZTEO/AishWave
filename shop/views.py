@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
 from django.http import JsonResponse
-from .models import Wallet, Task, TaskCompletion, Transaction, BillBoardImage, LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Discount, ExchangeRate, ReferralCode
+from .models import Wallet, Task, TaskCompletion, ReferralAmount, Transaction, BillBoardImage, LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Discount, ExchangeRate, ReferralCode
 from .utils import create_paystack_recipient
 from django.contrib.sessions.models import Session
 from decimal import Decimal
@@ -71,11 +71,13 @@ def referral(request):
 
     # Get the referral code from the first referral
     referral_code = ReferralCode.objects.filter(user=user).first()
+    referral_amount = ReferralAmount.objects.first()
 
     return render(request, 'shop/referral.html', {
         "total_earnings": round(Referral.get_total_earnings(user), 2),
         "total_referrals": referrals.count(),
-        "referral_code": referral_code.code
+        "referral_code": referral_code.code, 
+        "referral_amount": referral_amount,
     })
 
 @login_required
