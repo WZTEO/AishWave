@@ -378,6 +378,7 @@ def purchase_product(request):
     if request.method == 'POST':
         selected_item = request.POST.get('selected_item')
         player_id = request.POST.get('player_id')
+        product = request.POST.get('product')
         if not selected_item:
             pass
 
@@ -385,7 +386,15 @@ def purchase_product(request):
     
     try:
         product_name, price = selected_item.rsplit(',',1)
-        price = Decimal(price) #price is USD
+        price_in_usd = Decimal(price) #price is USD
+        
+        discount = Discount.objects.first()
+
+        discount_value = getattr(discount, product, 0) if discount else 0
+        print(f"Discount valuee: {discount_value}%")
+
+        discount_value = discount_value / Decimal(100)
+        price = max(price_in_usd - (price_in_usd * discount_value), Decimal(0))
         price_in_ghs = ExchangeRate.convert_to_ghs(price)
         print(f"{product_name} - {price}")
 

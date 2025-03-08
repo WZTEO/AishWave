@@ -136,10 +136,11 @@ class WithdrawalRequestAdmin(admin.ModelAdmin):
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):
     list_display = ("user__username", "balance")
+    search_fields = ["user__username"]
 
 @admin.register(Discount)
 class DiscountAdmin(admin.ModelAdmin):
-    list_display = ("pubg", "codm", "free_fire", "fortnite", "apple", "google", "steam", "play_station")
+    list_display = ("pubg", "codm", "freefire", "fortnite", "apple", "google", "steam", "playstation")
 
 @admin.register(LoginHistory)
 class LoginHistoryAdmin(admin.ModelAdmin):

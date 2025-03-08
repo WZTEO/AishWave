@@ -118,11 +118,11 @@ class Discount(models.Model):
     pubg = models.IntegerField()
     codm = models.IntegerField()
     fortnite = models.IntegerField()
-    free_fire = models.IntegerField()
+    freefire = models.IntegerField()
     apple = models.IntegerField()
     google = models.IntegerField()
     steam = models.IntegerField()
-    play_station = models.IntegerField()
+    playstation = models.IntegerField()
 
 class Order(models.Model):
     STATUS_CHOICES = [
