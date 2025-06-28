@@ -111,9 +111,9 @@ def product_detail(request, slug):
 def initiate_deposit(request):
     if request.method == 'POST':
         amount = int(request.POST.get("amount")) * 100 #convert to peswas
-        # if int(request.POST.get("amount")) < 20:
-        #     messages.error(request, "Minimum deposit amount is GHS 20", extra_tags="deposit")
-        #     return redirect("wallet_deposit")
+        if int(request.POST.get("amount")) < 20:
+            messages.error(request, "Minimum deposit amount is GHS 20", extra_tags="deposit")
+            return redirect("wallet_deposit")
         
         email = request.user.email
 
