@@ -1,16 +1,7 @@
 from django.contrib import admin
 from django.core.mail import send_mail
 from django.contrib import messages
-<<<<<<< HEAD
 from .models import Order, ExchangeRate,LoginHistory, ReferralAmount, BillBoardImage, Task,Investment, Transaction, Referral, WithdrawalRequest, Wallet, Discount
-=======
-from .models import (
-    Order, ExchangeRate,LoginHistory, ReferralAmount, BillBoardImage, Task,Investment,
-    Transaction, Referral, WithdrawalRequest, Wallet, Discount, ClashTournament,
-    BattleRoyalePlayer, BattleRoyaleTournament, Squad, SquadPlayer, SquadTournament,
-    Product, Crypto
-    )
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
 from django.contrib.auth.models import Group
 from allauth.socialaccount.models import SocialToken, SocialApp, SocialAccount
 from django.contrib.admin.views.decorators import staff_member_required
