@@ -20,12 +20,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-<<<<<<< HEAD
-    path('', include('authentication.urls')),
-    path('', include('shop.urls')),
-=======
     # path('', include('authentication.urls')),
     path('', include('shop.urls')),
     path('', include('accountAuth.urls')),
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
 ]
