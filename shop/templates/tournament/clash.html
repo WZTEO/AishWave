@@ -1,0 +1,119 @@
+{% extends 'tournament/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div id="clash" class="section-content active">
+                        <h2>Trustbyte Clash Tournament</h2>
+                        <div class="tournament-stages">
+                            <button class="stage-btn active" data-stage="group">Group Stage</button>
+                            <button class="stage-btn" data-stage="quarter">Quarter Finals</button>
+                            <button class="stage-btn" data-stage="semi">Semi Finals</button>
+                            <button class="stage-btn" data-stage="finals">Championship Finals</button>
+                        </div>
+                        <div class="stage-content-container">
+                            <div id="group" class="stage-content active">
+                                <h3>Group Stage</h3>
+                                <p>Teams compete in a round-robin format to determine who advances to the knockout phases.</p>
+                                <div class="matchups-container">
+                                    {% for tournament in group_stages  %}
+                                            <div class="matchup-card">
+                                                <div class="vs-container">
+                                                    <div class="player-name">{{ tournament.player1 }}</div>
+                                                    <div class="vs-text">VS</div>
+                                                    <div class="player-name">{{ tournament.player2 }}</div>
+                                                </div>
+                                                <div class="match-details">
+                                                    <span>Date: {{ tournament.date|date:"M d, Y"}}</span>
+                                                    <span>Time:
+                                                        {% with tournament.time|stringformat:"04d" as t %}
+                                                            {{ t|slice:":2" }}:{{ t|slice:"2:" }} GMT
+                                                        {% endwith %}
+                                                    </span>
+                                                </div>
+                                            </div>     
+                                            {% empty %}
+                                            <h3>No matches scheduled for this stage yet.</h3>
+                                    {% endfor %}                     
+                                </div>
+                            </div>
+                            <div id="quarter" class="stage-content">
+                                <h3>Quarter Finals</h3>
+                                <p>The top 8 teams face off in intense elimination matches.</p>
+                                <div class="matchups-container">
+                                    {% for tournament in quarter_stages  %}
+                                            <div class="matchup-card">
+                                                <div class="vs-container">
+                                                    <div class="player-name">{{ tournament.player1 }}</div>
+                                                    <div class="vs-text">VS</div>
+                                                    <div class="player-name">{{ tournament.player2 }}</div>
+                                                </div>
+                                                <div class="match-details">
+                                                    <span>Date: {{ tournament.date|date:"M d, Y"}}</span>
+                                                    <span>Time:
+                                                        {% with tournament.time|stringformat:"04d" as t %}
+                                                            {{ t|slice:":2" }}:{{ t|slice:"2:" }} GMT
+                                                        {% endwith %}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {% empty %}
+                                            <h3>No matches scheduled for this stage yet.</h3>
+                                    {% endfor %}                     
+                                </div>
+                            </div>
+                            <div id="semi" class="stage-content">
+                                <h3>Semi Finals</h3>
+                                <p>Four remaining teams battle for a spot in the championship match.</p>
+                                <div class="matchups-container">
+                                    {% for tournament in semi_stages  %}
+                                            <div class="matchup-card">
+                                                <div class="vs-container">
+                                                    <div class="player-name">{{ tournament.player1 }}</div>
+                                                    <div class="vs-text">VS</div>
+                                                    <div class="player-name">{{ tournament.player2 }}</div>
+                                                </div>
+                                                <div class="match-details">
+                                                    <span>Date: {{ tournament.date|date:"M d, Y"}}</span>
+                                                    <span>Time:
+                                                        {% with tournament.time|stringformat:"04d" as t %}
+                                                            {{ t|slice:":2" }}:{{ t|slice:"2:" }} GMT
+                                                        {% endwith %}
+                                                    </span>
+                                                </div>
+                                            </div>     
+                                        {% empty %}
+                                            <h3>No matches scheduled for this stage yet.</h3>
+                                    {% endfor %}                     
+                                </div>
+                            </div>
+                            <div id="finals" class="stage-content">
+                                <h3>Finals</h3>
+                                <p>The ultimate showdown between the last two teams standing.</p>
+                               <div class="matchups-container">
+                                    {% for tournament in final_stages  %}
+                                            <div class="matchup-card">
+                                                <div class="vs-container">
+                                                    <div class="player-name">{{ tournament.player1 }}</div>
+                                                    <div class="vs-text">VS</div>
+                                                    <div class="player-name">{{ tournament.player2 }}</div>
+                                                </div>
+                                                <div class="match-details">
+                                                    <span>Date: {{ tournament.date|date:"M d, Y"}}</span>
+                                                    <span>Time:
+                                                        {% with tournament.time|stringformat:"04d" as t %}
+                                                            {{ t|slice:":2" }}:{{ t|slice:"2:" }} GMT
+                                                        {% endwith %}
+                                                    </span>
+                                                </div>
+                                            </div>     
+                                        {% empty %}
+                                            <h3>No matches scheduled for this stage yet.</h3>
+                                    {% endfor %}                     
+                                </div>
+                            </div>
+                        </div>
+    </div>
+{% endblock content %}
+                    
+                    
+       

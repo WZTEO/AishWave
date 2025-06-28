@@ -1,14 +1,19 @@
+from encodings.punycode import T
+from unicodedata import category
 from django.db import models
 from django.db.models import Sum, F
-from django.contrib.auth.models import User
 from decimal import Decimal
 from django.utils.timezone import now
+from django.utils.text import slugify
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+from django_countries.fields import CountryField
 import uuid
 # Create your models here.
 
+User = get_user_model()
 class Wallet(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -118,11 +123,50 @@ class Discount(models.Model):
     pubg = models.IntegerField()
     codm = models.IntegerField()
     fortnite = models.IntegerField()
-    freefire = models.IntegerField()
+    freefire = models.IntegerField(default=0)
     apple = models.IntegerField()
     google = models.IntegerField()
     steam = models.IntegerField()
     playstation = models.IntegerField()
+
+class Category(models.TextChoices):
+    ESIM = 'esim', 'ESIM'
+    ECOMMERCE = 'ecommerce', 'E-Commerce'
+    GAMES = 'games', 'Games'
+    GIFTCARDS = 'gift-cards', 'Gift Cards'
+
+class Crypto(models.Model):
+    name = models.CharField(max_length=50)
+    symbol = models.CharField(max_length=10)
+    image = models.ImageField(upload_to='crypto/', blank=True, null=True)
+
+class Product(models.Model):
+    name = models.CharField(max_length=50)
+    image = models.ImageField(upload_to='product/', blank=True, null=True)
+    category = models.CharField(max_length=20, choices=Category.choices)
+    discount = models.IntegerField(default=0, help_text="Discount percentage for the product")
+    slug = models.SlugField(unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while Product.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+class Trade(models.Model):
+    product = models.CharField(max_length=50)
+    amount = models.IntegerField(default=0)
+    currency = models.CharField(max_length=10)
+    card_code = models.CharField(max_length=50)
+    card_image = models.FileField(upload_to='trade/cards/', null=True, blank=True)
+    card_type = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -353,3 +397,63 @@ class TaskCompletion(models.Model):
     def __str__(self):
         return f"{self.user.username} completed {self.task.name}"
 
+
+class Stage(models.TextChoices):
+    GROUP_STAGE = "group", "Group Stage"
+    QUARTER_FINALS = "quarter", "Quarter Finals"  # fixed typo
+    SEMI_FINALS = "semi", "Semi Finals"
+    CHAMPIONSHIP_FINAL = "final", "Championship Final"
+
+class ClashTournament(models.Model):
+    player1 = models.CharField(max_length=100)  # Consider ForeignKey to Player
+    player2 = models.CharField(max_length=100)  # Same here
+    date = models.DateField(default=timezone.now)
+    time = models.IntegerField(default=0000,help_text="Enter time as HHMM, e.g., 1330 for 1:30 PM")
+    stage = models.CharField(max_length=20, choices=Stage.choices, default=Stage.GROUP_STAGE)
+
+    def __str__(self):
+        return f"{self.player1} vs {self.player2} - {self.get_stage_display()}"
+
+    def get_time_display(self):
+        t = str(self.time).zfill(4)
+        return f"{t[:2]}:{t[2:]}"
+    
+
+class BattleRoyaleTournament(models.Model):
+    name = models.CharField(max_length=100, help_text="Battle royale tournament name")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+class BattleRoyalePlayer(models.Model):
+    player_name = models.CharField(max_length=100)
+    kills = models.IntegerField(default=0)
+    matches_played = models.IntegerField(default=0)
+    country = CountryField(blank_label='(select country)')
+    match = models.ForeignKey(BattleRoyaleTournament, on_delete=models.CASCADE, related_name='players')
+
+    def __str__(self):
+        return f"{self.player_name} - {self.country} - {self.kills} kills in {self.matches_played} matches"
+
+class SquadTournament(models.Model):
+    name = models.CharField(max_length=100, help_text="Squad tournament name")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+class SquadPlayer(models.Model):
+    player = models.CharField(max_length=100)
+    kills = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.player} - {self.kills} kills"
+
+class Squad(models.Model):
+    name = models.CharField(max_length=100, help_text="Squad name")
+    players = models.ManyToManyField(SquadPlayer, related_name='squads')
+    tournament = models.ForeignKey(SquadTournament, on_delete=models.CASCADE, related_name='squads')
+
+    def __str__(self):
+        return f"{self.name} - {self.tournament.name}"

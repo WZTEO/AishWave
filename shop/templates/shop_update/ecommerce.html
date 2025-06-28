@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>trustbyte99 shop update </title>
+  <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css' %}">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> trustbyte99</title>
+    <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css' %}">
+    <script type="importmap">
+    {
+        "imports": {
+            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+    }
+    </script>
+</head>
+<body>
+   <!-- Products -->
+    <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">{{ selectedProduct.name }} {{ selectedProduct.category === 'games' ? 'Direct Top Up' : 
+                selectedProduct.category === 'esim' ? 'eSIM' : 'Gift Card' }}</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="product-detail-image">
+            <div class="discount-badge-large" v-if="selectedProduct && selectedProduct.category === 'games'" style="background: #2D7BD7;">-{{discountPercentage}}% OFF</div>
+            <img v-if="selectedProduct && selectedProduct.category === 'games'" :src="gameImages[selectedProduct.name]" :alt="selectedProduct.name">
+            <img v-if="selectedProduct && selectedProduct.category === 'ecommerce'" :src="ecommerceImages[selectedProduct.name]" :alt="selectedProduct.name">
+            <img v-if="selectedProduct && selectedProduct.category === 'amazon'" :src="amazonImages[selectedProduct.name]" :alt="selectedProduct.name">
+            <img v-if="selectedProduct && selectedProduct.category === 'esim'" :src="eSimImages[selectedProduct.name]" :alt="selectedProduct.name">
+        </div>
+        
+        <div class="product-detail-options">
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                <div class="custom-amount">
+<input 
+                        v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')"
+                        type="email" 
+                        v-model="recipientEmail" 
+                        placeholder="Enter valid email for voucher" 
+                    >
+                </div>
+                
+                <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+                <div class="amount-options">
+                    <div 
+                        v-if="selectedProduct && selectedProduct.category === 'ecommerce'"
+                        v-for="(amount, index) in ecommerceAmounts[selectedProduct.name]" 
+                        :key="index"
+                        class="amount-option"
+                        :class="{ selected: selectedAmount === amount }"
+                        @click="selectAmount(amount)"
+                    >
+                        <span>500</span>
+                        <span class="original-price">350</span>
+                        <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵250</span>
+                    </div>
+                    <!-- Ecommerce Binance & Paypal -->
+                    <div v-if="selectedProduct && selectedProduct.category === 'ecommerce' && (selectedProduct.name === 'Binance Gift Card' || selectedProduct.name === 'PayPal Top-Up')" class="custom-amount-container">
+                        <div class="custom-amount">
+                            <label>Binance Gift Card' ? 'Enter amount ($5-$500)' : 'Enter amount ($10-$250)' </label>
+                            <div class="custom-amount-input-container">
+                                <span>$</span>
+                                <input 
+                                    type="number" 
+                                    v-model="customAmount" 
+                                    @input="updateCustomAmount($event, selectedProduct)"
+                                    :min="selectedProduct.name === 'Binance Gift Card' ? 5 : 10"
+                                    :max="selectedProduct.name === 'Binance Gift Card' ? 500 : 250"
+                                    placeholder="0.00"
+                                >
+                            </div>
+                            <div v-if="customAmount" class="estimated-price">
+                                Estimated price: GH₵
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')">
+                Purchase {{ selectedProduct.name }} quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
+            </p>
+        </div>
+                
+        <!-- Ecommerce Confirm button -->
+        <button v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')" @click="purchaseEcommerceProduct" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+        <!-- Ecommerce FAQ -->
+        <div v-if="selectedProduct && selectedProduct.category === 'ecommerce'" class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('description')">Description</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                    Product name
+                </div>
+            </div>
+            
+            <div v-if="ecommerceRedemption[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('redemption')">How to Redeem</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p style="white-space: pre-line">Product name</p>
+                </div>
+            </div>
+            
+            <div v-if="ecommerceTerms[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('terms')">Terms & Conditions</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p style="white-space: pre-line">T&C's</p>
+                </div>
+            </div>
+        </div>
+        <!-- Esim FAQ -->
+        <div v-if="selectedProduct && selectedProduct.category === 'esim'" class="esim-faq-section">
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('description')">Description</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                    <p v-html="eSimDetailedInfo[selectedProduct.name].description.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' target=\'_blank\'>$1</a>')"></p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('redemption')">How to Redeem</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p v-html="eSimDetailedInfo[selectedProduct.name].redemption.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' target=\'_blank\'>$1</a>')"></p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('terms')">Terms and Conditions</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p>Terms and Conditions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
+<!-- partial -->
+  <script type="module" ></script>
+
+</body>
+</html>

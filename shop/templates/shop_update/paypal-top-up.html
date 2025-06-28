@@ -1,0 +1,123 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">PayPal Direct Top Up</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        
+        <div class="product-detail-options">
+            <style>
+                .errorlist {
+                    color: #ff4d4d; /* Red color for errors */
+                    font-size: 14px;
+                    margin-top: 15px;
+                    padding: 5px;
+                    background: #ffe6e6; /* Light red background */
+                    border: 1px solid #ff4d4d;
+                    border-radius: 4px;
+                    text-align: center;
+                    }
+                    .errorlist li {
+                    list-style: none;
+                    }
+            </style>
+            {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <br>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                <div class="custom-amount">
+                    <input 
+                        v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')"
+                        type="email" 
+                        v-model="recipientEmail" 
+                        placeholder="Enter valid email for voucher" 
+                    >
+                </div>
+                
+                <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+                <div class="amount-options">
+
+                    <div v-if="selectedProduct && selectedProduct.category === 'ecommerce' && (selectedProduct.name === 'Binance Gift Card' || selectedProduct.name === 'PayPal Top-Up')" class="custom-amount-container">
+                        <form id="product-form" method="post" action="{% url 'purchase_product' %}">
+                            {% csrf_token %}
+                        <div class="custom-amount">
+                            <input type="hidden" name="product" value="paypal-top-up">
+                            <input type="hidden" id="selected-item" name="selected_item">
+                            <label>Enter amount ($10-$250)</label>
+                            <div class="custom-amount-input-container">
+                                <span>$</span>
+                                 <input 
+                                    type="number" 
+                                    id="custom-amount-input"
+                                    min="10" 
+                                    max="250"
+                                    placeholder="0.00"
+                                    required
+                                    oninput="updateSelectedItem()"
+                                >
+                            </div>
+                            <script>
+                                function updateSelectedItem() {
+                                    const amount = document.getElementById('custom-amount-input').value;
+                                    const selectedItem = `PayPal,${amount}`;
+                                    document.getElementById('selected-item').value = selectedItem;
+                                }
+                            </script>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')">
+                Purchase PayPal Top-Up quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
+            </p>
+        </div>
+        
+        <button type="submit" form="product-form" class="purchase-button">
+            Confirm Purchase
+        </button>
+       
+
+        <div v-if="selectedProduct && selectedProduct.category === 'ecommerce'" class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question">Description</div>
+                <div class="faq-answer">
+                     PayPal is a global payment service that securely transfers funds from your credit card to merchants without exposing your financial details.
+                </div>
+            </div>
+        
+            
+            <div v-if="ecommerceTerms[selectedProduct.name]" class="faq-item">
+                <div class="faq-question">Terms & Conditions</div>
+                <div class="faq-answer">
+                    <p style="white-space: pre-line">By submitting this request, you authorize Your Digital Reward to provide your information to PayPal, Inc. for processing. This may include your email address or phone number. If you submit incorrect details, PayPal policy states that updates cannot be made for 30 days. PayPal is responsible for processing and securing transactions.</p>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+   
+{% endblock content %}
+    

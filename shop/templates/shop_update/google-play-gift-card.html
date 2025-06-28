@@ -1,0 +1,134 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">Google Play Direct Top Up </div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="product-detail-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="GOogle">
+            </div>
+        
+        <div class="product-detail-options">
+            <style>
+                .errorlist {
+                    color: #ff4d4d; /* Red color for errors */
+                    font-size: 14px;
+                    margin-top: 15px;
+                    padding: 5px;
+                    background: #ffe6e6; /* Light red background */
+                    border: 1px solid #ff4d4d;
+                    border-radius: 4px;
+                    text-align: center;
+                    }
+                    .errorlist li {
+                    list-style: none;
+                    }
+            </style>
+            {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <br>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                
+
+                <form id="pubg-detail-form" method="post" action="{% url 'purchase_product' %}">
+                    {% csrf_token %}
+
+                    <!-- Player ID Input -->
+                    <div class="custom-amount">
+                        <input 
+                            type="email" 
+                            name="player_id" 
+                            placeholder="Enter valid email for voucher" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Hidden form field to capture the selected item and price -->
+                    <input type="hidden" id="selected-item" name="selected_item">
+
+                    <!-- Hidden product field -->
+                    <input type="hidden" name="product" value="google-play-gift-card">
+
+                    <!-- Amount Selection Label -->
+                    <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+
+                    <!-- Stylized Amount Options -->
+                    <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
+                        <div class="amount-option" data-price="5" onclick="selectAmount(this, 'Google Gift Card $5', '5')">
+                            <span>$5 Voucher</span>
+                            <span class="original-price">$5</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="10" onclick="selectAmount(this, 'Google Gift Card $10', '10')">
+                            <span>$10 Voucher</span>
+                            <span class="original-price">$10</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$5</span>
+                        </div>
+                        <div class="amount-option" data-price="15" onclick="selectAmount(this, 'Google Gift Card $20', '15')">
+                            <span>$15 Voucher</span>
+                            <span class="original-price">$15</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="50" onclick="selectAmount(this, 'Google Gift Card $50', '50')">
+                            <span>$50 Voucher</span>
+                            <span class="original-price">$50</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const container = document.querySelector('.amount-options');
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+
+                            document.querySelectorAll('.amount-option').forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        });
+                    </script>
+
+                </form>
+
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && selectedProduct.category === 'games'">
+                Purchase Google Play Gift Card quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
+            </p>
+        </div>
+        
+        <!-- Games Confirm button -->
+        <button type="submit" form="pubg-detail-form" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+    </div>
+   
+{% endblock content %}
+    

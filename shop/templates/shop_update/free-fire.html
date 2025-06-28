@@ -1,0 +1,134 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">Free Fire Direct Top Up </div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="product-detail-image">
+            <div class="discount-badge-large" v-if="selectedProduct && selectedProduct.category === 'games'" style="background: #2D7BD7;">-{{product.discount}}% OFF</div>
+            <img src="{{ product.image.url }}" alt="{{product.name}}">
+            </div>
+        
+        <div class="product-detail-options">
+            <style>
+                .errorlist {
+                    color: #ff4d4d; /* Red color for errors */
+                    font-size: 14px;
+                    margin-top: 15px;
+                    padding: 5px;
+                    background: #ffe6e6; /* Light red background */
+                    border: 1px solid #ff4d4d;
+                    border-radius: 4px;
+                    text-align: center;
+                    }
+                    .errorlist li {
+                    list-style: none;
+                    }
+            </style>
+            {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <br>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                
+
+                <form id="pubg-detail-form" method="post" action="{% url 'purchase_product' %}">
+                    {% csrf_token %}
+
+                    <!-- Player ID Input -->
+                    <div class="custom-amount">
+                        <input 
+                            type="text" 
+                            name="player_id" 
+                            placeholder="Enter your Player ID" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Hidden form field to capture the selected item and price -->
+                    <input type="hidden" id="selected-item" name="selected_item">
+
+                    <!-- Hidden product field -->
+                    <input type="hidden" name="product" value="free-fire">
+
+                    <!-- Amount Selection Label -->
+                    <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+
+                    <!-- Stylized Amount Options -->
+                    <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
+                        <div class="amount-option" data-price="1" onclick="selectAmount(this, '100 💎', '1')">
+                            <span>100 Diamonds</span>
+                            <span class="original-price">$1</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$1</span>
+                        </div>
+                        <div class="amount-option" data-price="2" onclick="selectAmount(this, '210 💎', '2')">
+                            <span>210 Diamonds</span>
+                            <span class="original-price">$2</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$2</span>
+                        </div>
+                        <div class="amount-option" data-price="5" onclick="selectAmount(this, '530 💎', '5')">
+                            <span>530 Diamonds</span>
+                            <span class="original-price">$5</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$5</span>
+                        </div>
+                        <div class="amount-option" data-price="20" onclick="selectAmount(this, '2100 💎', '20')">
+                            <span>2100 Diamonds</span>
+                            <span class="original-price">$20</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$20</span>
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const container = document.querySelector('.amount-options');
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+
+                            document.querySelectorAll('.amount-option').forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        });
+                    </script>
+                </form>
+
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && selectedProduct.category === 'games'">
+                Purchase Free fire virtual currency quickly and securely. Simply select the amount you want, enter your Play ID, and complete your purchase to receive your code instantly.
+            </p>
+        </div>
+        
+        <!-- Games Confirm button -->
+        <button type="submit" form="pubg-detail-form" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+    </div>
+   
+{% endblock content %}
+    

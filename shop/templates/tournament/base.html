@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'trustbyte/img/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'trustbyte/img/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'trustbyte/img/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'trustbyte/img/site.webmanifest' %}">
+    <title>TrustByte99 Tournaments </title>
+    <link rel="stylesheet" href="{% static 'trustbyte/css/tournament_style.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+
+<body>
+    <header>
+        <a href="{% url 'finance' %}">
+            <button class="referral-close">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </a>
+
+        <div class="container">
+            <h1>Trustbyte99 Gaming Tournament</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="tournament-section">
+            <div class="container">
+                <nav class="tournament-nav">
+                    <ul>
+                        <li>
+                            <a href="{% url 'clash' %}">
+                                <button class="nav-btn active" data-section="clash">Clash Tournament
+                                </button>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'battle-royale' %}">
+                                <button class="nav-btn" data-section="br-solo">
+                                    Battle Royale
+                                </button>
+                            </a>
+                        </li>
+                        <a href="{% url 'squad-challenges' %}">
+                            <li>
+                                <button class="nav-btn" data-section="squad">
+                                    Squad Challenge
+                                </button>
+                            </li>
+                        </a>
+                        <a href="{% url 'rules' %}">
+                            <li>
+                                <button class="nav-btn" data-section="rules">
+                                    Tournament Rules
+                                </button>
+                            </li>
+                        </a>
+
+                    </ul>
+                </nav>
+
+                <div id="tourn" class="content-sections">
+
+                    {% block content %}
+
+                    {% endblock content %}
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Pro Gaming Tournament Platform. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+   
+</body>
+ <script src="{% static 'trustbyte/js/tournament_script.js' %}"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</html>

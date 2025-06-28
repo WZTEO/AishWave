@@ -1,14 +1,25 @@
+import dis
+from itertools import product
+from locale import currency
+from math import prod
+from poplib import CR
+from unicodedata import category
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib import messages
 from django.utils.timezone import now
+from allauth.account.forms import LoginForm
 from datetime import timedelta
 from django.http import JsonResponse
-from .models import Wallet, Task, TaskCompletion, ReferralAmount, Transaction, BillBoardImage, LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Discount, ExchangeRate, ReferralCode
+from .models import  (
+    BattleRoyalePlayer, Wallet, Task, TaskCompletion, ReferralAmount, Transaction, BillBoardImage, 
+    LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Crypto,
+    Discount, ExchangeRate, ReferralCode, ClashTournament, BattleRoyalePlayer, Squad, Product, Trade )
 from .utils import create_paystack_recipient
 from django.contrib.sessions.models import Session
+from django.db.models import Sum
 from decimal import Decimal
 import requests
 import json
@@ -32,7 +43,7 @@ def finance(request):
         orders = Order.objects.filter(user=request.user).order_by("-created_at")
         investments = Investment.objects.filter(user=request.user, end_date__gt=now())
 
-    return render(request, 'shop/finance.html', {
+    return render(request, 'shop/new_finance.html', {
         "transactions": transactions,
         "wallet": user_wallet,
         "today_date": now().date(),
@@ -45,6 +56,7 @@ def profile(request):
     history = LoginHistory.objects.filter(user=request.user).order_by("-timestamp")
     return render(request, 'shop/profile.html', {'history': history})
 
+@login_required
 def contact_form(request):
     if request.method == 'POST':
         name = request.POST.get("name")
@@ -61,6 +73,7 @@ def contact_form(request):
         return redirect("finance")
     return render(request, 'shop/contact-form.html')
 
+@login_required
 def stocks(request):
     return render(request, 'shop/stocks.html')
 
@@ -89,37 +102,18 @@ def tasks(request):
     tasks = Task.objects.all()
     return render(request, 'shop/tasks.html', {"tasks": tasks})
 
-def freefire(request):
-    return render(request, 'shop/freefire.html')
-
-def pubg(request):
-    return render(request, 'shop/pubg.html')
-
-def codm(request):
-    return render(request, 'shop/codm.html')
-
-def googleplay(request):
-    return render(request, 'shop/google.html')  
-
-def steam(request):
-    return render(request, 'shop/steam.html')
-
-def playstation(request):
-    return render(request, 'shop/playstation.html') 
-
-def apple(request):
-    return render(request, 'shop/apple.html')
-
-def fortnite(request):
-    return render(request, 'shop/fortnite.html')
+def product_detail(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    cryptos = Crypto.objects.all()
+    return render(request, f'shop_update/{product.slug}.html', {'product': product, 'cryptos': cryptos})
 
 @login_required
 def initiate_deposit(request):
     if request.method == 'POST':
         amount = int(request.POST.get("amount")) * 100 #convert to peswas
-        if int(request.POST.get("amount")) < 20:
-            messages.error(request, "Minimum deposit amount is GHS 20", extra_tags="deposit")
-            return redirect("wallet_deposit")
+        # if int(request.POST.get("amount")) < 20:
+        #     messages.error(request, "Minimum deposit amount is GHS 20", extra_tags="deposit")
+        #     return redirect("wallet_deposit")
         
         email = request.user.email
 
@@ -378,7 +372,7 @@ def purchase_product(request):
     if request.method == 'POST':
         selected_item = request.POST.get('selected_item')
         player_id = request.POST.get('player_id')
-        product = request.POST.get('product')
+        form_product = request.POST.get('product')
         if not selected_item:
             pass
 
@@ -388,15 +382,17 @@ def purchase_product(request):
         product_name, price = selected_item.rsplit(',',1)
         price_in_usd = Decimal(price) #price is USD
         
-        discount = Discount.objects.first()
-
-        discount_value = getattr(discount, product, 0) if discount else 0
+        #discount = Discount.objects.first()
+        product = get_object_or_404(Product, slug=form_product)
+        discount_value = product.discount
+        print(f"Product: {product_name}, Discount: {discount_value}%")
         print(f"Discount valuee: {discount_value}%")
 
         discount_value = discount_value / Decimal(100)
         price = max(price_in_usd - (price_in_usd * discount_value), Decimal(0))
         price_in_ghs = ExchangeRate.convert_to_ghs(price)
-        print(f"{product_name} - {price}")
+        print(f"{product_name} - {price_in_ghs}")
+        formatted_order = f"{product.name} - {product_name}"
 
         if user_wallet.balance >= price_in_ghs:
             user_wallet.balance -= price_in_ghs
@@ -405,7 +401,7 @@ def purchase_product(request):
                     user=request.user,
                     player_id=player_id,
                     amount=price_in_ghs,
-                    product=product_name,
+                    product=formatted_order,
                     status="pending",
                 )
             Transaction.objects.create(
@@ -418,13 +414,48 @@ def purchase_product(request):
         else:
             messages.error(request, "Insufficient balance", extra_tags='purchase')
             print("Insufficient balance")
-            return redirect('shop')
+            return redirect('product-detail', slug=product.slug)
 
     except ValueError:
         print("Invalid product selection")
         messages.error(request, "Invalid product selection")
         return redirect('shop')
     return redirect('finance')
+
+@login_required
+def trade_card(request):
+    if request.method == 'POST':
+        product = request.POST.get('selected_gift_card')
+        currency = request.POST.get('currency')
+        file = request.FILES.get('card_image')
+        card_type = request.POST.get('card_type')
+        amount = request.POST.get('amount')
+        card_code = request.POST.get('card_code')
+
+        # Validate: image required if physical card
+        if card_type == "Physical" and not file:
+            messages.error(request, "An image is required for physical cards.", extra_tags="trade")
+            return redirect('trade')  # or the appropriate form page
+        
+
+        try:
+            trade = Trade.objects.create(
+                product=product,
+                amount=amount,
+                currency=currency,
+                card_image=file if card_type == "Physical" else None,
+                card_code=card_code,
+                card_type=card_type,
+            )
+            messages.success(request, "Trade submitted successfully.",extra_tags="trade")
+            return redirect('trade')  # or wherever you redirect on success
+
+        except ValueError as e:
+            print(f"Trade error: {e}")
+            messages.error(request, "Invalid trade submission.", extra_tags="trade")
+            return redirect('trade')
+
+
 
 
 @login_required
@@ -579,3 +610,114 @@ def complete_task(request):
 
     messages.error(request, "Invalid request.")
     return redirect("tasks")
+
+from django.shortcuts import render, redirect
+from allauth.account.forms import LoginForm
+from allauth.account.views import LoginView
+from allauth.account import app_settings
+from allauth.account.utils import complete_signup, perform_login
+from allauth.account.adapter import get_adapter
+from django.contrib.auth import login as auth_login
+
+# def dummy_view(request):
+#     form = LoginForm(data=request.POST or None)  # ✅ always pass request
+
+#     if request.method == 'POST' and form.is_valid():
+#         user = form.user
+#         perform_login(request, user, email_verification=app_settings.EMAIL_VERIFICATION)
+#         return redirect('/')  # or your dashboard
+
+#     return render(request, 'homepage/landing_page.html', {'form': form})
+
+def dummy_view(request):
+    form = LoginForm(data=request.POST or None)  # ✅ always pass request
+
+    if request.method == 'POST' and form.is_valid():
+        user = form.user
+        auth_login(request, user)  # Use Django's login function
+        return redirect('/')  # or your dashboard
+
+    return render(request, 'homepage/landing_page.html', {'form': form})
+
+@login_required
+def clash(request):
+    group_stages = ClashTournament.objects.filter(stage="group")
+    quarter_stages = ClashTournament.objects.filter(stage="quarter")
+    semi_stages = ClashTournament.objects.filter(stage="semi")
+    final_stages = ClashTournament.objects.filter(stage="final")
+    return render(request, 'tournament/clash.html', {
+        'group_stages': group_stages,
+        'quarter_stages': quarter_stages,
+        'semi_stages': semi_stages,
+        'final_stages': final_stages
+        })
+
+@login_required
+def battle_royale(request):
+    players = BattleRoyalePlayer.objects.all().order_by('-kills', '-matches_played')
+    return render(request, 'tournament/battle_royale.html', {'players': players})
+
+@login_required
+def squad_challenges(request):
+    squads = Squad.objects.annotate(
+    total_kills=Sum('players__kills')
+        ).order_by('-total_kills')
+
+    return render(request, 'tournament/squad.html', {'squads': squads})
+
+@login_required
+def rules(request):
+    return render(request, 'tournament/rules.html')
+
+
+def shop_update(request):
+    ecommerce_products = Product.objects.all().filter(category="ecommerce")
+    esim_products = Product.objects.all().filter(category="esim")
+    game_products = Product.objects.all().filter(category="games")
+    giftcard_products = Product.objects.all().filter(category="gift-cards")
+    product = Product.objects.filter(slug='crypto').first()
+    billboard_images = BillBoardImage.objects.all()
+    print(f"{product.slug}")
+    return render(request, 'shop_update/products.html', {
+        "ecommerce_products": ecommerce_products,
+        "esim_products": esim_products,
+        "game_products": game_products,
+        "giftcard_products": giftcard_products,
+        "product": product,
+        "billboard_images": billboard_images,
+    })
+
+@login_required
+def update_trade(request):
+    gift_cards = {
+        'Apple': 'https://cdn.simpleicons.org/apple/000000/ffffff',
+        'Google Play': 'https://1000logos.net/wp-content/uploads/2021/07/Google-Play-Logo-500x281.png',
+        'Amazon': 'https://1000logos.net/wp-content/uploads/2016/10/Amazon-Logo.png',
+        'eBay': 'https://1000logos.net/wp-content/uploads/2018/10/Ebay-Logo-1.png',
+        'PlayStation': 'https://cdn.simpleicons.org/playstation/000000/ffffff',
+        'Steam': 'https://1000logos.net/wp-content/uploads/2020/08/Steam-Logo.png',
+        'iTunes': 'https://1000logos.net/wp-content/uploads/2018/05/Itunes-logo.png',
+        'Razer': 'https://cdn.simpleicons.org/razer/000000/ffffff',
+    }
+    return render(request, 'shop_update/trade.html', {'gift_cards': gift_cards})
+
+@login_required
+def update_esim(request):
+    return render(request, 'shop_update/esim.html')
+
+@login_required
+def update_ecommerce(request):
+    return render(request, 'shop_update/ecommerce.html')
+
+@login_required
+def update_crypto(request):
+    cryptos = Crypto.objects.all()
+    return render(request, "shop_update/crypto.html", {'cryptos': cryptos})
+
+def terms(request):
+    return render(request, "shop_update/terms.html")
+
+@login_required
+def orders(request):
+    orders = Order.objects.all().filter(user=request.user)
+    return render(request, "shop_update/orders.html", {'orders': orders})

@@ -1,0 +1,146 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">Binance Gift Card Direct Top Up</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+
+        <div class="product-detail-options">
+            <style>
+                .errorlist {
+                    color: #ff4d4d; /* Red color for errors */
+                    font-size: 14px;
+                    margin-top: 15px;
+                    padding: 5px;
+                    background: #ffe6e6; /* Light red background */
+                    border: 1px solid #ff4d4d;
+                    border-radius: 4px;
+                    text-align: center;
+                    }
+                    .errorlist li {
+                    list-style: none;
+                    }
+            </style>
+            {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <br>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                <div class="custom-amount">
+                    <input 
+                        v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')"
+                        type="email" 
+                        v-model="recipientEmail" 
+                        placeholder="Enter valid email for voucher" 
+                    >
+                </div>
+                
+                <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+                <div class="amount-options">
+                    <div v-if="selectedProduct && selectedProduct.category === 'ecommerce' && (selectedProduct.name === 'Binance Gift Card' || selectedProduct.name === 'PayPal Top-Up')" class="custom-amount-container">
+                        <form id="product-form" method="post" action="{% url 'purchase_product' %}">
+                            {% csrf_token %}
+                        <div class="custom-amount">
+                            <input type="hidden" name="product" value="binance-gift-card">
+                             <input type="hidden" id="selected-item" name="selected_item">
+                            <label>Enter amount ($5-$500)</label>
+                            <div class="custom-amount-input-container">
+                                <span>$</span>
+                                <input 
+                                    type="number" 
+                                    id="custom-amount-input"
+                                    min="5" 
+                                    max="500"
+                                    placeholder="0.00"
+                                    required
+                                    oninput="updateSelectedItem()"
+                                >
+                            </div>
+                            <script>
+                                function updateSelectedItem() {
+                                    const amount = document.getElementById('custom-amount-input').value;
+                                    const selectedItem = `Binance,${amount}`;
+                                    document.getElementById('selected-item').value = selectedItem;
+                                }
+                            </script>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')">
+                Purchase {{ selectedProduct.name }} quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
+            </p>
+        </div>
+        
+        <button type="submit" form="product-form" class="purchase-button">
+            Confirm Purchase
+        </button>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const faqQuestions = document.querySelectorAll('.faq-question');
+
+                faqQuestions.forEach(question => {
+                    question.addEventListener('click', function () {
+                        const answer = this.nextElementSibling;
+
+                        // Collapse any other open answer
+                        document.querySelectorAll('.faq-answer').forEach(el => {
+                            if (el !== answer) el.classList.remove('active');
+                        });
+
+                        // Toggle this one
+                        answer.classList.toggle('active');
+                    });
+                });
+            });
+        </script>
+        <div v-if="selectedProduct && selectedProduct.category === 'ecommerce'" class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('description')">Description</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                     Binance Gift Card is a tool that allows you to send a crypto gift card to your friends. You can send the card via social media, email, or SMS. The card can have a personalized theme, message, and amount. Once the receiver redeems the gift card code, the crypto will be visible in their Binance Wallet.
+                </div>
+            </div>
+            
+            <div v-if="ecommerceRedemption[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('redemption')">How to Redeem</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p style="white-space: pre-line">
+                        On the Binance App <br> Log in to your Binance App.<br>Tap Profile → Gift Card → Enter Gift Card Marketplace.<br>Tap Redeem and enter the redemption code.<br>The funds will be credited to your Binance Wallet immediately.<br><br>On the Binance Website:<br>Log into your Binance account.<br>Visit the Gift Card homepage.<br>Enter the redemption code and click Redeem. </p>
+                </div>
+            </div>
+            
+            <div v-if="ecommerceTerms[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('terms')">Terms & Conditions</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p style="white-space: pre-line">For more details, visit Binance Terms. </p>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+   
+{% endblock content %}
+

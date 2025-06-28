@@ -1,0 +1,207 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">Fortnite Direct Top Up </div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="product-detail-image">
+            <div class="discount-badge-large" v-if="selectedProduct && selectedProduct.category === 'games'" style="background: #2D7BD7;">-{{product.discount}}% OFF</div>
+            <img src="{{ product.image.url }}" alt="{{product.name}}">
+        </div>
+        
+        <div class="product-detail-options">
+            <style>
+                .errorlist {
+                    color: #ff4d4d; /* Red color for errors */
+                    font-size: 14px;
+                    margin-top: 15px;
+                    padding: 5px;
+                    background: #ffe6e6; /* Light red background */
+                    border: 1px solid #ff4d4d;
+                    border-radius: 4px;
+                    text-align: center;
+                    }
+                    .errorlist li {
+                    list-style: none;
+                    }
+            </style>
+            {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <br>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                
+
+                <form id="pubg-detail-form" method="post" action="{% url 'purchase_product' %}">
+                    {% csrf_token %}
+
+                    <!-- Player ID Input -->
+                    <div class="custom-amount">
+                        <input 
+                            type="text" 
+                            name="player_id" 
+                            placeholder="Enter your Player ID" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Hidden form field to capture the selected item and price -->
+                    <input type="hidden" id="selected-item" name="selected_item">
+
+                    <!-- Hidden product field -->
+                    <input type="hidden" name="product" value="fortnite">
+
+                    <!-- Amount Selection Label -->
+                    <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+
+                    <!-- Stylized Amount Options -->
+                    <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
+                        <div class="amount-option" data-price="12" onclick="selectAmount(this, '1,000 VB', '12')">
+                            <span>1,000 V-Bucks</span>
+                            <span class="original-price">$12</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="30" onclick="selectAmount(this, '2,800 V-B', '30')">
+                            <span>2,800 V-Bucks</span>
+                            <span class="original-price">$30</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="45" onclick="selectAmount(this, '5,000 V-B', '45')">
+                            <span>5,000 V-Bucks</span>
+                            <span class="original-price">$45</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="110" onclick="selectAmount(this, '13,500 V-B', '110')">
+                            <span>13,500 V-Bucks</span>
+                            <span class="original-price">$110</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const container = document.querySelector('.amount-options');
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+
+                            document.querySelectorAll('.amount-option').forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        });
+                    </script>
+
+
+                </form>
+
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && selectedProduct.category === 'games'">
+                Purchase PUBG mobile virtual currency quickly and securely. Simply select the amount you want, enter your Play ID, and complete your purchase to receive your code instantly.
+            </p>
+        </div>
+        
+        <!-- Games Confirm button -->
+        <button type="submit" form="pubg-detail-form" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+
+        <div class="faq-section">
+            <h3>Fortnite V-Bucks Card FAQ</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaq(10)">What Are Fortnite V-Bucks?</div>
+                <div class="faq-answer" :class="{ active: activeFaq === 10 }">
+                    V-Bucks are the virtual currency used in Fortnite. Players can spend them on various in-game items, including skins, pickaxes, wraps, emotes, and Battle Passes.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaq(11)">How to Redeem a Fortnite V-Bucks Card</div>
+                <div class="faq-answer" :class="{ active: activeFaq === 11 }">
+                    <p><strong>To successfully redeem your V-Bucks card, follow these steps:</strong></p>
+                    <p><strong>Log in to Your Epic Games Account</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Visit the official Epic Games website and sign in.</li>
+                        <li>If you're redeeming for a console, use your console login credentials.</li>
+                    </ul>
+                    
+                    <p><strong>Access the Redemption Page</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Click on your display name at the top right.</li>
+                        <li>Select V-Bucks Card from the dropdown menu.</li>
+                        <li>Alternatively, go directly to: Fortnite V-Bucks Card Redemption.</li>
+                    </ul>
+                    
+                    <p><strong>Begin the Redemption Process</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Click Get Started to proceed.</li>
+                    </ul>
+                    
+                    <p><strong>Enter Your V-Bucks Card Code</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Retrieve the PIN from your email or physical card.</li>
+                        <li>Input the code exactly as shown (without dashes).</li>
+                        <li>Click Next to continue.</li>
+                    </ul>
+                    
+                    <p><strong>Choose Your Platform</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Select the gaming platform where you want to redeem the V-Bucks.</li>
+                        <li>Click Next to proceed.</li>
+                    </ul>
+                    
+                    <p><strong>Review and Confirm</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Ensure the Epic Games account, chosen platform, and updated balance are correct.</li>
+                        <li>Click Confirm to finalize the redemption.</li>
+                    </ul>
+                    
+                    <p><strong>Note:</strong> If the platform you want isn't listed, double-check that you are signed into the correct Epic Games account.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaq(12)">Redeeming on Xbox & PlayStation</div>
+                <div class="faq-answer" :class="{ active: activeFaq === 12 }">
+                    <p>For Xbox and PlayStation users, an additional step is required:</p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>After confirming the redemption, a 12-character or 25-character code will be generated.</li>
+                        <li>This code will also be sent to your registered email.</li>
+                        <li>Follow the on-screen instructions to sign in to the appropriate platform (Sony or Microsoft).</li>
+                        <li>Enter the generated code to complete the redemption process.</li>
+                    </ul>
+                    <p><strong>Important:</strong> Ensure you're logged into the correct PlayStation or Xbox account linked to your Epic Games profile before entering the code.</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+   
+{% endblock content %}
+    

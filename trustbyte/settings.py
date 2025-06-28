@@ -29,20 +29,24 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUGGER")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(',')
-
+# ALLOWED_HOSTS = ['quetzal-keen-infinitely.ngrok-free.app', 'localhost']
 PAYSTACK_CALLBACK = os.getenv("PAYSTACK_CALLBACK")
 # Application definition
+
+AUTH_USER_MODEL = 'accountAuth.CustomUser'
 
 INSTALLED_APPS = [
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'authentication',
     'shop',
+    'accountAuth',
+    'authentication',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -50,6 +54,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.apple',
     'allauth.socialaccount.providers.facebook',
     'widget_tweaks',
+    'adminsortable2',
+    'django_countries',
     
 ]
 
@@ -121,11 +127,11 @@ JAZZMIN_UI_TWEAKS = {
     }
 }
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend'
-]
-PAYSTACK_PUBLIC_KEY = "pk_test_206c2bfe4b2bb70a9c846d739044f68ec5bbbfb4"
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'allauth.account.auth_backends.AuthenticationBackend'
+# ]
+PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY")
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -156,7 +162,8 @@ ACCOUNT_USERNAME_REQUIRED = False  # Ensure username is required
 ACCOUNT_SIGNUP_REDIRECT_URL = '/dashboard'  # Prevent immediate redirectACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_FORMS = {
-    'signup': 'authentication.forms.CustomSignupForm',
+    'signup': 'accountAuth.forms.CustomSignupForm',
+    # 'login': 'accountAuth.forms.CustomLoginForm',
 }
 SOCIALACCOUNT_LOGOUT_ON_GET = False  # Logs out immediately when visiting the logout URL
 LOGIN_REDIRECT_URL = "/dashboard"  # Change this as needed
@@ -165,12 +172,12 @@ LOGOUT_REDIRECT_URL = "/accounts/login"
 ROOT_URLCONF = 'trustbyte.urls'
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.getenv("EMAIL_HOST")  # Change based on your provider
-EMAIL_PORT = os.getenv("EMAIL_PORT")
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Replace with your email
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Use an environment variable for security
-RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
+EMAIL_HOST= os.getenv("EMAIL_HOST")
+EMAIL_PORT= os.getenv("EMAIL_POST")
+EMAIL_USE_TLS= os.getenv("EMAIL_USE_TLS")
+EMAIL_USE_SSL= os.getenv("EMAIL_USE_SSL")
+EMAIL_HOST_USER= os.getenv("EMAIL_HOST_USER") # Replace with your email
+RECIPIENT_EMAIL= os.getenv("RECIPIENT_EMAIL")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 TEMPLATES = [
@@ -194,12 +201,28 @@ WSGI_APPLICATION = 'trustbyte.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-DATABASE_URL = os.getenv("DATABASE_URL")
+# DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASES = {
-    'default': 
-        dj_database_url.config(default=DATABASE_URL)
+# DATABASES = {
+#     # 'default': 
+#     #     dj_database_url.config(default=DATABASE_URL)
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
     
+# }
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+    }
 }
 
 

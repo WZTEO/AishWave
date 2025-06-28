@@ -1,0 +1,201 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">eSIM United Sates eSIM</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="product-detail-options">
+            <style>
+                .errorlist {
+                    color: #ff4d4d; /* Red color for errors */
+                    font-size: 14px;
+                    margin-top: 15px;
+                    padding: 5px;
+                    background: #ffe6e6; /* Light red background */
+                    border: 1px solid #ff4d4d;
+                    border-radius: 4px;
+                    text-align: center;
+                    }
+                    .errorlist li {
+                    list-style: none;
+                    }
+            </style>
+            {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <br>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                
+
+                <form id="product-form" method="post" action="{% url 'purchase_product' %}">
+                    {% csrf_token %}
+
+                    <!-- Player ID Input -->
+                    <div class="custom-amount">
+                        <input 
+                            type="email" 
+                            name="player_id" 
+                            placeholder="Enter valid email for eSIM details" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Hidden form field to capture the selected item and price -->
+                    <input type="hidden" id="selected-item" name="selected_item">
+
+                    <!-- Hidden product field -->
+                    <input type="hidden" name="product" value="esim-united-states">
+
+                    <!-- Amount Selection Label -->
+                    <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+
+                    <!-- Stylized Amount Options -->
+                    <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
+                        <div class="amount-option" data-price="5" onclick="selectAmount(this, '1GB, 7 days', '5')">
+                            <span>1GB, 7 days</span>
+                            <span class="original-price">$5</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="10" onclick="selectAmount(this, '2GB, 15 days', '10')">
+                            <span>2GB, 15 days</span>
+                            <span class="original-price">$10</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="15" onclick="selectAmount(this, '5GB, 30 days', '15')">
+                            <span>5GB, 30 days</span>
+                            <span class="original-price">$15</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="31" onclick="selectAmount(this, '20GB, 30 days', '31')">
+                            <span>20GB, 30 days</span>
+                            <span class="original-price">$31</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                    </div>
+
+                    <script>
+                        function updatePrices() {
+                            const container = document.querySelector('.amount-options');
+                            if (!container) return; // Exit if container doesn't exist (yet)
+
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+                            const options = document.querySelectorAll('.amount-option');
+
+                            options.forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        }
+
+                        // Initialize immediately (if DOM is ready)
+                        updatePrices();
+
+                        // Re-run when HTMX injects new content
+                        document.addEventListener('htmx:afterSwap', updatePrices);
+                        document.addEventListener('htmx:load', updatePrices); // For older HTMX versions
+                    </script>
+
+                </form>
+
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && selectedProduct.category === 'esim'">
+Stay connected to the internet wherever you go. Avoid roaming costs or hidden fees. You will receive a QR Code and activation code to install the eSIM on your device. This eSIM works in the United States.            </p>
+        </div>
+
+        <!-- Esim Confirm button-->
+        <button type="submit" form="product-form" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+        <!-- Esim FAQ -->
+      <script>
+        function initFAQ() {
+            const faqQuestions = document.querySelectorAll('.esim-faq-question');
+            
+            faqQuestions.forEach(question => {
+                // Only add event listener if not already present
+                if (!question._faqInitialized) {
+                    question.addEventListener('click', function() {
+                        const answer = this.nextElementSibling;
+                        
+                        // Collapse other open answers
+                        document.querySelectorAll('.esim-faq-answer').forEach(el => {
+                            if (el !== answer) el.classList.remove('active');
+                        });
+                        
+                        // Toggle current answer
+                        answer.classList.toggle('active');
+                    });
+                    
+                    // Mark as initialized to prevent duplicate listeners
+                    question._faqInitialized = true;
+                }
+            });
+        }
+
+        // Initialize immediately
+        initFAQ();
+
+        // Re-initialize when HTMX loads new content
+        document.addEventListener('htmx:afterSwap', initFAQ);
+        document.addEventListener('htmx:load', initFAQ); // For older HTMX versions
+    </script>
+        <!-- Esim FAQ -->
+        <div v-if="selectedProduct && selectedProduct.category === 'esim'" class="esim-faq-section">
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('description')">Description</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                    <p>
+                        After purchase, you will receive a QR Code and activation code, with instructions to install the eSIM through Settings. Set up your eSIM before traveling abroad with a strong WiFi or 4G connection. Ensure your device is compatible with eSIMs and that the eSIM you are buying covers the country or region of choice. Check if your device is compatible <a href="https://zendit.io/esim-device-compatibility-list/" target="_blank" rel="noopener noreferrer">here</a>.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('redemption')">How to Redeem</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p v-html="eSimDetailedInfo[selectedProduct.name].redemption.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' target=\'_blank\'>$1</a>')">
+                        Set up your eSIM before traveling abroad with a strong WiFi or 4G connection. Follow the installation instructions <a href="https://zendit.io/user-guide/esim-install-instructions/" target="_blank" rel="noopener noreferrer">here</a>, which contains instructions for installing an eSIM on iOS and Android devices either using the QR Code or through a manual install.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('terms')">Terms and Conditions</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p>1. eSIMs that remain unused for 12 months will be reclaimed, and any plans on these eSIMs will be forfeited.<br> 2. To keep an eSIM active, it must have activity (e.g., purchasing or using a plan) at least once every 12 months, which resets the 12-month expiration countdown.<br> 3. Each eSIM can have up to 30 bundles queued simultaneously.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+{% endblock content %}
+
+    

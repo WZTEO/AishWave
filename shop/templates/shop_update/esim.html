@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>trustbyte99 shop update </title>
+  <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css' %}">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> trustbyte99</title>
+    <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css' %}">
+    <script type="importmap">
+    {
+        "imports": {
+            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+    }
+    </script>
+</head>
+<body>
+   <!-- Products -->
+    <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">{{ selectedProduct.name }} {{ selectedProduct.category === 'games' ? 'Direct Top Up' : 
+                selectedProduct.category === 'esim' ? 'eSIM' : 'Gift Card' }}</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="product-detail-image">
+            <div class="discount-badge-large" v-if="selectedProduct && selectedProduct.category === 'games'" style="background: #2D7BD7;">-{{discountPercentage}}% OFF</div>
+            <img v-if="selectedProduct && selectedProduct.category === 'esim'" :src="eSimImages[selectedProduct.name]" :alt="selectedProduct.name">
+        </div>
+        
+        <div class="product-detail-options">
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                <div class="custom-amount">
+                    <input 
+                        v-if="selectedProduct && selectedProduct.category === 'esim'"
+                        type="email" 
+                        v-model="recipientEmail" 
+                        placeholder="Enter valid email for eSIM details" 
+                    >
+                </div>
+                
+                <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+                <div class="amount-options">
+                    <div 
+                        v-if="selectedProduct && selectedProduct.category === 'esim'"
+                        v-for="(amount, index) in eSimAmounts[selectedProduct.name]" 
+                        :key="index"
+                        class="amount-option"
+                        :class="{ selected: selectedAmount === amount }"
+                        @click="selectAmount(amount)"
+                    >
+                        <span>500</span>
+                        <span class="original-price">{{ amount }}</span>
+                        <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">300</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && selectedProduct.category === 'esim'">
+                Stay connected to the internet wherever you go. Avoid roaming costs or hidden fees. You will receive a QR Code and activation code to install the eSIM on your device. This eSIM works globally in 106 countries.
+            </p>
+        </div>
+
+        <!-- Esim Confirm button-->
+        <button v-if="selectedProduct && selectedProduct.category === 'esim'" @click="purchaseEsimProduct" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+        <!-- Esim FAQ -->
+        <div v-if="selectedProduct && selectedProduct.category === 'esim'" class="esim-faq-section">
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('description')">Description</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                    <p v-html="eSimDetailedInfo[selectedProduct.name].description.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' target=\'_blank\'>$1</a>')"></p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('redemption')">How to Redeem</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p v-html="eSimDetailedInfo[selectedProduct.name].redemption.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' target=\'_blank\'>$1</a>')"></p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('terms')">Terms and Conditions</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p>Terms and Conditions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
+<!-- partial -->
+  <script type="module" ></script>
+
+</body>
+</html>

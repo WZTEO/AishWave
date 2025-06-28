@@ -1,7 +1,7 @@
 {% extends 'shop/base.html' %}
 
 {% block title %}
-  AishWave
+  TrustByte99
 {% endblock %}
 
 
@@ -11,7 +11,7 @@
       <button class="menu-btn" onclick="toggleMenu()">
         <i class="fas fa-bars"></i>
       </button>
-      <button hx-get="{% url 'shop' %}" hx-target="body" hx-push-url="true" class="shop-btn">
+      <button href="{% url 'shop' %}"  class="shop-btn">
         <span class="btn-content">
           <i class="fas fa-shopping-cart"></i>
           <span class="notification-badge">2</span>
@@ -31,7 +31,7 @@
         </div>
       </button>
       <button class="menu-item">
-        <div class="inner" hx-get="{% url 'contact-form' %}" hx-target="body" hx-push-url="true">
+        <div class="inner" href="{% url 'contact-form' %}" >
           <div class="top-white"></div>
           <i class="fas fa-envelope"></i>
           <span class="text">Contact Us</span>
@@ -67,7 +67,45 @@
         </a>
         <a href="https://tiktok.com/@aishwave.com" target="_blank" class="social-link tiktok">
           <i class="fab fa-tiktok"></i>
-        </a>
+        </a><button class="menu-item follow-us-btn" onclick="toggleSocialIcons()">
+    <div class="inner">
+        <div class="top-white"></div>
+        <i class="fas fa-heart"></i>
+        <span class="text">Follow Us</span>
+    </div>
+</button>
+
+<style>
+    .social-icons {
+        display: none; /* Hidden by default */
+        gap: 10px; /* Spacing between icons */
+    }
+    .social-icons.show {
+        display: flex; /* Show as flex when toggled */
+    }
+</style>
+
+<div class="social-icons" id="socialIcons">
+    <a href="https://youtube.com/@trustbytecom" target="_blank" class="social-link youtube">
+        <i class="fab fa-youtube"></i>
+    </a>
+    <a href="https://twitter.com/trustbytecom" target="_blank" class="social-link twitter">
+        <i class="fab fa-twitter"></i>
+    </a>
+    <a href="https://tiktok.com/@trustbyte.com" target="_blank" class="social-link tiktok">
+        <i class="fab fa-tiktok"></i>
+    </a>
+    <a href="https://instagram.com/trustbytecom" target="_blank" class="social-link instagram">
+        <i class="fab fa-instagram"></i>
+    </a>
+</div>
+
+<script>
+    function toggleSocialIcons() {
+        const socialIcons = document.getElementById('socialIcons');
+        socialIcons.classList.toggle('show'); // Toggles the 'show' class
+    }
+</script>
       </div>
     </div>
    
@@ -162,9 +200,9 @@
           <i class="fas fa-chart-bar"></i>
           Stocks
         </a>
-        <a href="{% url 'tasks' %}"  class="secondary-btn">
+        <a href="{% url 'referral' %}"  class="secondary-btn">
           <i class="fas fa-tasks"></i>
-          Tasks
+          Referral
         </a>
       </div>
     </div>
@@ -275,22 +313,40 @@
    
   
     <nav class="bottom-nav">
-      <button hx-get="{% url 'finance' %}" hx-target="body" hx-replace-url="true" class="nav-btn active">
-        <i class="fas fa-home"></i>
-        <span>Home</span>
-      </button>
-      <button hx-get="{% url 'create_investment' %}" hx-target="body" hx-push-url="true" class="nav-btn">
-        <i class="fas fa-chart-line"></i>
-        <span>Invest</span>
-      </button>
-      <button hx-get="{% url 'referral' %}" hx-target="body" hx-push-url="true" class="nav-btn">
-        <i class="fas fa-users"></i>
-        <span>Referral</span>
-      </button>
-      <button hx-get="{% url 'profile' %}" hx-target="body" hx-push-url="true" class="nav-btn">
-        <i class="fas fa-user"></i>
-        <span>Profile</span>
-      </button>
+      <a style="text-decoration: none;" href="{% url 'finance' %}">
+        <button  class="nav-btn active">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </button>
+      </a>
+      <a style="text-decoration: none;" href="{% url 'create_investment' %}" >
+        <button  class="nav-btn">
+          <i class="fas fa-chart-line"></i>
+          <span>Invest</span>
+        </button>
+      </a>
+      
+      <a style="text-decoration: none;" href="{% url 'shop_update' %}" >
+        <button class="nav-btn">
+          <i class="fas fa-users"></i>
+          <span>Store</span>
+        </button>
+      </a>
+      
+      <a style="text-decoration: none;" href="{% url 'profile' %}">
+        <button   class="nav-btn">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </button>
+      </a>
+
+      <a style="text-decoration: none;" href="{% url 'clash' %}" >
+        <button hx-target="html" hx-push-url="true" class="nav-btn">
+          <i class="fas fa-trophy"></i>
+          <span>Tourn</span>
+        </button>
+      </a>
+      
     </nav>
     
 </div>

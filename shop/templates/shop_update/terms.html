@@ -1,0 +1,119 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<div v-if="showTermsView" class="terms-view">
+            <div class="crypto-header">
+                <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+                <div class="crypto-title">Terms & Policy</div>
+                <div style="width: 24px;"></div>
+            </div>
+            
+            <div class="terms-container">
+                <div class="terms-section" onclick="togglePolicy(this)">
+    <h2>1. Overview</h2>
+    <div class="terms-content">
+        <p>This platform provides a range of digital products and services including game credits, gift cards, eSIM packages, cryptocurrency purchases, and an optional investment program. By using our platform, you agree to the policies and terms outlined below.</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>2. Product Delivery and Processing Times</h2>
+    <div class="terms-content">
+        <ul>
+            <li>Instant Products: Game top-ups, subscriptions, and selected gift cards are delivered instantly or within a few minutes.</li>
+            <li>Verification Process: Some transactions may require ID verification for security. This process may take a few minutes to 1 hour.</li>
+            <li>Card Selling: Processing time for card sales is typically 1 to 5 hours depending on queue and verification.</li>
+            <li>Cryptocurrency Purchases: Crypto is sent to your wallet within a few minutes post-confirmation.</li>
+        </ul>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>3. Investment Services</h2>
+    <div class="terms-content">
+        <p>We offer users the opportunity to invest in professionally managed pools consisting of stock market assets and gaming tournament earnings. While our expert team carefully manages these funds, investments inherently involve risk due to market volatility. Users are advised to understand their risk tolerance and accept full responsibility for their investment choices. All investments are final and irreversible once processed.</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>4. Refund Policy</h2>
+    <div class="terms-content">
+        <p>All sales of digital products are final and non-refundable. Refunds are only issued in cases of failed delivery due to system error or incorrect/duplicate charges (subject to investigation).</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>5. Privacy Policy</h2>
+    <div class="terms-content">
+        <p>We are committed to protecting your personal data. Information collected (e.g., email, wallet address, or ID for verification) is used only for service delivery and security and never sold or shared with third parties without consent. We follow industry-standard encryption and data protection practices.</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>6. Payment Security</h2>
+    <div class="terms-content">
+        <p>All payments made through our platform are encrypted using secure gateways and monitored for suspicious activity. Users are advised not to share payment details or account credentials with anyone.</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>7. User Conduct</h2>
+    <div class="terms-content">
+        <p>By using our platform, users agree to refrain from using fraudulent or stolen payment methods and avoid abusive or exploitative behavior. Violations may result in account suspension or legal action.</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>8. Account Responsibility</h2>
+    <div class="terms-content">
+        <p>Users are responsible for keeping their account credentials secure and monitoring all transactions made under their account. We are not liable for losses due to compromised accounts caused by user negligence.</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>9. Dispute Resolution</h2>
+    <div class="terms-content">
+        <p>If a disagreement arises regarding a purchase or investment, contact our support team first to resolve the issue. If not resolved within a reasonable time, disputes may be escalated to a third-party mediator as outlined in our service agreement.</p>
+    </div>
+</div>
+
+<div class="terms-section" onclick="togglePolicy(this)">
+    <h2>10. Policy Changes</h2>
+    <div class="terms-content">
+        <p>We reserve the right to update this policy without prior notice. Major updates will be communicated through the app or via email. Continued use of the platform implies acceptance of the latest terms.</p>
+    </div>
+</div>
+
+<script>
+    function togglePolicy(section) {
+        const content = section.querySelector(".terms-content");
+        const isOpen = content.style.display === "block";
+
+        // Close all
+        document.querySelectorAll(".terms-section").forEach(sec => {
+            sec.classList.remove("active");
+            sec.querySelector(".terms-content").style.display = "none";
+        });
+
+        // Toggle clicked
+        if (!isOpen) {
+            section.classList.add("active");
+            content.style.display = "block";
+        }
+    }
+
+    // Optional: start collapsed
+    document.querySelectorAll(".terms-content").forEach(c => c.style.display = "none");
+</script>
+
+            </div>
+            </div>
+   
+{% endblock content %}
+      
+

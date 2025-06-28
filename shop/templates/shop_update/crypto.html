@@ -1,0 +1,276 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div id="app">     
+            <div class="crypto-view">
+                <div class="crypto-header">
+                    <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                        <button class="back-button">←</button>
+                    </a>
+                    <div class="crypto-title">Buy Cryptocurrency</div>
+                    <div style="width: 24px;"></div>
+                </div>
+                
+                <form method="post" action="{% url 'purchase_product' %}">
+                    {% csrf_token %}
+
+                    <!-- Final backend-compatible fields -->
+                    <input type="hidden" name="player_id" id="player_id_input">
+                    <input type="hidden" name="product" value="crypto">
+                    <input type="hidden" name="selected_item" id="selected_item_input">
+                    <style>
+                    .errorlist {
+                        color: #ff4d4d; /* Red color for errors */
+                        font-size: 14px;
+                        margin-top: 15px;
+                        padding: 5px;
+                        background: #ffe6e6; /* Light red background */
+                        border: 1px solid #ff4d4d;
+                        border-radius: 4px;
+                        text-align: center;
+                        }
+                        .errorlist li {
+                        list-style: none;
+                        }
+                </style>
+                {% if messages %}
+                {% for message in messages %}
+                    {% if "purchase" in message.tags %}
+                    <div class="errorlist" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <br>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+                    <!-- Crypto Dropdown -->
+                    <div class="crypto-dropdown">
+                        <input type="hidden" id="selected_crypto">
+
+                        <div class="crypto-selected" onclick="toggleCryptoDropdown()">
+                            <div id="selected-crypto-icon" class="crypto-icon" style="background: #ccc;"></div>
+                            <div class="crypto-option-label">
+                                <span id="selected-crypto-name" class="crypto-option-name">Select Crypto</span>
+                                <span id="selected-crypto-symbol" class="crypto-option-symbol"></span>
+                            </div>
+                            <div class="crypto-dropdown-arrow">
+                                <svg width="12" height="12" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M7,10L12,15L17,10H7Z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div id="crypto-dropdown-menu" class="crypto-dropdown-menu">
+                            {% for crypto in cryptos %}
+                            <div class="crypto-dropdown-item"
+                                onclick="selectCrypto('{{ crypto.symbol }}', '{{ crypto.name }}', '{{ crypto.color }}', '{{ crypto.image.url|default_if_none:'' }}')">
+                                <div class="crypto-icon" style="background: {{ crypto.color }}">
+                                    {% if crypto.image %}
+                                    <img src="{{ crypto.image.url }}" alt="{{ crypto.symbol }}">
+                                    {% else %}
+                                    {{ crypto.symbol }}
+                                    {% endif %}
+                                </div>
+                                <div class="crypto-option-label">
+                                    <span class="crypto-option-name">{{ crypto.name }}</span>
+                                    <span class="crypto-option-symbol">{{ crypto.symbol }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <style>
+                        .crypto-dropdown-menu { display: none; }
+                        .crypto-dropdown-menu.open { display: block; }
+                    </style>
+
+                    <div class="crypto-card">
+                        <div class="conversion-display">
+                            <div class="currency-row">
+                                <div class="currency-label">USD</div>
+                                <div class="currency-amount">
+                                    $<input 
+                                        type="number" 
+                                        id="cryptoAmount"
+                                        class="amount-input" 
+                                        min="1" 
+                                        step="0.01"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="currency-row">
+                                <div class="currency-label">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div id="selected-crypto-icon-secondary" class="crypto-icon" style="background: #ccc; width: 24px; height: 24px;"></div>
+                                        <span id="selected-crypto-symbol-secondary">Crypto</span>
+                                    </div>
+                                </div>
+                                <div class="currency-amount">
+                                    <span id="calculated-crypto-amount">0</span>
+                                    <span id="fetching-indicator" class="loading-indicator" style="display: none;">updating...</span>
+                                    <svg onclick="updateCryptoRates()" width="16" height="16" viewBox="0 0 24 24" style="cursor:pointer; margin-left:5px; vertical-align:middle;">
+                                        <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <label class="input-label">Wallet Address</label>
+                        <input 
+                            type="text" 
+                            class="wallet-input" 
+                            placeholder="Enter your wallet address"
+                            id="walletAddress"
+                            required
+                        >
+
+                        <button type="submit" class="purchase-button" id="buy-button">
+                            Buy <span id="selected-crypto-name-btn">Crypto</span>
+                        </button>
+
+                        <!-- <div id="price-last-updated" style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;">Prices last updated</div> -->
+                    </div>
+                </form>
+    <script>
+    const coinGeckoMap = {
+        BTC: "bitcoin",
+        ETH: "ethereum",
+        SOL: "solana",
+        USDT: "tether",
+        TON: "the-open-network",
+        SUI: "sui",
+        BNB: "binancecoin",
+        XRP: "ripple"
+    };
+
+    let cryptoPrices = {};
+
+    function toggleCryptoDropdown() {
+        const menu = document.getElementById("crypto-dropdown-menu");
+        menu.classList.toggle("open");
+    }
+
+    function selectCrypto(symbol, name, color, image) {
+        document.getElementById("selected_crypto").value = symbol;
+
+        // UI updates
+        const mainIcon = document.getElementById("selected-crypto-icon");
+        const cardIcon = document.getElementById("selected-crypto-icon-secondary");
+        const btnText = document.getElementById("selected-crypto-name-btn");
+        const cardSymbol = document.getElementById("selected-crypto-symbol-secondary");
+
+        mainIcon.style.background = cardIcon.style.background = color;
+        mainIcon.innerHTML = cardIcon.innerHTML = image ? `<img src="${image}" alt="${symbol}">` : symbol;
+
+        document.getElementById("selected-crypto-name").textContent = name;
+        document.getElementById("selected-crypto-symbol").textContent = symbol;
+        btnText.textContent = name;
+        cardSymbol.textContent = symbol;
+
+        document.getElementById("crypto-dropdown-menu").classList.remove("open");
+
+        updateCryptoRates();  // also sets hidden field
+    }
+
+    function updateCryptoRates() {
+        const symbol = document.getElementById("selected_crypto").value;
+        const usdAmount = parseFloat(document.getElementById("cryptoAmount").value) || 0;
+        const wallet = document.getElementById("walletAddress").value;
+
+        // Inject payload-ready fields
+        document.getElementById("player_id_input").value = wallet;
+        document.getElementById("selected_item_input").value = `${symbol},${usdAmount}`;
+
+        const resultEl = document.getElementById("calculated-crypto-amount");
+        const fetchingEl = document.getElementById("fetching-indicator");
+        const updatedAtEl = document.getElementById("price-last-updated");
+
+        if (!coinGeckoMap[symbol]) {
+            resultEl.textContent = "N/A";
+            return;
+        }
+
+        fetchingEl.style.display = 'inline';
+
+        if (cryptoPrices[symbol]) {
+            const price = cryptoPrices[symbol];
+            const cryptoAmount = (usdAmount / price).toFixed(6);
+            resultEl.textContent = cryptoAmount;
+            updatedAtEl.textContent = new Date().toLocaleTimeString();
+            fetchingEl.style.display = 'none';
+            return;
+        }
+
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,tether,the-open-network,sui,binancecoin,ripple&vs_currencies=usd')
+            .then(response => response.json())
+            .then(data => {
+                for (const [symbolKey, geckoId] of Object.entries(coinGeckoMap)) {
+                    const entry = data[geckoId];
+                    if (entry && entry.usd) {
+                        cryptoPrices[symbolKey] = entry.usd;
+                    }
+                }
+
+                const price = cryptoPrices[symbol];
+                const cryptoAmount = (usdAmount / price).toFixed(6);
+                resultEl.textContent = cryptoAmount;
+                updatedAtEl.textContent = new Date().toLocaleTimeString();
+            })
+            .catch(err => {
+                console.error('Fetch error:', err);
+                resultEl.textContent = "N/A";
+            })
+            .finally(() => {
+                fetchingEl.style.display = 'none';
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("cryptoAmount").addEventListener("input", updateCryptoRates);
+        document.getElementById("walletAddress").addEventListener("input", updateCryptoRates);
+    });
+    </script>
+
+        <div style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;" id="price-updated-info">
+            Prices last updated: <span id="price-last-updated">-</span>
+        </div>
+            </div>
+
+            <div class="how-to-buy">
+                <h3>How to Buy Cryptocurrency</h3>
+                <p>Unlock the world of cryptocurrency on the 'Trustbyte99' platform. Simply create your free account, fund it using our convenient methods, and start buying crypto directly to your address. Aishwave makes getting started quick, easy, and secure.</p>
+            </div>
+            
+            <div class="faq-section">
+                <h3>Frequently Asked Questions</h3>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(0)">Can I buy crypto directly to my wallet?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 0 }">Yes, it's simple and fast! Once you fund your account, you can easily buy crypto and have it sent directly to your wallet.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(1)">What is the minimum amount of cryptocurrency I can buy?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 1 }">You can buy as little as $10 worth of crypto on Aishwave. Additionally, Trustbyte99 allows you to set up recurring buys, so you can regularly accumulate cryptocurrency.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(2)">How can I keep my crypto safe?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 2 }">While the safest option is to store your crypto in your own cold wallet, we strive to maintain transparency and provide top-level security for your assets.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(3)">Is cryptocurrency safe to buy?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 3 }">Cryptocurrency prices can fluctuate significantly based on market conditions. We recommend doing your own research on digital assets before making a purchase.</div>
+                </div>
+            </div>
+        </div>
+   
+{% endblock content %}
+        
+

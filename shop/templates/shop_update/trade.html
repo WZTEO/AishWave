@@ -1,0 +1,193 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showTradeView" class="trade-view">
+            <div class="crypto-header">
+                <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>                <div class="crypto-title">Trade Gift Cards</div>
+                <div style="width: 24px;"></div>
+            </div>
+            <style>
+  .alert-box {
+    font-size: 14px;
+    margin-top: 15px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+  }
+
+  .alert-error {
+    background: #ffe6e6;
+    border: 1px solid #ff4d4d;
+    color: #b30000;
+  }
+
+  .alert-success {
+    background: #e6ffe6;
+    border: 1px solid #4CAF50;
+    color: #2e7d32;
+  }
+
+  .btn-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+
+{% if messages %}
+  {% for message in messages %}
+    {% if "trade" in message.tags %}
+      <div 
+        class="alert-box 
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR or 'error' in message.tags %}alert-error
+        {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS or 'success' in message.tags %}alert-success
+        {% endif %}"
+        role="alert"
+      >
+        {{ message }}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove();" aria-label="Close">×</button>
+      </div>
+      <br>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+            
+            <form method="post" enctype="multipart/form-data" action="{% url 'trade-card' %}">
+  {% csrf_token %}
+  <div class="trade-card">
+    <h3 class="trade-title">Sell Your Gift Card</h3>
+
+    <input type="hidden" name="selected_gift_card" id="selected_gift_card">
+
+<div class="gift-cards-grid">
+    {% for card, image in gift_cards.items %}
+    <div 
+        class="gift-card-option"
+        data-card-name="{{ card }}"
+        onclick="selectGiftCard('{{ card }}')"
+    >
+        <div class="gift-card-icon">
+            <img src="{{ image }}" alt="{{ card }}">
+        </div>
+        <span>{{ card }}</span>
+    </div>
+    {% endfor %}
+</div>
+
+
+    <script>
+function selectGiftCard(cardName) {
+    // Set the hidden input
+    document.getElementById("selected_gift_card").value = cardName;
+
+    // Deselect all cards
+    const allCards = document.querySelectorAll('.gift-card-option');
+    allCards.forEach(card => card.classList.remove('selected'));
+
+    // Highlight the selected one
+    const selectedCard = [...allCards].find(el => el.dataset.cardName === cardName);
+    if (selectedCard) {
+        selectedCard.classList.add('selected');
+    }
+}
+</script>
+
+    <div class="trade-filters">
+      <div class="trade-filter">
+        <label class="input-label">Currency</label>
+        <select class="trade-select" name="currency">
+          <option>USD</option>
+          <option>EUR</option>
+          <option>GBP</option>
+        </select>
+      </div>
+      <div class="trade-filter">
+        <label class="input-label">Amount</label>
+        <input 
+          type="text" 
+          class="trade-select" 
+          name="amount" 
+          placeholder="Enter amount"
+        >
+      </div>
+      <div class="trade-filter">
+        <label class="input-label">Card Type</label>
+        <select class="trade-select" name="card_type">
+          <option>Physical</option>
+          <option>E-code</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="input-label">Card Code</label>
+    <input 
+      type="text" 
+      class="wallet-input" 
+      name="card_code" 
+      placeholder="Enter your gift card code"
+      required
+    >
+
+    <div class="file-upload">
+      <label class="file-upload-label">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M14,13V17H10V13H7L12,8L17,13M22,12C22,6.48 17.52,2 12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12M11,7V13L16.25,16.15L17,14.92L12.5,12.25V7H11Z"/>
+        </svg>
+        <span>Click to upload card image</span>
+        <input 
+          type="file" 
+          accept="image/*" 
+          class="file-upload-input" 
+          name="card_image"
+          onchange="showUploadedFileName(this)"
+        >
+      </label>
+      <div class="file-name" id="uploadedFileName" style="display:none;"></div>
+    </div>
+
+    <button type="submit" class="purchase-button">
+      Sell Gift Card
+    </button>
+  </div>
+</form>
+
+<script>
+function selectGiftCard(cardName) {
+  document.getElementById("selected_gift_card").value = cardName;
+  const options = document.querySelectorAll(".gift-card-option");
+  options.forEach(opt => opt.classList.remove("selected"));
+  document.querySelector(`.gift-card-option[data-card-name='${cardName}']`).classList.add("selected");
+}
+
+function showUploadedFileName(input) {
+  const fileLabel = document.getElementById("uploadedFileName");
+  if (input.files.length > 0) {
+    fileLabel.textContent = input.files[0].name;
+    fileLabel.style.display = "block";
+  } else {
+    fileLabel.textContent = "";
+    fileLabel.style.display = "none";
+  }
+}
+</script>
+
+            
+            <div class="trade-description">
+                <h3>How to Sell Gift Cards</h3>
+                <p>Select your gift card type, enter the card details including the code, and submit. We'll verify your card and process the payment to your account. Fast, secure, and hassle-free.</p>
+            </div>
+        </div>
+   
+{% endblock content %}
+        

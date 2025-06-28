@@ -1,0 +1,227 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<div v-if="showOrderView" class="order-view">
+    <div class="order-header">
+        <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+            <button class="back-button">←</button>
+        </a>
+        <div class="crypto-title">Orders</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <!-- FILTER + SEARCH -->
+    <div id="orders-section">
+        <div class="order-filters">
+            <button class="filter-button active" data-status="all">All Orders</button>
+            <button class="filter-button" data-status="pending">Pending</button>
+            <button class="filter-button" data-status="approved">Approved</button>
+            <button class="filter-button" data-status="canceled">Rejected</button>
+        </div>
+
+        <div class="order-search">
+            <div class="search-icon">
+                🔍
+            </div>
+            <input type="text" id="order-search-input" class="search-input" placeholder="Search orders">
+            <div class="refresh-icon" id="refresh-orders">
+                🔄
+            </div>
+        </div>
+
+        <!-- ORDER LIST -->
+        <div class="orders-list">
+            {% for order in orders %}
+            <script id="order_{{ order.id }}" type="application/json">
+    {
+        "id": "{{ order.id }}",
+        "amount": "{{ order.amount }}",
+        "product": "{{ order.product }}",
+        "status": "{{ order.status }}",
+        "created_at": "{{ order.created_at|date:'c' }}",
+        "type": "{{ order.transaction.first.transaction_type|default:''|escapejs }}",
+        "paymentMethod": "{{ order.payment_method|default_if_none:'-'|escapejs }}",
+        "reason": "{{ order.reason|default_if_none:''|escapejs }}",
+        "transactions": [
+            {% for transaction in order.transaction.all %}
+            {
+                "id": "{{ transaction.id }}",
+                "amount": "{{ transaction.amount }}",
+                "type": "{{ transaction.transaction_type|escapejs }}",
+                "reference": "{{ transaction.reference|escapejs }}",
+                "status": "{{ transaction.status|escapejs }}",
+                "created_at": "{{ transaction.created_at|date:'c' }}"
+            }{% if not forloop.last %},{% endif %}
+            {% empty %}
+            /* No transactions */
+            {% endfor %}
+        ]
+    }
+</script>
+
+            <div class="order-item" data-status="{{ order.status }}" data-id="{{ order.id }}"
+                data-type="{{ order.transaction.transaction_type|lower }}" onclick="showOrderDetail({{ order.id }})">
+                <div class="order-status-indicator"
+                    style="width: 6px; height: 100%; background-color: {% if order.status == 'pending' %}#FFB900{% elif order.status == 'approved' %}#32CD32{% elif order.status == 'canceled' %}#FF3B30{% else %}#777{% endif %};">
+                </div>
+
+                <div class="order-content" style="margin-left: 8px;">
+                    <div class="order-top-row">
+                        <span class="order-id">#{{ order.id }}</span>
+                        <span class="order-date">{{ order.created_at }}</span>
+                    </div>
+                    <div class="order-details">
+                        {% for transaction in order.transaction.all %}
+                        <span class="order-type">{{ transaction.transaction_type|upper }}</span>
+                        {% endfor %}
+                        <span class="order-amount">Ghs {{ order.amount }}</span>
+                        <span class="order-status status-{{ order.status }}">{{ order.status|upper }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% empty %}
+            <div class="no-orders-message">
+                No orders found. Completed transactions will appear here.
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+    <div id="order-detail-view" style="display: none;">
+        <div class="detail-header">
+            <div>
+                <h3 style="margin-bottom: 5px;">Order Details</h3>
+                <span class="order-date" id="detail-date"></span>
+            </div>
+            <span class="order-status detail-status" id="detail-status"></span>
+        </div>
+
+        <div class="detail-body">
+            <div class="detail-row"><span class="detail-label">Order ID</span><span class="detail-value"
+                    id="detail-id"></span></div>
+            <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value"
+                    id="detail-type"></span></div>
+            <div class="detail-row"><span class="detail-label">Product</span><span class="detail-value"
+                    id="detail-product"></span></div>
+            <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value"
+                    id="detail-amount"></span></div>
+            <div class="detail-row"><span class="detail-label">Transaction ID</span><span class="detail-value"
+                    id="detail-payment"></span></div>
+            <div class="detail-row" id="detail-reason-row"><span class="detail-label">Rejection Reason</span><span
+                    class="detail-value" id="detail-reason" style="color:#FF3B30;"></span></div>
+        </div>
+
+        <div class="back-to-list" onclick="hideOrderDetail()">← Back to orders list</div>
+    </div>
+
+
+
+</div>
+
+
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterButtons = document.querySelectorAll('.filter-button');
+        const searchInput = document.getElementById('order-search-input');
+        const orderItems = document.querySelectorAll('.order-item');
+        const refreshBtn = document.getElementById('refresh-orders');
+
+        let currentStatus = 'all';
+
+        // Filter by status
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentStatus = button.dataset.status;
+
+                // Update active button
+                filterButtons.forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+
+                filterOrders();
+            });
+        });
+
+        // Filter by search input
+        searchInput.addEventListener('input', filterOrders);
+
+        // Refresh (clears filters)
+        refreshBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            currentStatus = 'all';
+            document.querySelector('[data-status="all"]').click();
+        });
+
+        function filterOrders() {
+            const query = searchInput.value.toLowerCase().trim();
+
+            orderItems.forEach(item => {
+                const status = item.dataset.status;
+                const id = item.dataset.id;
+                const type = item.dataset.type;
+
+                const statusMatch = (currentStatus === 'all' || currentStatus === status);
+                const searchMatch = (!query || id.includes(query) || type.includes(query));
+
+                item.style.display = (statusMatch && searchMatch) ? '' : 'none';
+            });
+        }
+    });
+</script>
+<script>
+    function showOrderDetail(orderId) {
+        const data = JSON.parse(document.getElementById(`order_${orderId}`).textContent);
+
+        // Hide orders list
+        document.getElementById('orders-section').style.display = 'none';
+        document.getElementById('order-detail-view').style.display = 'block';
+
+        // Fill content
+        document.getElementById('detail-id').textContent = `#${data.id}`;
+        document.getElementById('detail-product').textContent = data.product;
+        document.getElementById('detail-date').textContent = new Date(data.created_at).toLocaleString();
+        document.getElementById('detail-type').textContent = capitalize(data.transaction?.transaction_type || data.type || '-');
+        document.getElementById('detail-amount').textContent = `Ghs ${data.amount}`;
+        document.getElementById('detail-payment').textContent = (data.transactions[0]?.reference || '-'); 
+    
+
+        // Rejection reason (conditionally shown)
+        const reasonRow = document.getElementById('detail-reason-row');
+        if (data.reason) {
+            reasonRow.style.display = 'flex';
+            document.getElementById('detail-reason').textContent = data.reason;
+        } else {
+            reasonRow.style.display = 'none';
+        }
+
+        // Status badge
+        const statusBadge = document.getElementById('detail-status');
+        statusBadge.textContent = capitalize(data.status);
+        statusBadge.style.backgroundColor = getStatusColor(data.status) + '20';
+        statusBadge.className = `order-status status-${data.status}`;
+    }
+
+    function hideOrderDetail() {
+        document.getElementById('order-detail-view').style.display = 'none';
+        document.getElementById('orders-section').style.display = 'block';
+    }
+
+    function getStatusColor(status) {
+        if (status === 'pending') return '#FFB900';
+        if (status === 'approved') return '#32CD32';
+        if (status === 'canceled') return '#FF3B30';
+        return '#777';
+    }
+
+    function capitalize(text) {
+        return text.toUpperCase();
+    }
+</script>
+
+
+
+{% endblock content %}

@@ -1,3 +1,17 @@
 .env
-/create pass
-/forgot pass
+/createpass
+/forgotpass
+backup./**.json*/
+/venv
+/.venv
+# Python/Django cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.vscode/
+backup.json
+
+# Django-specific
+*.sqlite3
+*.pyc
+db.sqlite3

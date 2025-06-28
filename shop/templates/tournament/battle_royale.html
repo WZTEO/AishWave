@@ -1,0 +1,85 @@
+{% extends 'tournament/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div id="br-solo" class="section-content active">
+                        <h2>Battle Royale Solo Challenge</h2>
+                        <div class="player-leaderboard">
+                            {% for player in players  %}
+                            {% if forloop.counter == 1 %}
+                            <div class="player-row first-place">
+                                <div class="player-info">
+                                    <div class="player-rank">
+                                        <svg class="trophy gold" viewBox="0 0 24 24" width="24" height="24">
+                                            <path d="M5,16 L3,5 L8,5 L8,3 L16,3 L16,5 L21,5 L19,16 L5,16 Z M9,17 L15,17 L15,21 L9,21 L9,17 Z" fill="gold"/>
+                                        </svg>
+                                    </div>
+                                    <div class="player-name">{{ player.player_name }}</div>
+                                </div>
+                                <div class="player-stats">
+                                    <div class="stat">Kills: {{ player.kills }}</div>
+                                    <div class="stat">Games: {{ player.matches_played }}</div>
+                                    <div class="stat">Country: {{ player.country.name }}</div>
+                                </div>
+                            </div>
+                            {% elif forloop.counter == 2 %}
+                                
+                            <div class="player-row second-place">
+                                <div class="player-info">
+                                    <div class="player-rank">
+                                        <svg class="trophy silver" viewBox="0 0 24 24" width="24" height="24">
+                                            <path d="M5,16 L3,5 L8,5 L8,3 L16,3 L16,5 L21,5 L19,16 L5,16 Z M9,17 L15,17 L15,21 L9,21 L9,17 Z" fill="silver"/>
+                                        </svg>
+                                    </div>
+                                    <div class="player-name">{{ player.player_name}}</div>
+                                </div>
+                                <div class="player-stats">
+                                    <div class="stat">Kills: {{ player.kills }}</div>
+                                    <div class="stat">Games: {{ player.matches_played }}</div>
+                                    <div class="stat">Country: {{ player.country.name }}</div>
+                                </div>
+                            </div>
+
+                            {% elif forloop.counter == 3 %}
+                            <div class="player-row third-place">
+                                <div class="player-info">
+                                    <div class="player-rank">
+                                        <svg class="trophy bronze" viewBox="0 0 24 24" width="24" height="24">
+                                            <path d="M5,16 L3,5 L8,5 L8,3 L16,3 L16,5 L21,5 L19,16 L5,16 Z M9,17 L15,17 L15,21 L9,21 L9,17 Z" fill="#cd7f32"/>
+                                        </svg>
+                                    </div>
+                                    <div class="player-name">{{ player.player_name }}</div>
+                                </div>
+                                <div class="player-stats">
+                                    <div class="stat">Kills: {{ player.kills }}</div>
+                                    <div class="stat">Games: {{ player.matches_played }}</div>
+                                    <div class="stat">Country: {{ player.country.name }}</div>
+                                </div>
+                            </div>
+
+                            {% else %}
+                            <div class="player-row">
+                                <div class="player-info">
+                                    <div class="player-rank">4</div>
+                                    <div class="player-name">{{ player.player_name }}</div>
+                                </div>
+                                <div class="player-stats">
+                                    <div class="stat">Kills: {{ player.kills }}</div>
+                                    <div class="stat">Games: {{ player.matches_played }}</div>
+                                    <div class="stat">Country: {{ player.country.name }}</div>
+                                </div>
+                            </div> 
+                            {% endif %}
+                            {% empty %}
+
+                            {% endfor %}
+                           
+                            
+                        </div>
+                    </div>
+{% endblock content %}
+                    
+                    
+                  
+                    
+                    

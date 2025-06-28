@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TrustByte99.com shop </title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'trustbyte/img/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'trustbyte/img/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'trustbyte/img/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'trustbyte/img/site.webmanifest' %}">
+    <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css' %}">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title> trustbyte99</title>
+        <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css' %}">
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+
+    <body hx-boost="false">
+        
+        <!-- Products -->
+        <div id="app">
+            {% block content %}
+                
+            {% endblock content %}
+        
+        </div>
+        
+
+    </body>
+    <!-- Update price -->
+    <script>
+                        function updatePrices() {
+                            const container = document.querySelector('.amount-options');
+                            if (!container) return; // Exit if container doesn't exist (yet)
+
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+                            const options = document.querySelectorAll('.amount-option');
+
+                            options.forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        }
+
+                        // Initialize immediately (if DOM is ready)
+                        updatePrices();
+
+                        // Re-run when HTMX injects new content
+                        document.addEventListener('htmx:afterSwap', updatePrices);
+                        document.addEventListener('htmx:load', updatePrices); // For older HTMX versions
+    </script>
+    <!-- Nav -->
+    <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const navItems = document.querySelectorAll(".bottom-nav .nav-item");
+
+                // Optional: set default active tab
+                let activeTab = localStorage.getItem("activeTab") || "shop";
+                setActiveTab(activeTab);
+
+                navItems.forEach(item => {
+                    item.addEventListener("click", () => {
+                        const tab = item.getAttribute("data-tab");
+                        setActiveTab(tab);
+                    });
+                });
+
+                function setActiveTab(tabName) {
+                    navItems.forEach(item => {
+                        item.classList.toggle("active", item.getAttribute("data-tab") === tabName);
+                    });
+
+                    // Save active tab (optional)
+                    // localStorage.setItem("activeTab", tabName);
+
+                    // You can add content switching logic here if needed
+                    // Example:
+                    // document.querySelectorAll(".tab-panel").forEach(p => p.style.display = "none");
+                    // document.getElementById(`panel-${tabName}`).style.display = "block";
+                }
+            });
+    </script>
+    <!-- Game FAQ -->
+     <script>
+        function initFAQ() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                // Only add event listener if not already present
+                if (!question._faqInitialized) {
+                    question.addEventListener('click', function() {
+                        const answer = this.nextElementSibling;
+                        
+                        // Collapse other open answers
+                        document.querySelectorAll('.faq-answer').forEach(el => {
+                            if (el !== answer) el.classList.remove('active');
+                        });
+                        
+                        // Toggle current answer
+                        answer.classList.toggle('active');
+                    });
+                    
+                    // Mark as initialized to prevent duplicate listeners
+                    question._faqInitialized = true;
+                }
+            });
+        }
+
+        // Initialize immediately
+        initFAQ();
+
+        // Re-initialize when HTMX loads new content
+        document.addEventListener('htmx:afterSwap', initFAQ);
+        document.addEventListener('htmx:load', initFAQ); // For older HTMX versions
+    </script>
+    <!-- Esim FAQ -->
+     <script>
+        function initFAQ() {
+            const faqQuestions = document.querySelectorAll('.esim-faq-question');
+            
+            faqQuestions.forEach(question => {
+                // Only add event listener if not already present
+                if (!question._faqInitialized) {
+                    question.addEventListener('click', function() {
+                        const answer = this.nextElementSibling;
+                        
+                        // Collapse other open answers
+                        document.querySelectorAll('.esim-faq-answer').forEach(el => {
+                            if (el !== answer) el.classList.remove('active');
+                        });
+                        
+                        // Toggle current answer
+                        answer.classList.toggle('active');
+                    });
+                    
+                    // Mark as initialized to prevent duplicate listeners
+                    question._faqInitialized = true;
+                }
+            });
+        }
+
+        // Initialize immediately
+        initFAQ();
+
+        // Re-initialize when HTMX loads new content
+        document.addEventListener('htmx:afterSwap', initFAQ);
+        document.addEventListener('htmx:load', initFAQ); // For older HTMX versions
+    </script>
+    <!-- Set Price -->
+    <script>
+                    function selectAmount(el, amount, price) {
+                        // Set value of hidden field for Django backend
+                        document.getElementById('selected-item').value = `${amount},${price}`;
+
+                        // Highlight the selected block visually
+                        document.querySelectorAll('.amount-option').forEach(option => {
+                            option.classList.remove('selected');
+                        });
+                        el.classList.add('selected');
+                    }
+    </script>
+
+    <script type="module"></script>
+     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.5/dist/htmx.min.js"></script>
+
+</html>

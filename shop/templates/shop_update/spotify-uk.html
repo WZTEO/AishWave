@@ -1,0 +1,160 @@
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+   <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
+                    <button class="back-button">←</button>
+                </a>
+            <div class="product-detail-title">Spotify UK Gift Card</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        
+        <div class="product-detail-option">
+            <style>
+                .errorlist {
+                    color: #ff4d4d; /* Red color for errors */
+                    font-size: 14px;
+                    margin-top: 15px;
+                    padding: 5px;
+                    background: #ffe6e6; /* Light red background */
+                    border: 1px solid #ff4d4d;
+                    border-radius: 4px;
+                    text-align: center;
+                    }
+                    .errorlist li {
+                    list-style: none;
+                    }
+            </style>
+            {% if messages %}
+              {% for message in messages %}
+                {% if "purchase" in message.tags %}
+                  <div class="errorlist" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <br>
+                {% endif %}
+              {% endfor %}
+          {% endif %}
+                <div class="product-detail-label">Recipient Details</div>
+                
+
+                <form id="product-form" method="post" action="{% url 'purchase_product' %}">
+                    {% csrf_token %}
+
+                    <!-- Player ID Input -->
+                    <div class="custom-amount">
+                        <input 
+                            type="email" 
+                            name="player_id" 
+                            placeholder="Enter valid email for voucher" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Hidden form field to capture the selected item and price -->
+                    <input type="hidden" id="selected-item" name="selected_item">
+
+                    <!-- Hidden product field -->
+                    <input type="hidden" name="product" value="spotify-uk">
+
+                    <!-- Amount Selection Label -->
+                    <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+
+                    <!-- Stylized Amount Options -->
+                    <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
+                        <div class="amount-option" data-price="13" onclick="selectAmount(this, '$13 USD (UK)', '13')">
+                            <span>$13 USD (UK)</span>
+                            <span class="original-price">$13</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="40" onclick="selectAmount(this, '$13 USD (UK)', '40')">
+                            <span>$40 USD (UK)</span>
+                            <span class="original-price">$40</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const container = document.querySelector('.amount-options');
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+
+                            document.querySelectorAll('.amount-option').forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        });
+                        </script>
+                </form>
+
+            </div>
+        
+        <div class="product-description">
+            <p v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')">
+                Purchase Spotify UK quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
+            </p>
+        </div>
+        
+        <button type="submit" form="product-form" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const faqQuestions = document.querySelectorAll('.faq-question');
+
+                faqQuestions.forEach(question => {
+                    question.addEventListener('click', function () {
+                        const answer = this.nextElementSibling;
+
+                        // Collapse any other open answer
+                        document.querySelectorAll('.faq-answer').forEach(el => {
+                            if (el !== answer) el.classList.remove('active');
+                        });
+
+                        // Toggle this one
+                        answer.classList.toggle('active');
+                    });
+                });
+            });
+        </script>
+        <div v-if="selectedProduct && selectedProduct.category === 'ecommerce'" class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('description')">Description</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                     This Spotify Gift Card provides a 1-month Premium Subscription.
+                </div>
+            </div>
+            
+            <div v-if="ecommerceRedemption[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('redemption')">How to Redeem</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p style="white-space: pre-line">Visit spotify.com/redeem. Enter the PIN code from your gift card. </p>
+                </div>
+            </div>
+            
+            <div v-if="ecommerceTerms[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('terms')">Terms & Conditions</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p style="white-space: pre-line">Redeemable only for full-price standalone Premium subscription months via spotify.com.<br>Cannot be used for discounted or group subscriptions.<br>Cannot be exchanged for cash or resold (unless required by law).<br>Must be redeemed within 12 months of purchase, or the PIN expires.<br>Users must be 13+ years old and reside in the country of purchase.<br>For full terms, visit Spotify Gift Card Terms.</p>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+   
+{% endblock content %}
+    

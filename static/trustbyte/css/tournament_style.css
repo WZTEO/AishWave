@@ -1,0 +1,1050 @@
+/* Base styles */
+:root {
+    --primary-color: #3498FF;      /* Light Blue from screenshot */
+    --secondary-color: #4298f5;    /* Lighter Blue */
+    --dark-color: #177EFF;         /* Bright Blue from screenshot */
+    --light-color: #FFFFFF;        /* White */
+    --accent-color: #3498FF;       /* Light Blue Accent */
+    --text-color: #333333;         /* Dark Text */
+    --card-bg: #FFFFFF;
+    --card-border: rgba(52, 152, 255, 0.1);
+    --success-color: #27AE60;
+    --light-bg: #F5F9FF;           /* Light background matching screenshot */
+    --box-shadow: 0 4px 12px rgba(52, 152, 255, 0.15);
+    --gradient-blue: linear-gradient(135deg, #3498FF, #177EFF);
+    --card-hover-shadow: 0 10px 25px rgba(52, 152, 255, 0.2);
+    --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --mobile-nav-height: 60px;     /* Mobile navigation height */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: var(--light-bg);
+    color: var(--text-color);
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header styles */
+header {
+    background: var(--gradient-blue);
+    padding: 20px 0;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.referral-close {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.referral-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: rotate(90deg);
+}
+
+header h1 {
+    color: var(--light-color);
+    font-size: 1.8rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Main content styles */
+main {
+    padding: 20px 0 80px 0; /* Added bottom padding to account for mobile nav */
+    background-color: #f5f9ff;
+    background-image: linear-gradient(to bottom, #f5f9ff, #edf4ff);
+}
+
+.tournament-section {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(52, 152, 255, 0.15);
+    margin-top: 10px;
+    border: 1px solid rgba(52, 152, 255, 0.08);
+}
+
+/* Navigation styles */
+.tournament-nav {
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--card-border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 10px;
+    background-color: var(--light-bg);
+    white-space: nowrap;
+    scrollbar-width: none; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+}
+
+.tournament-nav::-webkit-scrollbar {
+    display: none; 
+}
+
+.tournament-nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    white-space: nowrap;
+    justify-content: space-between;
+}
+
+.tournament-nav li {
+    margin-right: 5px;
+    flex: 1;
+}
+
+.nav-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 16px 28px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 600;
+    position: relative;
+    transition: var(--transition-standard);
+    box-shadow: 0 4px 8px rgba(52, 152, 255, 0.2);
+    border-radius: 8px 8px 0 0;
+    width: 100%;
+    letter-spacing: 0.5px;
+}
+
+.nav-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+.nav-btn.active {
+    background-color: var(--dark-color);
+    color: white;
+    transform: translateY(0);
+}
+
+.nav-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--accent-color);
+    border-radius: 4px 4px 0 0;
+}
+
+/* Tournament stages navigation - enhanced */
+.tournament-stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 35px 0;
+    justify-content: center;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.stage-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: var(--transition-standard);
+    box-shadow: 0 4px 8px rgba(52, 152, 255, 0.2);
+    min-width: 150px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+}
+
+.stage-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+.stage-btn.active {
+    background: var(--gradient-blue);
+    border-color: var(--dark-color);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.stage-content {
+    display: none;
+    animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stage-content.active {
+    display: block;
+}
+
+.stage-content h3 {
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 15px;
+    font-weight: 600;
+}
+
+.stage-content h3:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px;
+}
+
+.stage-content p {
+    margin-bottom: 30px;
+    font-size: 1.05rem;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Content section styles */
+.content-sections {
+    padding: 40px;
+}
+
+.section-content {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.section-content.active {
+    display: block;
+}
+
+.section-content h2 {
+    color: var(--dark-color);
+    margin-bottom: 25px;
+    font-size: 2rem;
+    position: relative;
+    padding-left: 18px;
+    letter-spacing: 0.5px;
+}
+
+.section-content h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10%;
+    height: 80%;
+    width: 6px;
+    background: var(--gradient-blue);
+    border-radius: 6px;
+}
+
+.section-content p {
+    margin-bottom: 25px;
+    font-size: 1.05rem;
+    color: var(--dark-color);
+}
+
+/* Tournament details styles */
+.tournament-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.detail-card {
+    flex: 1;
+    min-width: 200px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(52, 152, 255, 0.1);
+}
+
+.detail-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.detail-card h3 {
+    color: var(--dark-color);
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.detail-card p {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: var(--dark-color);
+}
+
+/* Rules section */
+.rules-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.rule {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.rule h3 {
+    color: var(--dark-color);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.rule ul {
+    padding-left: 20px;
+}
+
+.rule li {
+    margin-bottom: 10px;
+    position: relative;
+}
+
+/* Match-up styles - enhanced */
+.matchups-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+    margin-top: 35px;
+}
+
+.matchup-card {
+    background-color: white;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition-standard);
+    padding: 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.matchup-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.matchup-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient-blue);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.matchup-card:hover:before {
+    opacity: 1;
+}
+
+.vs-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.player-name {
+    flex: 1;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--dark-color);
+    padding: 10px;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.matchup-card:hover .player-name {
+    background-color: rgba(52, 152, 255, 0.1);
+}
+
+.vs-text {
+    margin: 0 15px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.3rem;
+    background-color: var(--primary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(52, 152, 255, 0.3);
+}
+
+.match-details {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: var(--text-color);
+    background-color: rgba(52, 152, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.match-details span {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.match-details span:first-child {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Battle Royale Leaderboard styles */
+.player-leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 35px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.player-row {
+    display: flex;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition-standard);
+}
+
+.player-row:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.player-rank {
+    font-weight: bold;
+    color: var(--dark-color);
+    font-size: 1.2rem;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-name {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--dark-color);
+}
+
+.player-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    background-color: rgba(52, 152, 255, 0.07);
+    padding: 8px 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.stat:before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.stat:nth-child(2):before {
+    background-color: var(--secondary-color);
+}
+
+.stat:nth-child(3):before {
+    background-color: var(--accent-color);
+}
+
+.trophy {
+    display: block;
+}
+
+.first-place, .second-place, .third-place {
+    position: relative;
+}
+
+.first-place {
+    background-color: rgba(255, 215, 0, 0.05);
+    border-color: rgba(255, 215, 0, 0.2);
+    border-left: 4px solid gold;
+}
+
+.second-place {
+    background-color: rgba(192, 192, 192, 0.05);
+    border-color: rgba(192, 192, 192, 0.2);
+    border-left: 4px solid silver;
+}
+
+.third-place {
+    background-color: rgba(205, 127, 50, 0.05);
+    border-color: rgba(205, 127, 50, 0.2);
+    border-left: 4px solid #cd7f32;
+}
+
+/* Squad Challenge Styles */
+.squads-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 35px;
+}
+
+.squad-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition-standard);
+    overflow: hidden;
+}
+
+.squad-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.squad-card h3 {
+    color: var(--light-color);
+    margin-bottom: 0;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 18px 0;
+    background: var(--gradient-blue);
+    border-radius: 12px 12px 0 0;
+    letter-spacing: 0.5px;
+}
+
+.squad-card.top-squad {
+    position: relative;
+    overflow: visible;
+}
+
+.squad-card.top-squad:nth-of-type(1) {
+    background: linear-gradient(to bottom, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.squad-card.top-squad:nth-of-type(2) {
+    background: linear-gradient(to bottom, rgba(192, 192, 192, 0.1), rgba(192, 192, 192, 0.05));
+    border: 1px solid rgba(192, 192, 192, 0.3);
+}
+
+.squad-card.top-squad:nth-of-type(3) {
+    background: linear-gradient(to bottom, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05));
+    border: 1px solid rgba(205, 127, 50, 0.3);
+}
+
+.squad-medal {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+.gold-medal {
+    background: linear-gradient(135deg, #ffd700, #ffb900);
+}
+
+.silver-medal {
+    background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+}
+
+.bronze-medal {
+    background: linear-gradient(135deg, #cd7f32, #a0522d);
+}
+
+.squad-members {
+    list-style: none;
+    padding: 15px;
+}
+
+.squad-members li {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(52, 152, 255, 0.08);
+    color: var(--text-color);
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+}
+
+.squad-members li:hover {
+    background-color: rgba(52, 152, 255, 0.07);
+}
+
+.squad-members li:last-child {
+    border-bottom: none;
+}
+
+.member-name {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.member-kills {
+    color: var(--primary-color);
+    background-color: rgba(52, 152, 255, 0.08);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Footer styles */
+footer {
+    text-align: center;
+    padding: 30px 0;
+    font-size: 0.95rem;
+    color: var(--dark-color);
+    border-top: 1px solid rgba(52, 152, 255, 0.1);
+    background-color: var(--light-bg);
+    margin-top: 50px;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.03);
+}
+
+/* Mobile app style navigation */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    height: var(--mobile-nav-height);
+}
+
+.mobile-nav ul {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    width: 25%;
+    color: #666;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.mobile-nav-item.active {
+    color: var(--primary-color);
+}
+
+.mobile-nav-item svg {
+    margin-bottom: 4px;
+    width: 24px;
+    height: 24px;
+}
+
+/* Card grid layout for mobile app appearance */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    padding: 10px;
+}
+
+.app-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-card:active {
+    transform: scale(0.98);
+}
+
+.app-card-img {
+    height: 100px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-card-content {
+    padding: 10px;
+}
+
+.app-card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.app-card-price {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #FF3B30;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+/* Enhanced animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced responsive styles */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 0 12px;
+    }
+    
+    main {
+        padding-top: 10px;
+        padding-bottom: 20px;
+    }
+    
+    .tournament-section {
+        border-radius: 10px;
+        margin-top: 5px;
+    }
+    
+    .section-content {
+        padding: 15px 5px;
+    }
+    
+    .content-sections {
+        padding: 15px 5px;
+    }
+    
+    .section-content h2 {
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+        padding-left: 12px;
+    }
+    
+    .section-content h2::before {
+        width: 4px;
+    }
+    
+    .stage-btn {
+        padding: 10px 15px;
+        min-width: 110px;
+        font-size: 0.9rem;
+    }
+    
+    .tournament-stages {
+        gap: 10px;
+        margin: 20px 0;
+        padding-bottom: 10px;
+    }
+    
+    .stage-content h3 {
+        font-size: 1.2rem;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .stage-content p {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+    
+    .matchups-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .player-leaderboard {
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .player-row {
+        padding: 12px 10px;
+        flex-wrap: wrap;
+    }
+    
+    .player-info {
+        gap: 10px;
+    }
+    
+    .player-name {
+        font-size: 1rem;
+    }
+    
+    .player-stats {
+        gap: 5px;
+        margin-top: 8px;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .stat {
+        font-size: 0.75rem;
+        padding: 3px 6px;
+    }
+    
+    .squads-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    footer {
+        margin-bottom: 0;
+        padding: 20px 0;
+    }
+    .tournament-nav {
+        margin-bottom: 10px;
+        padding: 0 5px;
+    }
+    
+    .nav-btn {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        width: 100%;
+        min-width: 0;
+        white-space: normal;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 15px 0;
+    }
+    
+    header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .nav-btn {
+        padding: 10px 5px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0;
+        text-align: center;
+        border-radius: 6px;
+    }
+    
+    .stage-btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        min-width: 90px;
+    }
+    
+    .player-row {
+        padding: 8px 6px;
+    }
+    
+    .player-rank {
+        min-width: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .player-name {
+        font-size: 0.85rem;
+    }
+    
+    .player-stats {
+        flex-wrap: wrap;
+        gap: 3px;
+        margin-top: 5px;
+    }
+    
+    .stat {
+        font-size: 0.65rem;
+        padding: 2px 4px;
+        flex: 1;
+        min-width: 60px;
+    }
+    
+    .squad-card h3 {
+        padding: 12px 0;
+        font-size: 1rem;
+    }
+    
+    .squad-members li {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .member-kills {
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+    
+    .rule h3 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    .rule li {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+    
+    .matchup-card {
+        padding: 15px;
+    }
+    
+    .vs-container {
+        margin: 10px 0;
+    }
+    
+    .vs-text {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+    
+    .match-details {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .tournament-nav ul {
+        width: 100%;
+        gap: 5px;
+    }
+    
+    .nav-btn {
+        padding: 10px 5px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0;
+        text-align: center;
+        border-radius: 6px;
+    }
+    
+    .tournament-nav li {
+        margin-right: 0;
+    }
+}
