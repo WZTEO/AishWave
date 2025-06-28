@@ -4,27 +4,13 @@ from django.conf.urls.static import static
 from .views import *
 urlpatterns = [
     path('dashboard/', finance, name='finance'),
-<<<<<<< HEAD
-    path('', shop, name='shop'),
-=======
     # path('shop/', shop, name='shop'),
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
     path('profile/', profile, name='profile'),
     path('contact-form/', contact_form, name='contact-form'),
     path('stocks/', stocks, name='stocks'),
     path('referral/', referral, name='referral'),
     path('investment/', create_investment, name='create_investment'),
     path('tasks/', tasks, name='tasks'),
-<<<<<<< HEAD
-    path('pubg/', pubg, name='pubg'),
-    path('codm/', codm, name='codm'),
-    path('googleplay/', googleplay, name='googleplay'),
-    path('fortnite/', fortnite, name='fortnite'),
-    path('steam/', steam, name='steam'),
-    path('playstation/', playstation, name='playstation'),
-    path('apple/', apple, name='apple'),
-    path('freefire/', freefire, name='freefire'),
-=======
     # path('pubg/', pubg, name='pubg'),
     # path('codm/', codm, name='codm'),
     # path('googleplay/', googleplay, name='googleplay'),
@@ -33,7 +19,6 @@ urlpatterns = [
     # path('playstation/', playstation, name='playstation'),
     # path('apple/', apple, name='apple'),
     # path('freefire/', freefire, name='freefire'),
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
     path('wallet/deposit/', initiate_deposit, name='wallet_deposit'),
     path('wallet/verify-deposit/', verify_deposit, name='verify-deposit'),
     path('test/', test_view, name='test'),
@@ -44,9 +29,6 @@ urlpatterns = [
     path('purchase/', purchase_product, name='purchase_product'),
     path('investment/<int:investment_id>/', investment_status, name='status_investment'),
     path('rewards/', complete_task, name='rewards'),
-<<<<<<< HEAD
-    path('claim/<int:investment_id>/', claim_investment_earnings, name='claim-earnings')
-=======
     path('claim/<int:investment_id>/', claim_investment_earnings, name='claim-earnings'),
     path('', dummy_view, name='landing-page'),
     path('clash/', clash, name='clash'),
@@ -63,6 +45,5 @@ urlpatterns = [
     path('terms/', terms, name="terms"),
     path('orders/', orders, name='orders')
     
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
