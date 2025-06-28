@@ -16,13 +16,10 @@ from allauth.socialaccount.models import SocialToken, SocialApp, SocialAccount
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
-<<<<<<< HEAD
 from decimal import Decimal
-=======
 from .forms import ClashTournamentForm
 from decimal import Decimal
 from adminsortable2.admin import SortableAdminMixin
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
 
 admin.site.unregister(Group)
 
@@ -147,90 +144,6 @@ class WithdrawalRequestAdmin(admin.ModelAdmin):
     approve_withdrawals.short_description = "Approve selected withdrawals"
     reject_withdrawals.short_description = "Reject selected withdrawals"
 
-<<<<<<< HEAD
-=======
-@admin.register(ClashTournament)
-class ClashTournamentAdmin(admin.ModelAdmin):
-    form = ClashTournamentForm
-    list_display = ('player1', 'player2', 'stage', 'date', 'formatted_time')
-    list_filter = ('stage',)
-    search_fields = ('player1', 'player2')
-    ordering = ('date', 'time')
-
-    def formatted_time(self, obj):
-        return obj.get_time_display()
-    formatted_time.short_description = 'Time'
-
-@admin.register(BattleRoyalePlayer)
-class BattleRoyalePlayerAdmin(admin.ModelAdmin):
-    list_display = ('player_name', 'country', 'kills', 'matches_played', 'match')
-    list_filter = ('country', 'match')
-    search_fields = ('player_name',)
-    ordering = ('-kills',)
-
-@admin.register(BattleRoyaleTournament)
-class BattleRoyaleTournamentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created_at', 'player_count')
-    search_fields = ('name',)
-    ordering = ('-created_at',)
-
-    def player_count(self, obj):
-        return obj.players.count()
-    player_count.short_description = 'Players'
-
-# Inline for players in a squad
-class SquadPlayerInline(admin.TabularInline):
-    model = Squad.players.through  # ManyToMany intermediary
-    extra = 1
-    verbose_name = "Squad Player"
-    verbose_name_plural = "Squad Players"
-
-# Admin for Squad
-@admin.register(Squad)
-class SquadAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tournament', 'player_count', 'total_kills')
-    list_filter = ('tournament',)
-    search_fields = ('name',)
-    inlines = [SquadPlayerInline]
-    exclude = ('players',)  # Use inline instead of M2M selector
-
-    def player_count(self, obj):
-        return obj.players.count()
-    player_count.short_description = 'Player Count'
-
-    def total_kills(self, obj):
-        return sum(player.kills for player in obj.players.all())
-    total_kills.short_description = 'Total Kills'
-
-
-# Admin for SquadPlayer
-@admin.register(SquadPlayer)
-class SquadPlayerAdmin(admin.ModelAdmin):
-    list_display = ('player', 'kills')
-    search_fields = ('player',)
-
-
-# Inline for squads in a tournament
-class SquadInline(admin.StackedInline):
-    model = Squad
-    extra = 1
-
-
-# Admin for SquadTournament
-@admin.register(SquadTournament)
-class SquadTournamentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created_at')
-    search_fields = ('name',)
-    inlines = [SquadInline]
-
-
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category')   # Show these columns in list view
-    list_filter = ('category',)                          # Filter sidebar by category
-    search_fields = ['name']              # Enable search by name and description
-    ordering = ('name',)           
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):
@@ -251,9 +164,7 @@ class ExchangeRateAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-<<<<<<< HEAD
     list_display = ['name', 'url', 'platform', 'reward_amount']
-=======
     list_display = ['name', 'url', 'platform', 'reward_amount']
 
 @admin.register(Crypto)
@@ -278,4 +189,3 @@ class TradeAdmin(admin.ModelAdmin):
         return "No image"
     card_image_preview.allow_tags = True
     card_image_preview.short_description = "Card Image"
->>>>>>> 4b37274 (New Tournament feature, UI updates added, small fixes)
