@@ -134,25 +134,7 @@
         </button>
         
         <!-- Esim FAQ -->
-       <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const faqQuestions = document.querySelectorAll('.esim-faq-question');
-
-                faqQuestions.forEach(question => {
-                    question.addEventListener('click', function () {
-                        const answer = this.nextElementSibling;
-
-                        // Collapse any other open answer
-                        document.querySelectorAll('.esim-faq-answer').forEach(el => {
-                            if (el !== answer) el.classList.remove('active');
-                        });
-
-                        // Toggle this one
-                        answer.classList.toggle('active');
-                    });
-                });
-            });
-        </script>
+       
         <!-- Esim FAQ -->
         <div v-if="selectedProduct && selectedProduct.category === 'esim'" class="esim-faq-section">
             <div class="esim-faq-item">

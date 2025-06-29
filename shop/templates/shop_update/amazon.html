@@ -9,10 +9,13 @@
             <a style="text-decoration: none;" href="{% url 'shop_update' %}">
                     <button class="back-button">←</button>
                 </a>
-            <div class="product-detail-title">Netflix USA Gift Card</div>
+            <div class="product-detail-title">Amazon Gift Card Direct Top Up </div>
             <div style="width: 24px;"></div>
         </div>
-    
+        
+        <div class="product-detail-image">
+            <img src="{% static 'trustbyte/img/amazon.jpeg' %}" alt="eBay">
+            </div>
         
         <div class="product-detail-options">
             <style>
@@ -53,7 +56,7 @@
                         <input 
                             type="email" 
                             name="player_id" 
-                            placeholder="Enter a valid email for voucher" 
+                            placeholder="Enter valid email for voucher" 
                             required
                         >
                     </div>
@@ -62,35 +65,34 @@
                     <input type="hidden" id="selected-item" name="selected_item">
 
                     <!-- Hidden product field -->
-                    <input type="hidden" name="product" value="netflix-usa">
+                    <input type="hidden" name="product" value="amazon-gift-card">
 
                     <!-- Amount Selection Label -->
                     <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
 
                     <!-- Stylized Amount Options -->
-                    <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
-                        <div class="amount-option" data-price="22" onclick="selectAmount(this, '$22', '22')">
-                            <span>$22</span>
-                            <span class="original-price">$22</span>
+                     <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
+                        <div class="amount-option" data-price="5" onclick="selectAmount(this, 'Amazon Gift Card $5', '5')">
+                            <span>$5 Voucher</span>
+                            <span class="original-price">$5</span>
                             <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
                         </div>
-                        <div class="amount-option" data-price="28" onclick="selectAmount(this, '$28', '28')">
-                            <span>$28</span>
-                            <span class="original-price">$28</span>
+                        <div class="amount-option" data-price="10" onclick="selectAmount(this, 'Amazon Gift Card $10', '10')">
+                            <span>$10 Voucher</span>
+                            <span class="original-price">$10</span>
                             <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
                         </div>
-                        <div class="amount-option" data-price="32" onclick="selectAmount(this, '$32', '32')">
-                            <span>$32</span>
-                            <span class="original-price">$32</span>
+                        <div class="amount-option" data-price="20" onclick="selectAmount(this, 'Amazon Gift Card $20', '20')">
+                            <span>$20 Voucher</span>
+                            <span class="original-price">$20</span>
                             <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
                         </div>
-                        <div class="amount-option" data-price="55" onclick="selectAmount(this, '$55', '55')">
-                            <span>$55</span>
-                            <span class="original-price">$55</span>
+                        <div class="amount-option" data-price="30" onclick="selectAmount(this, 'Amazon Gift Card $30', '30')">
+                            <span>$30 Voucher</span>
+                            <span class="original-price">$30</span>
                             <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
                         </div>
                     </div>
-
                     <script>
                         document.addEventListener('DOMContentLoaded', () => {
                             const container = document.querySelector('.amount-options');
@@ -108,47 +110,26 @@
                                 }
                             });
                         });
-                        </script>
+                    </script>
+
+
                 </form>
 
             </div>
         </div>
         
         <div class="product-description">
-            <p v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')">
-                Purchase Neflix USA quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
+            <p v-if="selectedProduct && selectedProduct.category === 'games'">
+                Purchase Amazon Gift Card quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
             </p>
         </div>
         
+        <!-- Games Confirm button -->
         <button type="submit" form="pubg-detail-form" class="purchase-button">
             Confirm Purchase
         </button>
         
-        <div class="faq-section">
-            <div class="faq-item">
-                <div class="faq-question" @click="toggleFaqEcommerce('description')">Description</div>
-                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
-                     With streaming films, television, and original programming, Netflix has something for everyone. Netflix members can watch their favorite entertainment right at home and on any device they want, with no commercials. Ever. See What's Next.
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" @click="toggleFaqEcommerce('redemption')">How to Redeem</div>
-                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
-                    <p style="white-space: pre-line">Download your Netflix Gift Card code.<br>Visit netflix.com/redeem.<br>Enter the 11-digit PIN from your gift card.<br>If you already have a Netflix account, go to your Account Page → Redeem Gift Card or Promo Code, and enter the code.<br>The balance will be added to your account. </p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" @click="toggleFaqEcommerce('terms')">Terms & Conditions</div>
-                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
-                    <p style="white-space: pre-line">Visit Netflix Terms of Use. </p>
-                </div>
-            </div>
-        </div>
-        
-
     </div>
    
 {% endblock content %}
-    
+

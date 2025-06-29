@@ -96,26 +96,8 @@
         <button type="submit" form="product-form" class="purchase-button">
             Confirm Purchase
         </button>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const faqQuestions = document.querySelectorAll('.faq-question');
-
-                faqQuestions.forEach(question => {
-                    question.addEventListener('click', function () {
-                        const answer = this.nextElementSibling;
-
-                        // Collapse any other open answer
-                        document.querySelectorAll('.faq-answer').forEach(el => {
-                            if (el !== answer) el.classList.remove('active');
-                        });
-
-                        // Toggle this one
-                        answer.classList.toggle('active');
-                    });
-                });
-            });
-        </script>
-        <div v-if="selectedProduct && selectedProduct.category === 'ecommerce'" class="faq-section">
+    
+        <div class="faq-section">
             <div class="faq-item">
                 <div class="faq-question" @click="toggleFaqEcommerce('description')">Description</div>
                 <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
@@ -123,7 +105,7 @@
                 </div>
             </div>
             
-            <div v-if="ecommerceRedemption[selectedProduct.name]" class="faq-item">
+            <div class="faq-item">
                 <div class="faq-question" @click="toggleFaqEcommerce('redemption')">How to Redeem</div>
                 <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
                     <p style="white-space: pre-line">
@@ -131,7 +113,7 @@
                 </div>
             </div>
             
-            <div v-if="ecommerceTerms[selectedProduct.name]" class="faq-item">
+            <div class="faq-item">
                 <div class="faq-question" @click="toggleFaqEcommerce('terms')">Terms & Conditions</div>
                 <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
                     <p style="white-space: pre-line">For more details, visit Binance Terms. </p>
