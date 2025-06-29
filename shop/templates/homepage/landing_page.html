@@ -5,18 +5,15 @@
 <html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <title>Trustbyte99</title>
-  <link rel="stylesheet" href="{% static 'trustbyte/css/landing_style.css' %}">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>TrustByte99 - Trade with Trust</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'trustbyte/img/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'trustbyte/img/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'trustbyte/img/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'trustbyte/img/site.webmanifest' %}">
+  <link rel="stylesheet" href="{% static 'trustbyte/css/style.css' %}">
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -104,7 +101,7 @@
         <h3>Gaming Tournaments</h3>
         <p>Compete in tournaments across popular titles like PUBG, Free Fire, and Call of Duty Mobile. Win exclusive in-game items and real cash prizes.</p>
       </div>
-      <img src="{% static 'trustbyte/img/pubg.jpg' %}" alt="Gaming tournaments" class="feature-image">
+      <img src="{% static 'trustbyte/img/games.jpeg' %}" alt="Gaming tournaments" class="feature-image">
     </div>
     
     <div class="feature-card" data-feature="in-game">
@@ -115,7 +112,7 @@
         <h3>In-Game Items</h3>
         <p>Purchase game currency, skins, and exclusive items for your favorite games at the best rates. Direct top-ups for all major gaming platforms.</p>
       </div>
-      <img src="{% static 'trustbyte/img/fortnite.jpg' %}" alt="In-game items" class="feature-image">
+      <img src="{% static 'trustbyte/img/curr.jpeg' %}" alt="In-game items" class="feature-image">
     </div>
     
     <div class="feature-card" data-feature="crypto">
@@ -127,7 +124,7 @@
         <p>Buy popular cryptocurrencies directly to your wallet with low fees. Fast, secure, and beginner-friendly.
 </p>
       </div>
-      <img src="{% static 'trustbyte/img/cry.jpeg' %}" alt="Crypto trading" class="feature-image">
+      <img src="{% static 'trustbyte/img/cr.jpeg' %}" alt="Crypto trading" class="feature-image">
     </div>
     
     <div class="feature-card" data-feature="esim">
@@ -138,7 +135,7 @@
         <h3>Global eSIM Marketplace</h3>
         <p>Buy and activate eSIMs instantly — stay online wherever you go.</p>
       </div>
-      <img src="{% static 'trustbyte/img/gesim.jpeg' %}" alt="eSIM trading" class="feature-image">
+      <img src="{% static 'trustbyte/img/es.jpeg' %}" alt="eSIM trading" class="feature-image">
     </div>
     
     <div class="feature-card" data-feature="giftcards">
@@ -149,7 +146,7 @@
         <h3>Buy and Sell Gift Cards Instantly</h3>
         <p>Trade gift cards from Apple, Google Play, Steam, PlayStation, and more — or shop top brands directly from our store. Get great rates and fast service, all in one place</p>
       </div>
-      <img src="{% static 'trustbyte/img/gift.jpeg' %}" alt="Gift cards" class="feature-image">
+      <img src="{% static 'trustbyte/img/car.jpeg' %}" alt="Gift cards" class="feature-image">
     </div>
     
     <div class="feature-card" data-feature="investing">
@@ -161,12 +158,12 @@
         <p>Grow your capital with flexible investment plans designed to match your goals. Enjoy competitive returns, full transparency, and the power of smart financial growth.
 </p>
       </div>
-      <img src="{% static 'trustbyte/img/inve.jpeg' %}" alt="Smart investing" class="feature-image">
+      <img src="{% static 'trustbyte/img/in.jpeg' %}" alt="Smart investing" class="feature-image">
     </div>
   </section>
   
   <!-- Reviews Section -->
-  <section class="reviews-section" id="reviews">
+  <!-- <section class="reviews-section" id="reviews">
     <div class="section-title">
       <h2>Trusted by Our Community</h2>
       <p>See what our users are saying about TrustByte99</p>
@@ -311,7 +308,7 @@
         </div>
       </div>
     </div>
-  </section>
+  </section> -->
   
   <!-- Final CTA Section -->
   <section class="cta-section">
@@ -355,10 +352,10 @@
       <div class="footer-column">
         <h4>Connect</h4>
         <div class="social-links">
-          <a href="https://twitter.com/AishWave"><i class="fab fa-twitter"></i></a>
-          <!-- <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-tiktok"></i></a> -->
-          <a href="https://tiktok.com/@aishwave.com"><i class="fab fa-youtube"></i></a>
+          <a href="https://tiktok.com/@trustbyte99"><i class="fab fa-tiktok"></i></a>
+          <!-- <a href="#"><i class="fab fa-instagram"></i></a> -->
+          <a href="https://twitter.com/@trustbyte99"><i class="fab fa-twitter"></i></a>
+          <a href="https://www.youtube.com/channel/UCDmTtd97ZjLdSjNmvqoesqA"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
     </div>
@@ -712,10 +709,7 @@ document.getElementById('steam-detail-cancel').addEventListener('click', () => {
   steamDetailInterface.classList.remove('open');
 });
 </script>
-</body>
-</html>
-<!-- partial -->
-  <script  src="{% static 'trustbyte/js/landing_script.js' %}"></script>
+<script  src="{% static 'trustbyte/js/landing_script.js' %}"></script>
 
 </body>
 </html>
