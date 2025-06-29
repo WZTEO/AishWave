@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-    <div id="clash" class="section-content active">
+    <div class="section-content active">
                         <h2>Trustbyte Clash Tournament</h2>
                         <div class="tournament-stages">
                             <button class="stage-btn active" data-stage="group">Group Stage</button>
@@ -113,6 +113,107 @@
                             </div>
                         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Stage Tab Functionality
+    const stageButtons = document.querySelectorAll('.stage-btn');
+    const stageContents = document.querySelectorAll('.stage-content');
+    const stageContainer = document.querySelector('.stage-content-container');
+    const isMobile = window.innerWidth <= 768;
+
+    // Function to switch stages
+    function switchStage(selectedButton) {
+        // Get the target stage ID
+        const stageId = selectedButton.getAttribute('data-stage');
+        
+        // Update button states
+        stageButtons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-selected', 'false');
+        });
+        selectedButton.classList.add('active');
+        selectedButton.setAttribute('aria-selected', 'true');
+        
+        // Update content visibility with transition
+        stageContents.forEach(content => {
+            content.classList.remove('active');
+            content.setAttribute('aria-hidden', 'true');
+        });
+        
+        const targetContent = document.getElementById(stageId);
+        targetContent.classList.add('active');
+        targetContent.setAttribute('aria-hidden', 'false');
+        
+        // Save to localStorage
+        localStorage.setItem('lastTournamentStage', stageId);
+        
+        // Mobile-specific: Scroll stage buttons into view
+        if (isMobile) {
+            const stagesNav = document.querySelector('.tournament-stages');
+            const buttonRect = selectedButton.getBoundingClientRect();
+            const navRect = stagesNav.getBoundingClientRect();
+            const scrollPosition = buttonRect.left - navRect.left - (navRect.width / 2) + (buttonRect.width / 2);
+            
+            stagesNav.scrollTo({
+                left: scrollPosition,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // Add click/touch handlers
+    stageButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchStage(this);
+        });
+        
+        // Mobile touch feedback
+        if (isMobile) {
+            button.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.96)';
+            });
+            
+            button.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        }
+    });
+
+    // Load last viewed stage
+    const savedStage = localStorage.getItem('lastTournamentStage');
+    if (savedStage) {
+        const lastActiveButton = document.querySelector(`.stage-btn[data-stage="${savedStage}"]`);
+        if (lastActiveButton) {
+            switchStage(lastActiveButton);
+        }
+    }
+
+    // Add keyboard navigation
+    stageButtons.forEach(button => {
+        button.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                switchStage(this);
+            }
+        });
+    });
+
+    // Animation for content switching
+    if (stageContainer) {
+        stageContainer.style.transition = 'opacity 0.3s ease';
+        
+        stageButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                stageContainer.style.opacity = '0';
+                setTimeout(() => {
+                    stageContainer.style.opacity = '1';
+                }, 300);
+            });
+        });
+    }
+});
+    </script>
 {% endblock content %}
                     
                     
