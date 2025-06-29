@@ -173,10 +173,11 @@ ROOT_URLCONF = 'trustbyte.urls'
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST= os.getenv("EMAIL_HOST")
-EMAIL_PORT= os.getenv("EMAIL_POST")
-EMAIL_USE_TLS= os.getenv("EMAIL_USE_TLS")
-EMAIL_USE_SSL= os.getenv("EMAIL_USE_SSL")
-EMAIL_HOST_USER= os.getenv("EMAIL_HOST_USER") # Replace with your email
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True   # For port 465 (SSL)
+EMAIL_USE_TLS = False  # Must be False if SSL is True
+EMAIL_HOST_USER= "trustbyte99@gmail.com" # Replace with your email
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 RECIPIENT_EMAIL= os.getenv("RECIPIENT_EMAIL")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -279,3 +280,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Used for production (opti
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+print("EMAIL_USE_TLS:", EMAIL_USE_TLS)
+print("EMAIL_USE_SSL:", EMAIL_USE_SSL)
+print("EMAIL_USER:", EMAIL_HOST_USER)
+print("EMAIL_PASS:", EMAIL_HOST_PASSWORD)

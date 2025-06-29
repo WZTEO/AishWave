@@ -34,7 +34,7 @@ def log_login(sender, request, user, **kwargs):
 
 @receiver(user_signed_up)
 def send_welcome_email(request, user, **kwargs):
-    subject = "Welcome to Aish Wave!"
+    subject = "Welcome to Trustbyte999!"
     message = f"Hello {user.username},\n\nThank you for signing up on our platform. We’re excited to have you on board!"
     from_email = settings.DEFAULT_FROM_EMAIL  # Use DEFAULT_FROM_EMAIL if configured
     recipient_list = [user.email] #user email
