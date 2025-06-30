@@ -36,6 +36,8 @@ class FullPowerAdmin(AdminSite):
     site_title = "Super Admin Portal"
     index_title = "Welcome to the Real Admin Panel"
 
+    def has_permission(self, request):
+        return request.user.is_active and request.user.is_superuser
 full_admin_site = FullPowerAdmin(name='fulladmin')
 
 # Register all models just like in the original
