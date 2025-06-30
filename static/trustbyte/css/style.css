@@ -1813,6 +1813,9 @@ select {
   padding: 20px;
   border-radius: 15px;
   box-shadow: rgba(133, 189, 215, 0.2) 0px 5px 15px -5px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .profile-section label {
