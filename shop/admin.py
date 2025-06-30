@@ -21,6 +21,20 @@ from django.utils.translation import gettext_lazy as _
 
 admin.site.unregister(Group)
 
+class StaffSafeAdmin(admin.ModelAdmin):
+    """
+    Base admin class that hides objects related to superusers
+    for non-superuser staff users.
+    """
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        try:
+            return qs.exclude(user__is_superuser=True)
+        except Exception:
+            return qs  # Fallback if model has no `user` FK
+
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
@@ -43,13 +57,32 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # superuser sees all
+        return qs.exclude(is_superuser=True)
+
     search_fields = ('email', 'username')
     ordering = ('username',)
 
-# Unregister social-related models
 for model in [SocialToken, SocialApp, SocialAccount]:
     if admin.site.is_registered(model):
         admin.site.unregister(model)
+
+# Custom SocialAccount admin
+class SocialAccountAdmin(StaffSafeAdmin):
+    list_display = ('user', 'provider', 'uid')
+    list_filter = ('provider',)
+    search_fields = ('user__username', 'user__email', 'uid')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # superuser sees all
+        return qs.exclude(is_superuser=True)
+
+
 
 @admin.register(BillBoardImage)
 class BillBoardImages(admin.ModelAdmin):
@@ -60,7 +93,7 @@ class ReferralAmountAdmin(admin.ModelAdmin):
     list_display= ["purchase_reward", "signup_reward"]
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(StaffSafeAdmin):
     list_display = ("user", "player_id","product", "amount", "status", "created_at")
     list_filter = ("status", "created_at")
     search_fields = ("user__email", "product__name")  # Ensure user is a ForeignKey
@@ -134,7 +167,7 @@ class InvestmentAdmin(admin.ModelAdmin):
     list_filter = ("plan", "end_date")
 
 @admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
+class TransactionAdmin(StaffSafeAdmin):
     list_display = ("transaction_type", "amount", "reference", "status", "created_at")
     list_filter = ("transaction_type", "status", "created_at")
 
@@ -144,7 +177,7 @@ class ReferralAdmin(admin.ModelAdmin):
     list_filter = ("referrer", "earned_from_signup", "earned_from_purchases")
 
 @admin.register(WithdrawalRequest)
-class WithdrawalRequestAdmin(admin.ModelAdmin):
+class WithdrawalRequestAdmin(StaffSafeAdmin):
     list_display = ("user", "amount", "recipient", "status", "created_at", "processed_at")
     list_filter = ("status", "created_at")
     search_fields = ("user__username", "recipient__name", "amount")
@@ -233,14 +266,12 @@ class SquadInline(admin.StackedInline):
     model = Squad
     extra = 1
 
-
 # Admin for SquadTournament
 @admin.register(SquadTournament)
 class SquadTournamentAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at')
     search_fields = ('name',)
     inlines = [SquadInline]
-
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -250,17 +281,13 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ('name',)           
 
 @admin.register(Wallet)
-class WalletAdmin(admin.ModelAdmin):
+class WalletAdmin(StaffSafeAdmin):
     list_display = ("user__username", "balance")
     search_fields = ["user__username"]
 
 @admin.register(Discount)
 class DiscountAdmin(admin.ModelAdmin):
     list_display = ("pubg", "codm", "freefire", "fortnite", "apple", "google", "steam", "playstation")
-
-@admin.register(LoginHistory)
-class LoginHistoryAdmin(admin.ModelAdmin):
-    list_diplay = ("user", "device_info", "device_type")
 
 @admin.register(ExchangeRate)
 class ExchangeRateAdmin(admin.ModelAdmin):

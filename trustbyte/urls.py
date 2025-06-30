@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from shop.templatetags.admni import full_admin_site
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('x92a9-sys/', full_admin_site.urls),
     path('accounts/', include('allauth.urls')),
     # path('', include('authentication.urls')),
     path('', include('shop.urls')),
