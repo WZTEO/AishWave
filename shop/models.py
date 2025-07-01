@@ -142,7 +142,7 @@ class Crypto(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
-    image = models.ImageField(upload_to='product/', blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
     category = models.CharField(max_length=20, choices=Category.choices)
     discount = models.IntegerField(default=0, help_text="Discount percentage for the product")
     slug = models.SlugField(unique=True, blank=True, null=True)
