@@ -86,7 +86,7 @@ class SocialAccountAdmin(StaffSafeAdmin):
 
 @admin.register(BillBoardImage)
 class BillBoardImages(admin.ModelAdmin):
-    list_display = ["image_url"]
+    list_display = ["image1", "image2", "image3"]
 
 @admin.register(ReferralAmount)
 class ReferralAmountAdmin(admin.ModelAdmin):

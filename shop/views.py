@@ -676,7 +676,7 @@ def shop_update(request):
     game_products = Product.objects.all().filter(category="games")
     giftcard_products = Product.objects.all().filter(category="gift-cards")
     product = Product.objects.filter(slug='crypto').first()
-    billboard_images = BillBoardImage.objects.all()
+    billboard_images = BillBoardImage.objects.first()
     print(f"{product.slug}")
     return render(request, 'shop_update/products.html', {
         "ecommerce_products": ecommerce_products,

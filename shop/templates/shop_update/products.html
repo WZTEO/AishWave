@@ -11,9 +11,14 @@
                 <div class="billboard">
                     <div class="billboard-slider" id="billboard-slider">
                         
-                        <div class="billboard-slide" style="background: linear-gradient(rgba(45, 123, 215, 0.8), rgba(45, 123, 215, 0.9));">
-                        {% if  billboard_images %}
-                                    <img src="{{ billboard_images.0.url }}" alt="Welcome to Digital Products Shop" class="billboard-bg">        
+                        {% if  billboard_images.image1 %}
+                            <div class="billboard-slide">
+                                <img src="{{ billboard_images.image1 }}" alt="Welcome to Digital Products Shop" class="billboard-bg">        
+                            
+                            {% else %}
+                            <div class="billboard-slide" style="background: linear-gradient(rgba(45, 123, 215, 0.8), rgba(45, 123, 215, 0.9));">
+
+                           
                             {% endif %}
                         <div class="billboard-content">
                             <h1>Welcome to Digital Products Shop</h1>
@@ -22,9 +27,13 @@
                         
                         </div>
 
-                        <div class="billboard-slide" style="background: linear-gradient(rgba(45, 123, 215, 0.8), rgba(45, 123, 215, 0.9));">
-                            {% if  billboard_images %}
-                                    <img src="{{ billboard_images.1.url }}" alt="Welcome to Digital Products Shop" class="billboard-bg">        
+                            {% if  billboard_images.image2 %}
+                            <div class="billboard-slide">
+                                <img src="{{ billboard_images.image2 }}" alt="Welcome to Digital Products Shop" class="billboard-bg">        
+                           
+                            {% else %}
+                            <div class="billboard-slide" style="background: linear-gradient(rgba(45, 123, 215, 0.8), rgba(45, 123, 215, 0.9));">
+
                             {% endif %}
                         <div class="billboard-content">
                             <h1>Special Offers</h1>
@@ -32,9 +41,14 @@
                         </div>
                         </div>
 
-                        <div class="billboard-slide" style="background: linear-gradient(rgba(45, 123, 215, 0.8), rgba(45, 123, 215, 0.9));">
-                        {% if  billboard_images %}
-                                    <img src="{{ billboard_images.2.url }}" alt="Welcome to Digital Products Shop" class="billboard-bg">        
+                        {% if  billboard_images.image3 %}
+                            <div class="billboard-slide">
+                                <img src="{{ billboard_images.image3 }}" alt="Welcome to Digital Products Shop" class="billboard-bg">        
+                          
+                            {% else %}
+                            <div class="billboard-slide" style="background: linear-gradient(rgba(45, 123, 215, 0.8), rgba(45, 123, 215, 0.9));">
+
+                       
                             {% endif %}
                         <div class="billboard-content">
                             <h1>New eSIM Products</h1>

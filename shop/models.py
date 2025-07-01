@@ -338,7 +338,9 @@ class LoginHistory(models.Model):
         return f"{self.user.username} - {self.device_type}- {self.timestamp}"
 
 class BillBoardImage(models.Model):
-    image_url = models.URLField()
+    image1 = models.URLField(blank=True, null=True)
+    image2 = models.URLField(blank=True, null=True)
+    image3 = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"Billboard Image"
