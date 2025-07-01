@@ -138,7 +138,7 @@ class Category(models.TextChoices):
 class Crypto(models.Model):
     name = models.CharField(max_length=50)
     symbol = models.CharField(max_length=10)
-    image = models.ImageField(upload_to='crypto/', blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
 
 class Product(models.Model):
     name = models.CharField(max_length=50)

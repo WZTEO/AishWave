@@ -68,10 +68,10 @@
                         <div id="crypto-dropdown-menu" class="crypto-dropdown-menu">
                             {% for crypto in cryptos %}
                             <div class="crypto-dropdown-item"
-                                onclick="selectCrypto('{{ crypto.symbol }}', '{{ crypto.name }}', '{{ crypto.color }}', '{{ crypto.image.url|default_if_none:'' }}')">
+                                onclick="selectCrypto('{{ crypto.symbol }}', '{{ crypto.name }}', '{{ crypto.color }}', '{{ crypto.image|default_if_none:'' }}')">
                                 <div class="crypto-icon" style="background: {{ crypto.color }}">
                                     {% if crypto.image %}
-                                    <img src="{{ crypto.image.url }}" alt="{{ crypto.symbol }}">
+                                    <img src="{{ crypto.image }}" alt="{{ crypto.symbol }}">
                                     {% else %}
                                     {{ crypto.symbol }}
                                     {% endif %}

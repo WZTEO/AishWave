@@ -15,7 +15,7 @@
         
         <div class="product-detail-image">
             <div class="discount-badge-large" v-if="selectedProduct && selectedProduct.category === 'games'" style="background: #2D7BD7;">-{{product.discount}}% OFF</div>
-            <img src="{{ product.image.url }}" alt="{{product.name}}">
+            <img src="{{ product.image }}" alt="{{product.name}}">
             </div>
         
         <div class="product-detail-options">
