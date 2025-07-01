@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUGGER")
+DEBUG = os.getenv("DEBUG", False)
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(',')
 # ALLOWED_HOSTS = ['quetzal-keen-infinitely.ngrok-free.app', 'localhost']
 PAYSTACK_CALLBACK = os.getenv("PAYSTACK_CALLBACK")
@@ -283,6 +283,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 print("EMAIL_USE_TLS:", EMAIL_USE_TLS)
+print("Debug:", DEBUG)
 print("EMAIL_USE_SSL:", EMAIL_USE_SSL)
 print("EMAIL_USER:", EMAIL_HOST_USER)
 print("EMAIL_PASS:", EMAIL_HOST_PASSWORD)
