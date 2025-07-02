@@ -56,7 +56,7 @@
                 "created_at": "{{ transaction.created_at|date:'c' }}"
             }{% if not forloop.last %},{% endif %}
             {% empty %}
-            /* No transactions */
+           
             {% endfor %}
         ]
     }
