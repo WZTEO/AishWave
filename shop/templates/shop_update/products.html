@@ -127,6 +127,7 @@
                         </div>
                     </div>
 
+                    <!--Ecommerce-->
                     <div class="category" style="box-shadow: 0 2px 8px rgba(45, 123, 215, 0.1); border: 1px solid #e6f0ff;">
                         <h2>Ecommerce</h2>
                         <div class="products">
@@ -149,6 +150,7 @@
                         </div>
                     </div>
 
+                    <!--Esim-->
                     <div class="category" 
                         style="box-shadow: 0 2px 8px rgba(45, 123, 215, 0.1); border: 1px solid #e6f0ff;">
                         <h2>eSIM Products</h2>
@@ -173,11 +175,12 @@
                         </div>
                     </div>
 
-                    <div class="category" style="box-shadow: 0 2px 8px rgba(45, 123, 215, 0.1); border: 1px solid #e6f0ff;">
+                    <!--Gift Cards-->
+                    <!-- <div class="category" style="box-shadow: 0 2px 8px rgba(45, 123, 215, 0.1); border: 1px solid #e6f0ff;">
                         <h2>Gift Cards</h2>
                         <div class="products">
                             <div class="product-slider giftcard-slider" data-category="giftcard">
-                                <!-- Producs -->
+                                Products 
                                 {% for product in giftcard_products %}
                                 <a href="{% url 'product-detail' product.slug %}" class="product">
                                     <div class="discount-badge" style="background: #2D7BD7;">-{{ product.discount }}%</div>
@@ -193,7 +196,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <!-- Buttom nav -->
                 <nav class="bottom-nav" id="bottom-nav">
@@ -211,13 +214,13 @@
                         </svg>
                         <span>Orders</span>
                     </a>
-                    <a style="text-decoration: none;" href="{% url 'product-detail' product.slug %}" class="nav-item" data-tab="crypto">
+                    <!-- <a style="text-decoration: none;" href="product-detailproduct.slug" class="nav-item" data-tab="crypto">
                         <svg viewBox="0 0 24 24">
                             <path fill="currentColor"
                                 d="M17,16H15V8H17M13,16H11V8H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
                         </svg>
                         <span>Crypto</span>
-                    </a>
+                    </a> -->
                     <a style="text-decoration: none;" href="{% url 'trade' %}" class="nav-item" data-tab="trade">
                         <svg viewBox="0 0 24 24">
                             <path fill="currentColor"
