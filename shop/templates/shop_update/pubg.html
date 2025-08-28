@@ -73,45 +73,15 @@
 
                     <!-- Stylized Amount Options -->
                     <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
-                        <div class="amount-option" data-price="1" onclick="selectAmount(this, '60 UC', '1')">
-                            <span>60 UC</span>
-                            <span class="original-price">$1</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        {% for tier in product_tiers  %}
+                        <div class="amount-option" data-price="{{ tier.price_in_ghs }}" onclick="selectAmount(this, '{{ tier.name }}', '{{ tier.price }}')">
+                            <span>{{ tier.name }}</span>
+                            <!-- <span>GH₵ {{ tier.price_in_ghs }}</span> -->
+                            <span class="original-price">GH₵ {{ tier.price_in_ghs }}</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ tier.price_in_ghs }}</span>
                         </div>
-                        <div class="amount-option" data-price="5" onclick="selectAmount(this, '300 UC', '5')">
-                            <span>300 UC</span>
-                            <span class="original-price">$5</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
-                        <div class="amount-option" data-price="11" onclick="selectAmount(this, '660 UC', '11')">
-                            <span>660 UC</span>
-                            <span class="original-price">$11</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
-                        <div class="amount-option" data-price="50" onclick="selectAmount(this, '4000 UC', '50')">
-                            <span>4000 UC</span>
-                            <span class="original-price">$50</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
+                        {% endfor %}
                     </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const container = document.querySelector('.amount-options');
-                            const discountPercent = parseFloat(container.dataset.discount || 0);
-
-                            document.querySelectorAll('.amount-option').forEach(option => {
-                                const originalPrice = parseFloat(option.dataset.price);
-                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
-                                const discountElem = option.querySelector('.discount-price');
-
-                                if (discountPercent > 0) {
-                                    discountElem.textContent = `$${discounted}`;
-                                } else {
-                                    discountElem.textContent = `$${originalPrice}`;
-                                }
-                            });
-                        });
-                    </script>
                 </form>
 
             </div>

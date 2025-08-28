@@ -12,7 +12,7 @@
             <div class="product-detail-title">eSIM Africa eSIM</div>
             <div style="width: 24px;"></div>
         </div>
-        
+
         <div class="product-detail-options">
             <style>
                 .errorlist {
@@ -42,17 +42,17 @@
           {% endif %}
             <div class="product-detail-option">
                 <div class="product-detail-label">Recipient Details</div>
-                
+
 
                 <form id="product-form" method="post" action="{% url 'purchase_product' %}">
                     {% csrf_token %}
 
                     <!-- Player ID Input -->
                     <div class="custom-amount">
-                        <input 
-                            type="email" 
-                            name="player_id" 
-                            placeholder="Enter valid email for eSIM details" 
+                        <input
+                            type="email"
+                            name="player_id"
+                            placeholder="Enter valid email for eSIM details"
                             required
                         >
                     </div>
@@ -68,34 +68,23 @@
 
                     <!-- Stylized Amount Options -->
                     <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
-                        <div class="amount-option" data-price="12" onclick="selectAmount(this, '1GB, 7 Days', '12')">
-                            <span>1GB, 7 Days</span>
-                            <span class="original-price">$12</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        {% for tier in product_tiers  %}
+                        <div class="amount-option" data-price="{{ tier.price_in_ghs }}" onclick="selectAmount(this, '{{ tier.name }}', '{{ tier.price }}')">
+                            <span>{{ tier.name }}</span>
+                            <!-- <span>GH₵ {{ tier.price_in_ghs }}</span> -->
+                            <span class="original-price">GH₵ {{ tier.price_in_ghs }}</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ tier.price_in_ghs }}</span>
                         </div>
-                        <div class="amount-option" data-price="20" onclick="selectAmount(this, '2GB, 15 Days', '20')">
-                            <span>2GB, 15 Days</span>
-                            <span class="original-price">$20</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
-                        <div class="amount-option" data-price="36" onclick="selectAmount(this, '5GB, 30 Days', '36')">
-                            <span>5GB, 30 Days</span>
-                            <span class="original-price">$36</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
-                        <div class="amount-option" data-price="65" onclick="selectAmount(this, '10GB, 30 Days', '65')">
-                            <span>10GB, 30 Days</span>
-                            <span class="original-price">$65</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
+                        {% endfor %}
+                                            
                     </div>
-                    
+
 
                 </form>
 
             </div>
         </div>
-        
+
         <div class="product-description">
             <p v-if="selectedProduct && selectedProduct.category === 'esim'">
                 Stay connected to the internet wherever you go. Avoid roaming costs or hidden fees. You will receive a QR Code and activation code to install the eSIM on your device. This eSIM works globally in 106 countries.
@@ -106,9 +95,9 @@
         <button type="submit" form="product-form" class="purchase-button">
             Confirm Purchase
         </button>
-        
+
         <!-- Esim FAQ -->
-    
+
         <!-- Esim FAQ -->
         <div v-if="selectedProduct && selectedProduct.category === 'esim'" class="esim-faq-section">
             <div class="esim-faq-item">
@@ -119,7 +108,7 @@
                     </p>
                 </div>
             </div>
-            
+
             <div class="esim-faq-item">
                 <div class="esim-faq-question" @click="toggleEsimFaq('redemption')">How to Redeem</div>
                 <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
@@ -128,7 +117,7 @@
                     </p>
                 </div>
             </div>
-            
+
             <div class="esim-faq-item">
                 <div class="esim-faq-question" @click="toggleEsimFaq('terms')">Terms and Conditions</div>
                 <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
@@ -136,7 +125,6 @@
                 </div>
             </div>
         </div>
-    </div> 
-   
+    </div>
+
 {% endblock content %}
-    

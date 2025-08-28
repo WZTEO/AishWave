@@ -158,6 +158,23 @@ class Product(models.Model):
             self.slug = slug
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.name
+
+class ProductTier(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="tiers")
+    name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    price_currency = models.CharField(max_length=10, default="USD")
+
+    def __str__(self):
+        return f"{self.product.name} - {self.name}"
+    
+    @property
+    def price_in_ghs(self):
+        return ExchangeRate.convert_to_ghs(self.price)
+
+
 class Trade(models.Model):
     product = models.CharField(max_length=50)
     amount = models.IntegerField(default=0)

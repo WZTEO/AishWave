@@ -73,46 +73,17 @@
 
                     <!-- Stylized Amount Options -->
                     <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
-                        <div class="amount-option" data-price="12" onclick="selectAmount(this, '1,000 VB', '12')">
-                            <span>1,000 V-Bucks</span>
-                            <span class="original-price">$12</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        {% for tier in product_tiers  %}
+                        <div class="amount-option" data-price="{{ tier.price_in_ghs }}" onclick="selectAmount(this, '{{ tier.name }}', '{{ tier.price }}')">
+                            <span>{{ tier.name }}</span>
+                            <!-- <span>GH₵ {{ tier.price_in_ghs }}</span> -->
+                            <span class="original-price">GH₵ {{ tier.price_in_ghs }}</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ tier.price_in_ghs }}</span>
                         </div>
-                        <div class="amount-option" data-price="30" onclick="selectAmount(this, '2,800 V-B', '30')">
-                            <span>2,800 V-Bucks</span>
-                            <span class="original-price">$30</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
-                        <div class="amount-option" data-price="45" onclick="selectAmount(this, '5,000 V-B', '45')">
-                            <span>5,000 V-Bucks</span>
-                            <span class="original-price">$45</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
-                        <div class="amount-option" data-price="110" onclick="selectAmount(this, '13,500 V-B', '110')">
-                            <span>13,500 V-Bucks</span>
-                            <span class="original-price">$110</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
-                        </div>
+                        {% endfor %}
+                                         
                     </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const container = document.querySelector('.amount-options');
-                            const discountPercent = parseFloat(container.dataset.discount || 0);
-
-                            document.querySelectorAll('.amount-option').forEach(option => {
-                                const originalPrice = parseFloat(option.dataset.price);
-                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
-                                const discountElem = option.querySelector('.discount-price');
-
-                                if (discountPercent > 0) {
-                                    discountElem.textContent = `$${discounted}`;
-                                } else {
-                                    discountElem.textContent = `$${originalPrice}`;
-                                }
-                            });
-                        });
-                    </script>
-
+  
 
                 </form>
 

@@ -16,7 +16,8 @@ from django.http import JsonResponse
 from .models import  (
     BattleRoyalePlayer, Wallet, Task, TaskCompletion, ReferralAmount, Transaction, BillBoardImage, 
     LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Crypto,
-    Discount, ExchangeRate, ReferralCode, ClashTournament, BattleRoyalePlayer, Squad, Product, Trade )
+    Discount, ExchangeRate, ReferralCode, ClashTournament, BattleRoyalePlayer, Squad, Product, Trade,
+    ProductTier )
 from .utils import create_paystack_recipient
 from django.contrib.sessions.models import Session
 from django.db.models import Sum
@@ -104,8 +105,12 @@ def tasks(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
+    product_tiers = ProductTier.objects.filter(product=product)
     cryptos = Crypto.objects.all()
-    return render(request, f'shop_update/{product.slug}.html', {'product': product, 'cryptos': cryptos})
+    return render(request, f'shop_update/{product.slug}.html', {'product': product,
+                                                                'cryptos': cryptos,
+                                                                'product_tiers': product_tiers
+                                                                    })
 
 @login_required
 def initiate_deposit(request):
