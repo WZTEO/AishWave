@@ -1,285 +1,158 @@
 {% extends "shop/base.html" %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Withdraw - TrustByte</title>
+<main class="container" style="max-width:520px;margin:24px auto;padding:32px;border:1px solid #eceff3;border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(10,15,30,0.06);position:relative;">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cal+Sans:wght@600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <a href="{% url 'finance' %}" class="back-link" style="position:absolute;top:12px;right:12px;font-weight:600;color:#0f172a;text-decoration:none;">Back to Dashboard</a>
+  <h1 class="title" style="margin:0 0 18px 0;font-size:1.8rem;font-weight:600;color:#0f172a;font-family:'Cal Sans','Noto Sans',system-ui;">Withdraw Funds</h1>
 
-  <style>
-    :root {
-      --bg: #ffffff;
-      --text: #111827;
-      --accent: #0f172a;
-      --primary: #0b5fff;
-      font-family: "Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      font-size: 16px;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      overflow-x: hidden;
-    }
-    .container {
-      max-width: 520px;
-      margin: 24px;
-      padding: 32px;
-      border: 1px solid #eceff3;
-      border-radius: 16px;
-      background: #fff;
-      box-shadow: 0 10px 30px rgba(10,15,30,0.06);
-      position: relative;
-    }
-    .title {
-      margin: 0 0 18px 0;
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: var(--accent);
-      font-family: "Cal Sans","Noto Sans",system-ui;
-    }
-    .field { margin-bottom: 16px; }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    input[type="number"],
-    input[type="tel"],
-    input[type="text"] {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 1rem;
-      color: var(--text);
-      transition: border-color .18s ease, box-shadow .18s ease;
-    }
-    input:focus {
-      outline: none;
-      border-color: #c7d2fe;
-      box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
-    }
-    .provider-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .provider-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border: 1px solid #e6e9ef;
-      border-radius: 10px;
-      background: #fff;
-      cursor: pointer;
-      transition: transform .12s ease, box-shadow .2s ease;
-    }
-    .provider-card:hover {
-      box-shadow: 0 8px 22px rgba(10,15,30,0.08);
-      transform: translateY(-1px);
-    }
-    .provider-card.selected {
-      border-color: var(--primary);
-      box-shadow: 0 6px 18px rgba(11,95,255,0.10);
-    }
-    .actions {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 18px;
-    }
-    .btn {
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #e6e9ef;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform .12s ease, box-shadow .2s ease;
-    }
-    .btn.primary {
-      background: var(--primary);
-      color: #fff;
-      border-color: rgba(11,95,255,0.9);
-    }
-    .btn:hover {
-      box-shadow: 0 8px 22px rgba(10,15,30,0.10);
-      transform: translateY(-1px);
-    }
-    .message {
-      margin-top: 14px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      background: #eef2ff;
-      color: #0b2b6b;
-      border: 1px solid rgba(11,95,255,0.12);
-      animation: fadeIn .4s ease-in-out;
-    }
-    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-    .back-link {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-weight: 600;
-      color: var(--accent);
-      text-decoration: none;
-    }
-  </style>
-</head>
-
-<body>
-  <main class="container">
-    <a href="{% url 'finance' %}" class="back-link">Back to Dashboard</a>
-    <h1 class="title">Withdraw Funds</h1>
-
-    <form id="withdrawForm" method="post" action="{% url 'withdrawal_request' %}" novalidate>
-      {% csrf_token %}
-
-      {% if messages %}
-        {% for message in messages %}
-          {% if "withdrawal" in message.tags %}
-            <div
-              class="message {% if 'error' in message.tags %}error{% endif %}"
-              {% if 'error' in message.tags %}
-                style="background:#fff5f5; color:#7f1d1d;"
-              {% endif %}
-            >
-              {{ message }}
-            </div>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-
-      <div class="field">
-        <label for="recipient_name">Name on Account</label>
-        <input id="recipient_name" name="recipient_name" type="text" placeholder="Full Name" required />
-      </div>
-
-      <div class="field">
-        <label for="account_number">Account / MoMo Number</label>
-        <input id="account_number" name="account_number" type="tel" inputmode="tel" placeholder="e.g. 0244000000" required />
-      </div>
-
-      <div class="field">
-        <label for="amount">Amount (GHS)</label>
-        <input id="amount" name="amount" type="number" min="10" step="0.01" inputmode="decimal" placeholder="Minimum 10" required />
-      </div>
-
-      <div class="field">
-        <label>Select Your Network Provider</label>
-        <input type="hidden" id="provider" name="provider" />
-        <div class="provider-grid">
-          <button type="button" class="provider-card" data-value="MTN">
-            <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#F7D117"/></svg>
-            <span>MTN Ghana</span>
-          </button>
-          <button type="button" class="provider-card" data-value="Vodafone">
-            <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#E60000"/></svg>
-            <span>Vodafone Ghana</span>
-          </button>
-          <button type="button" class="provider-card" data-value="AirtelTigo">
-            <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#1E3A8A"/></svg>
-            <span>AirtelTigo Ghana</span>
-          </button>
+  {# ---------- Django Messages ---------- #}
+  {% if messages %}
+    {% for message in messages %}
+      {% if "withdrawal" in message.tags %}
+        <div 
+          class="alert {% if 'error' in message.tags %}alert-danger{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %} alert-dismissible fade show"
+          role="alert"
+          style="margin-bottom:20px;font-size:0.95rem;padding:10px 12px;border-radius:8px;">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="float:right;"></button>
         </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <form id="withdrawForm" method="post" action="{% url 'withdrawal_request' %}" novalidate>
+    {% csrf_token %}
+
+    <div class="field" style="margin-bottom:16px;">
+  <label for="account_name" style="display:block;margin-bottom:6px;font-weight:600;color:#0f172a;">Name on Account</label>
+  <input id="account_name" name="account_name" type="text" placeholder="Full Name" required
+         style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:1rem;"/>
+</div>
+
+
+    <div class="field" style="margin-bottom:16px;">
+      <label for="account_number" style="display:block;margin-bottom:6px;font-weight:600;color:#0f172a;">Account / MoMo Number</label>
+      <input id="account_number" name="account_number" type="tel" inputmode="tel" placeholder="e.g. 0244000000" required
+             style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:1rem;"/>
+    </div>
+
+    <div class="field" style="margin-bottom:16px;">
+      <label for="amount" style="display:block;margin-bottom:6px;font-weight:600;color:#0f172a;">Amount (GHS)</label>
+      <input id="amount" name="amount" type="number" min="10" step="0.01" inputmode="decimal" placeholder="Minimum 10" required
+             style="width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:1rem;"/>
+    </div>
+
+    <div class="field" style="margin-bottom:16px;">
+      <label style="display:block;margin-bottom:6px;font-weight:600;color:#0f172a;">Select Your Network Provider</label>
+      <input type="hidden" id="provider" name="provider" />
+      <div class="provider-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;">
+        <button type="button" class="provider-card" data-value="MTN"
+                style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e6e9ef;border-radius:10px;background:#fff;cursor:pointer;">
+          <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#F7D117"/></svg>
+          <span>MTN Ghana</span>
+        </button>
+        <button type="button" class="provider-card" data-value="Vodafone"
+                style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e6e9ef;border-radius:10px;background:#fff;cursor:pointer;">
+          <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#E60000"/></svg>
+          <span>Vodafone Ghana</span>
+        </button>
+        <button type="button" class="provider-card" data-value="AirtelTigo"
+                style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e6e9ef;border-radius:10px;background:#fff;cursor:pointer;">
+          <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#1E3A8A"/></svg>
+          <span>AirtelTigo Ghana</span>
+        </button>
       </div>
+    </div>
 
-      <div class="actions">
-        <button type="submit" class="btn primary" id="submitBtn">Proceed Withdrawal</button>
-        <button type="button" id="clearBtn" class="btn">Clear</button>
-      </div>
+    <div class="actions" style="display:flex;flex-direction:column;gap:10px;margin-top:18px;">
+      <button type="submit" class="btn primary" id="submitBtn"
+              style="padding:12px;border-radius:8px;border:1px solid rgba(11,95,255,0.9);background:#0b5fff;color:#fff;font-weight:600;cursor:pointer;">
+        Proceed Withdrawal
+      </button>
+      <button type="button" id="clearBtn" class="btn"
+              style="padding:12px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;font-weight:600;cursor:pointer;">
+        Clear
+      </button>
+    </div>
 
-      <div id="msg" role="status" aria-live="polite" class="message" hidden></div>
-    </form>
-  </main>
+    <div id="msg" role="status" aria-live="polite" class="message"
+         style="margin-top:14px;padding:10px 12px;border-radius:8px;font-size:0.95rem;display:none;">
+    </div>
+  </form>
+</main>
 
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("withdrawForm");
-    const amountEl = document.getElementById("amount");
-    const accEl = document.getElementById("account_number");
-    const providerCards = document.querySelectorAll(".provider-card");
-    const providerEl = document.getElementById("provider");
-    const msgEl = document.getElementById("msg");
-    const clearBtn = document.getElementById("clearBtn");
-    const submitBtn = document.getElementById("submitBtn");
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("withdrawForm");
+  const amountEl = document.getElementById("amount");
+  const accEl = document.getElementById("account_number");
+  const providerCards = document.querySelectorAll(".provider-card");
+  const providerEl = document.getElementById("provider");
+  const msgEl = document.getElementById("msg");
+  const clearBtn = document.getElementById("clearBtn");
+  const submitBtn = document.getElementById("submitBtn");
 
-    // Hide messages automatically
-    const oldMsgs = document.querySelectorAll(".message");
-    if (oldMsgs.length) {
-      setTimeout(() => oldMsgs.forEach(m => m.remove()), 4000);
+  // Dismiss Django messages after 4s
+  setTimeout(() => {
+    document.querySelectorAll(".alert").forEach(a => a.remove());
+  }, 4000);
+
+  function showMessage(text, opts = {}) {
+    msgEl.style.display = "block";
+    msgEl.textContent = text;
+    msgEl.style.background = opts.error ? "#fff5f5" : "#eef2ff";
+    msgEl.style.color = opts.error ? "#7f1d1d" : "#0b2b6b";
+  }
+
+  function clearMessage() {
+    msgEl.style.display = "none";
+    msgEl.textContent = "";
+  }
+
+  function validateForm() {
+    const amount = parseFloat(amountEl.value);
+    const acc = accEl.value.trim();
+    const provider = providerEl.value;
+
+    if (isNaN(amount) || amount < 10) {
+      showMessage("Minimum withdrawal is GHS 10.", { error: true });
+      return false;
     }
-
-    function showMessage(text, opts = {}) {
-      msgEl.hidden = false;
-      msgEl.textContent = text;
-      msgEl.style.background = opts.error ? "#fff5f5" : "#eef2ff";
-      msgEl.style.color = opts.error ? "#7f1d1d" : "#0b2b6b";
+    const ghRegex = /^(?:0|\+?233)?(2|5)[0-9]{8}$/;
+    if (!ghRegex.test(acc)) {
+      showMessage("Please enter a valid Ghanaian MoMo number (e.g. 0244000000).", { error: true });
+      return false;
     }
-
-    function clearMessage() {
-      msgEl.hidden = true;
-      msgEl.textContent = "";
+    if (!provider) {
+      showMessage("Please select your network provider.", { error: true });
+      return false;
     }
+    return true;
+  }
 
-    function validateForm() {
-      const amount = parseFloat(amountEl.value);
-      const acc = accEl.value.trim();
-      const provider = providerEl.value;
-
-      if (isNaN(amount) || amount < 10) {
-        showMessage("Minimum withdrawal is GHS 10.", { error: true });
-        return false;
-      }
-      const ghRegex = /^(?:0|\+?233)?(2|5)[0-9]{8}$/;
-      if (!ghRegex.test(acc)) {
-        showMessage("Please enter a valid Ghanaian MoMo number (e.g. 0244000000).", { error: true });
-        return false;
-      }
-      if (!provider) {
-        showMessage("Please select your network provider.", { error: true });
-        return false;
-      }
-      return true;
-    }
-
-    providerCards.forEach((card) => {
-      card.addEventListener("click", () => {
-        providerCards.forEach((c) => c.classList.remove("selected"));
-        card.classList.add("selected");
-        providerEl.value = card.dataset.value.toLowerCase();
-      });
-    });
-
-    clearBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      form.reset();
-      clearMessage();
-      providerCards.forEach((c) => c.classList.remove("selected"));
-    });
-
-    form.addEventListener("submit", (e) => {
-      if (!validateForm()) {
-        e.preventDefault();
-        return;
-      }
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Processing...";
+  providerCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      providerCards.forEach((c) => c.style.borderColor = "#e6e9ef");
+      card.style.borderColor = "#0b5fff";
+      providerEl.value = card.dataset.value.toLowerCase();
     });
   });
-  </script>
-</body>
-</html>
+
+  clearBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    form.reset();
+    clearMessage();
+    providerCards.forEach((c) => c.style.borderColor = "#e6e9ef");
+  });
+
+  form.addEventListener("submit", (e) => {
+    if (!validateForm()) {
+      e.preventDefault();
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Processing...";
+  });
+});
+</script>
 {% endblock %}
