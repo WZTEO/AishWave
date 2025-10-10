@@ -43,7 +43,19 @@ urlpatterns = [
     path('product/<slug:slug>/', product_detail, name='product-detail'),
     path('trade-card/', trade_card, name='trade-card'),
     path('terms/', terms, name="terms"),
-    path('orders/', orders, name='orders')
+    path('orders/', orders, name='orders'),
+
+
+     # --- Deposits ---
+    path("wallet/deposit/", initiate_deposit, name="wallet_deposit"),
+    path("wallet/deposit/verify/", verify_deposit, name="verify_deposit"),  # ✅ fixed name
+    path("wallet/deposit/otp/<str:reference>/", confirm_deposit_otp, name="confirm_deposit_otp"),
+    path("wallet/ussd/<str:reference>/", ussd_instruction, name="ussd_instruction"),
+        path("wallet/ussd/<str:reference>/", ussd_instruction, name="ussd_instruction"),
+    path("wallet/refresh-balance/", refresh_balance, name="refresh_balance"),
+path("wallet/refresh-transaction/<str:reference>/", refresh_transaction, name="refresh_transaction"),
+
+
     
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

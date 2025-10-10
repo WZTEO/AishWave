@@ -202,6 +202,30 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.id} - {self.user.username} - {self.status}"
    
+# class Transaction(models.Model):
+#     TRANSACTION_TYPES = [
+#         ('deposit', 'Deposit'),
+#         ('purchase', 'Purchase'),
+#         ('withdrawal', 'Withdrawal'),
+#         ('investment', 'Investment'),
+#         ('refund', 'Refund'),
+#         ('task_reward', 'Task Reward')
+#     ]
+#     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, related_name='transaction')
+#     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+#     amount = models.DecimalField(max_digits=10, decimal_places=2)
+#     transaction_type =models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+#     reference = models.CharField(max_length=100, unique=True)
+#     status = models.CharField(max_length=20, default='pending')
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def save(self, *args, **kwargs):
+#         if not self.reference:
+#             self.reference = str(uuid.uuid4())
+#         return super().save(*args, **kwargs)
+
+#     def __str__(self):
+#         return f"{self.wallet.user.username} - {self.transaction_type} - GHS{self.amount}"
 class Transaction(models.Model):
     TRANSACTION_TYPES = [
         ('deposit', 'Deposit'),
@@ -211,13 +235,19 @@ class Transaction(models.Model):
         ('refund', 'Refund'),
         ('task_reward', 'Task Reward')
     ]
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, related_name='transaction')
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+
+    order = models.ForeignKey(
+        "Order", on_delete=models.SET_NULL, null=True, related_name="transaction"
+    )
+    wallet = models.ForeignKey("Wallet", on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_type =models.CharField(max_length=20, choices=TRANSACTION_TYPES)
-    reference = models.CharField(max_length=100, unique=True)
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    reference = models.CharField(max_length=100, unique=True, blank=True)
     status = models.CharField(max_length=20, default='pending')
+    raw_data = models.JSONField(default=dict, blank=True)  # restore
+    wallet_applied = models.BooleanField(default=False)    # restore
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.reference:
@@ -225,7 +255,8 @@ class Transaction(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.wallet.user.username} - {self.transaction_type} - GHS{self.amount}"
+        return f"{self.wallet.user.username} - {self.transaction_type} - GHS{self.amount} ({self.status})"
+
   
 class InvestmentPlan(models.TextChoices):
     QUICK_RETURNS = "quick", "Quick Returns Plan"

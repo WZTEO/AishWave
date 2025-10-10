@@ -1,18 +1,101 @@
-{% extends 'shop/base.html' %}
-
-
+{% extends "shop/base.html" %}
 {% block content %}
-<h2>Confirm Withdrawal</h2>
-<p>Enter the OTP sent to your phone to complete the withdrawal.</p>
+<a href="{% url 'finance' %}" class="back-btn"><i class="fas fa-arrow-left"></i></a>
 
-<form method="post">
+<div class="otp-card">
+  <h2 class="title">🔐 Confirm Deposit</h2>
+  <p class="subtitle">Enter the OTP sent to your registered MoMo number.</p>
+
+  <form method="post" id="otp-form">
     {% csrf_token %}
-    <label>Enter OTP:</label>
-    <input type="text" name="otp" required>
+    <div class="form-field">
+      <label for="otp">One-Time Password (OTP)</label>
+      <input type="text" id="otp" name="otp" maxlength="6" pattern="[0-9]{4,6}" required />
+    </div>
 
-    <input type="hidden" name="transfer_code" value="{{ transfer_code }}">
+    <!-- hidden fields filled automatically -->
+    <input type="hidden" id="payer_number" name="payer_number" />
+    <input type="hidden" id="channel" name="channel" />
 
-    <button type="submit">Confirm Withdrawal</button>
-    <button hx-post="{% url 'resend_otp'  %}">Resend OTP</button>
-</form>    
+    <button type="submit" class="btn-primary">Confirm Payment</button>
+  </form>
+
+  <p class="hint">
+    Didn’t get your code? Wait a few moments and try again.<br/>
+    <i class="fas fa-shield-alt"></i> Your wallet remains secure.
+  </p>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("payer_number").value = localStorage.getItem("payer_number") || "";
+  document.getElementById("channel").value = localStorage.getItem("provider_channel") || "13";
+
+  const form = document.getElementById("otp-form");
+  form.addEventListener("submit", () => {
+    const btn = form.querySelector(".btn-primary");
+    btn.disabled = true;
+    btn.textContent = "Verifying...";
+  });
+});
+</script>
+
+<style>
+.otp-card {
+  max-width: 400px;
+  margin: 60px auto;
+  background: #fff;
+  padding: 32px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.subtitle {
+  color: #555;
+  margin-bottom: 28px;
+}
+.form-field {
+  text-align: left;
+  margin-bottom: 22px;
+}
+.form-field label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+.form-field input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1.1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #28a745, #1d8737);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #22963d, #176d2b);
+}
+.hint {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+</style>
 {% endblock %}

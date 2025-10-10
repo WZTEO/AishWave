@@ -1,0 +1,154 @@
+{% extends "shop/base.html" %}
+{% block content %}
+<div class="ussd-container">
+  <button hx-get="{% url 'finance' %}" hx-target="body" hx-push-url="true" class="back-btn">
+    <i class="fas fa-arrow-left"></i>
+  </button>
+
+  <div class="ussd-card">
+    <h2 class="title">Complete Your Mobile Money Payment</h2>
+    <p class="subtitle">
+      Please confirm the MoMo payment prompt sent to your phone.
+    </p>
+
+    <div class="instructions">
+      <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+      <p class="highlight-text">
+        Enter your <strong>MoMo PIN</strong> to authorize payment.
+      </p>
+
+      <div class="details">
+        <p><strong>Amount:</strong> GHS {{ amount }}</p>
+        <p><strong>Reference:</strong> {{ reference }}</p>
+        <p><strong>Provider:</strong> {{ provider|default:"Mobile Money" }}</p>
+      </div>
+
+      <div class="note">
+        <p><i class="fas fa-info-circle"></i>
+          Once confirmed, your wallet will update automatically within seconds.
+        </p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="refreshBtn" class="btn-primary">I’ve Entered My PIN</button>
+      <button id="cancelBtn" class="btn-secondary">Cancel</button>
+    </div>
+
+    <div id="statusMsg" class="status-msg" hidden></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const refreshBtn = document.getElementById("refreshBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+  const msg = document.getElementById("statusMsg");
+  const ref = "{{ reference }}";
+  let attempt = 0;
+  const maxAttempts = 5;
+
+  function showMessage(text, isError = false) {
+    msg.hidden = false;
+    msg.textContent = text;
+    msg.style.background = isError ? "#ffe6e6" : "#e9ffe9";
+    msg.style.color = isError ? "#a40000" : "#056b22";
+  }
+
+  async function verifyPayment() {
+    attempt++;
+    try {
+      const resp = await fetch("{% url 'verify_deposit' %}?reference=" + ref);
+      // Redirect handled by backend on success
+      if (resp.redirected) {
+        window.location.href = resp.url;
+        return;
+      }
+
+      // Retry silently if not redirected yet
+      if (attempt < maxAttempts) {
+        setTimeout(verifyPayment, 5000);
+      } else {
+        showMessage("Payment still pending. Please refresh your dashboard later.", true);
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = "I’ve Entered My PIN";
+      }
+    } catch (err) {
+      // Retry even on temporary network error
+      if (attempt < maxAttempts) {
+        setTimeout(verifyPayment, 5000);
+      } else {
+        showMessage("Network error: " + err.message, true);
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = "I’ve Entered My PIN";
+      }
+    }
+  }
+
+  refreshBtn.addEventListener("click", () => {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = "Verifying...";
+    msg.hidden = true; // hide any previous messages
+    verifyPayment(); // start retry loop
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    window.location.href = "{% url 'finance' %}";
+  });
+});
+</script>
+
+<style>
+.ussd-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #f9fafc;
+  min-height: 100vh;
+  padding: 60px 20px;
+}
+.ussd-card {
+  max-width: 520px;
+  width: 100%;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 36px 30px;
+  text-align: center;
+  position: relative;
+}
+.title { font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+.subtitle { font-size: 1rem; color: #475569; margin-bottom: 25px; }
+.icon-circle {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #007bff, #0056d2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px; color: white; font-size: 2rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.details {
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 12px 15px; font-size: 0.95rem; text-align: left; margin-bottom: 20px;
+}
+.note {
+  background: #f1f5ff; border-left: 4px solid #007bff; border-radius: 8px;
+  padding: 12px 15px; text-align: left; font-size: 0.9rem; color: #334155;
+}
+.actions { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
+.btn-primary, .btn-secondary {
+  width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 1rem;
+  cursor: pointer; transition: 0.25s; border: none;
+}
+.btn-primary { background: linear-gradient(135deg, #007bff, #0056d2); color: #fff; }
+.btn-primary:hover { background: linear-gradient(135deg, #005fe0, #0042a8); }
+.btn-secondary { background: #f1f5f9; color: #333; }
+.btn-secondary:hover { background: #e2e8f0; }
+.status-msg { margin-top: 15px; padding: 10px; border-radius: 8px; font-weight: 500; }
+.back-btn {
+  position: absolute; top: 20px; left: 20px;
+  background: transparent; border: none; color: #0056d2;
+  font-size: 1.2rem; cursor: pointer;
+}
+</style>
+{% endblock %}

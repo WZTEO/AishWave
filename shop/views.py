@@ -1,9 +1,12 @@
+from asyncio.log import logger
 import dis
 from itertools import product
 from locale import currency
+import logging
 from math import prod
 from poplib import CR
 from unicodedata import category
+import uuid
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
@@ -13,6 +16,9 @@ from django.utils.timezone import now
 from allauth.account.forms import LoginForm
 from datetime import timedelta
 from django.http import JsonResponse
+
+from payments.services.moolre_service import check_payment_status, initiate_payment
+from payments.services.transaction_service import TransactionService
 from .models import  (
     BattleRoyalePlayer, Wallet, Task, TaskCompletion, ReferralAmount, Transaction, BillBoardImage, 
     LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Crypto,
@@ -25,6 +31,22 @@ from decimal import Decimal
 import requests
 import json
 # Create your views here.
+
+# ------------------------------------------------------------------
+# LOGGER CONFIGURATION
+# ------------------------------------------------------------------
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] [SHOP] %(message)s",
+    )
+
+# ------------------------------------------------------------------
+# MOOLRE CHANNELS
+# ------------------------------------------------------------------
+MOOLRE_PAYMENT_CHANNELS = {"mtn": 13, "vodafone": 6, "airteltigo": 7}
+MOOLRE_TRANSFER_CHANNELS = {"mtn": 1, "vodafone": 6, "airteltigo": 7, "bank": 2}
 
 def shop(request):
     discount = Discount.objects.all()
@@ -112,62 +134,62 @@ def product_detail(request, slug):
                                                                 'product_tiers': product_tiers
                                                                     })
 
-@login_required
-def initiate_deposit(request):
-    if request.method == 'POST':
-        amount = int(request.POST.get("amount")) * 100 #convert to peswas
-        if int(request.POST.get("amount")) < 20:
-            messages.error(request, "Minimum deposit amount is GHS 20", extra_tags="deposit")
-            return redirect("wallet_deposit")
+# @login_required
+# def initiate_deposit(request):
+#     if request.method == 'POST':
+#         amount = int(request.POST.get("amount")) * 100 #convert to peswas
+#         if int(request.POST.get("amount")) < 20:
+#             messages.error(request, "Minimum deposit amount is GHS 20", extra_tags="deposit")
+#             return redirect("wallet_deposit")
         
-        email = request.user.email
+#         email = request.user.email
 
-        url = "https://api.paystack.co/transaction/initialize"
-        headers = {
-            "AUthorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "email": email,
-            "amount": amount,
-            "currency": "GHS",
-            "callback_url": f"{settings.PAYSTACK_CALLBACK}/wallet/verify-deposit/"
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        print(f"Paystack response:", response.text)
-        res_data = response.json()
-        if res_data.get("status"):
-            return redirect(res_data["data"]["authorization_url"]) #redirect to paystack
+#         url = "https://api.paystack.co/transaction/initialize"
+#         headers = {
+#             "AUthorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+#             "Content-Type": "application/json"
+#         }
+#         payload = {
+#             "email": email,
+#             "amount": amount,
+#             "currency": "GHS",
+#             "callback_url": f"{settings.PAYSTACK_CALLBACK}/wallet/verify-deposit/"
+#         }
+#         response = requests.post(url, json=payload, headers=headers)
+#         print(f"Paystack response:", response.text)
+#         res_data = response.json()
+#         if res_data.get("status"):
+#             return redirect(res_data["data"]["authorization_url"]) #redirect to paystack
         
-    return render(request, "wallet/deposit.html")
+#     return render(request, "wallet/deposit.html")
     
-@login_required
-def verify_deposit(request):
-    reference = request.GET.get("reference")
+# @login_required
+# def verify_deposit(request):
+#     reference = request.GET.get("reference")
 
-    url = f"https://api.paystack.co/transaction/verify/{reference}"
-    headers = {
-        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"
-    }
-    response = requests.get(url, headers=headers)
-    res_data = response.json()
+#     url = f"https://api.paystack.co/transaction/verify/{reference}"
+#     headers = {
+#         "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+#     }
+#     response = requests.get(url, headers=headers)
+#     res_data = response.json()
     
-    if res_data.get("status") and res_data["data"]["status"] == "success":
-        amount = res_data["data"]["amount"] / 100 #convert to GHS
-        user_wallet, created = Wallet.objects.get_or_create(user=request.user)
-        user_wallet.deposit(amount)
+#     if res_data.get("status") and res_data["data"]["status"] == "success":
+#         amount = res_data["data"]["amount"] / 100 #convert to GHS
+#         user_wallet, created = Wallet.objects.get_or_create(user=request.user)
+#         user_wallet.deposit(amount)
 
-        Transaction.objects.create(
-            wallet=user_wallet,
-            amount=amount,
-            transaction_type="deposit",
-            reference=reference,
-            status="success"
-        )
-        #return JsonResponse({"message": "Deposit successful", "balance": user_wallet.balance})
-        return redirect("finance")
-    #return JsonResponse({"error": "Deposit failed!"}, status=400)
-    return redirect("wallet_deposit")
+#         Transaction.objects.create(
+#             wallet=user_wallet,
+#             amount=amount,
+#             transaction_type="deposit",
+#             reference=reference,
+#             status="success"
+#         )
+#         #return JsonResponse({"message": "Deposit successful", "balance": user_wallet.balance})
+#         return redirect("finance")
+#     #return JsonResponse({"error": "Deposit failed!"}, status=400)
+#     return redirect("wallet_deposit")
 
 @login_required
 def add_recipient(request):
@@ -726,3 +748,363 @@ def terms(request):
 def orders(request):
     orders = Order.objects.all().filter(user=request.user)
     return render(request, "shop_update/orders.html", {'orders': orders})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# EXTRA VIEWS ADDED
+# ------------------------------------------------------------------
+# WALLET OPERATIONS — DEPOSIT (MOOLRE)
+# ------------------------------------------------------------------
+
+
+# ==========================================================
+# STEP 1 — INITIATE DEPOSIT
+# ==========================================================
+@login_required
+def initiate_deposit(request):
+    """Step 1: Initiate Moolre deposit (request USSD or OTP)."""
+    if request.method != "POST":
+        return render(request, "wallet/deposit.html")
+
+    payer_number = (request.POST.get("payer_number") or "").strip()
+    provider = (request.POST.get("provider") or "").lower().strip()
+    amount_raw = request.POST.get("amount")
+
+    try:
+        amount = Decimal(amount_raw or "0")
+    except Exception:
+        messages.error(request, "Invalid amount entered.", extra_tags="deposit")
+        return redirect("wallet_deposit")
+
+    if amount < 1:
+        messages.error(request, "Minimum deposit is GHS 1.", extra_tags="deposit")
+        return redirect("wallet_deposit")
+
+    from shop.views import MOOLRE_PAYMENT_CHANNELS  # ensure channel mapping loaded
+    channel = MOOLRE_PAYMENT_CHANNELS.get(provider)
+    if not channel:
+        messages.error(request, "Invalid mobile network selected.", extra_tags="deposit")
+        return redirect("wallet_deposit")
+
+    external_ref = f"dep_{uuid.uuid4().hex[:10]}"
+    account_number = str(settings.MOOLRE_ACCOUNT_NUMBER).strip()
+
+    logger.info("[SHOP][DEPOSIT] Initiating | User=%s | Payer=%s | Amount=%.2f | Channel=%s",
+                request.user.username, payer_number, amount, channel)
+
+    # --- Prepare clean, type-safe payload ---
+    result = initiate_payment(
+        user=request.user,
+        payer=payer_number,
+        amount=float(amount),
+        account_number=account_number,
+        external_ref=external_ref,
+        reference="Wallet Deposit",
+        channel=int(channel),
+    )
+
+    # Normalize response
+    if isinstance(result, str):
+        try:
+            result = json.loads(result)
+        except json.JSONDecodeError:
+            result = {"status": 0, "message": str(result)}
+    elif not isinstance(result, dict):
+        result = {"status": 0, "message": str(result)}
+
+    # Record pending transaction
+    TransactionService.record_transaction(
+        user=request.user,
+        amount=amount,
+        transaction_type="deposit",
+        reference=external_ref,
+        status="pending",
+        raw_data={
+            "payer": payer_number,
+            "provider": provider,
+            "channel": channel,
+            "response": result,
+        },
+    )
+
+    logger.info("[SHOP][DEPOSIT][API_RESPONSE] %s", json.dumps(result, indent=2))
+
+    # Handle response
+    if str(result.get("status")) == "1":
+        code = str(result.get("code", "")).upper()
+        if code == "TP14":
+            messages.info(request, "An OTP has been sent to your MoMo number.", extra_tags="deposit")
+            return redirect("confirm_deposit_otp", reference=external_ref)
+        messages.success(request, "Approve the MoMo prompt to complete payment.", extra_tags="deposit")
+        return redirect("finance")
+
+    TransactionService.mark_failed(external_ref)
+    messages.error(request, result.get("message", "Deposit initiation failed."), extra_tags="deposit")
+    return redirect("wallet_deposit")
+
+
+# ==========================================================
+# STEP 2 — CONFIRM OTP
+# ==========================================================
+@login_required
+def confirm_deposit_otp(request, reference):
+    """
+    Step 2 & 3 — Verify OTP with Moolre, then re-trigger payment prompt.
+    """
+    if request.method != "POST":
+        return render(request, "wallet/otp.html", {"transfer_code": reference})
+
+    otp_code = request.POST.get("otp")
+    if not otp_code:
+        messages.error(request, "Please enter your OTP code.", extra_tags="deposit")
+        return redirect("confirm_deposit_otp", reference=reference)
+
+    tx = TransactionService.get_by_reference(reference)
+    if not tx:
+        messages.error(request, "Transaction not found.", extra_tags="deposit")
+        return redirect("wallet_deposit")
+
+    # Extract details
+    raw_data = tx.raw_data or {}
+    if isinstance(raw_data, str):
+        try:
+            raw_data = json.loads(raw_data)
+        except Exception:
+            raw_data = {}
+
+    payer = raw_data.get("payer") or request.POST.get("payer_number")
+    channel = int(raw_data.get("channel") or 13)
+    amount = float(tx.amount)
+    account_number = settings.MOOLRE_ACCOUNT_NUMBER
+
+    logger.info(f"[SHOP][DEPOSIT] Verifying OTP | Ref={reference} | Payer={payer}")
+
+    # --- Phase 2: Verify OTP ---
+    first_result = initiate_payment(
+        user=request.user,
+        payer=payer,
+        amount=amount,
+        account_number=account_number,
+        external_ref=reference,
+        reference="Wallet Deposit",
+        channel=channel,
+        otpcode=otp_code,
+    )
+
+    first_result = _normalize_result(first_result)
+    message = first_result.get("message", "")
+    txstatus = str(first_result.get("data", {}).get("txstatus", "0"))
+
+    logger.info(f"[SHOP][DEPOSIT][PHASE2] {message} | txstatus={txstatus}")
+
+    # --- If OTP verification successful but no prompt yet ---
+    if "Verification Successful" in message or txstatus == "0":
+        logger.info(f"[SHOP][DEPOSIT][PHASE3] Retrying payment call to trigger prompt...")
+        second_result = initiate_payment(
+            user=request.user,
+            payer=payer,
+            amount=amount,
+            account_number=account_number,
+            external_ref=reference,  # same reference
+            reference="Wallet Deposit",
+            channel=channel,
+            otpcode=otp_code,        # same otp again
+        )
+        second_result = _normalize_result(second_result)
+        logger.info(f"[SHOP][DEPOSIT][PHASE3][RESULT] {second_result}")
+
+        # Combine phase 3 response as final
+        result = second_result
+    else:
+        result = first_result
+
+    status = str(result.get("status", 0))
+    data = result.get("data", {}) or {}
+    txstatus = str(data.get("txstatus", "0"))
+    message = result.get("message", "")
+
+    logger.info(f"[SHOP][DEPOSIT][FINAL] Status={status} | TXStatus={txstatus} | Message={message}")
+
+    # --- Evaluate final outcome ---
+    if status == "1" and txstatus == "1":
+      TransactionService.mark_success(reference, update_wallet=True)
+      messages.success(request, "✅ Deposit successful!", extra_tags="deposit")
+      return redirect("finance")
+
+
+    if status == "1" and txstatus == "0":
+      messages.info(request, "Payment initiated. Please check your phone for MoMo prompt.", extra_tags="deposit")
+      return redirect("ussd_instruction", reference=reference)
+
+
+    messages.error(request, message or "Verification failed. Please try again.", extra_tags="deposit")
+    return redirect("confirm_deposit_otp", reference=reference)
+
+
+def _normalize_result(result):
+    """Ensure safe dict structure."""
+    if isinstance(result, str):
+        try:
+            result = json.loads(result)
+        except json.JSONDecodeError:
+            result = {"status": 0, "message": str(result)}
+    if not isinstance(result, dict):
+        result = {"status": 0, "message": str(result)}
+    if not isinstance(result.get("data"), dict):
+        result["data"] = {}
+    return result
+
+
+# ==========================================================
+# STEP 3 — VERIFY DEPOSIT MANUALLY
+# ==========================================================
+@login_required
+def verify_deposit(request):
+    """Step 3: Manual status verification for deposits."""
+    reference = (request.GET.get("reference") or "").strip()
+    if not reference:
+        messages.error(request, "No reference provided.", extra_tags="deposit")
+        return redirect("finance")
+
+    logger.info("[SHOP][DEPOSIT][VERIFY] Checking status | Ref=%s", reference)
+    result = check_payment_status(request.user, settings.MOOLRE_ACCOUNT_NUMBER, reference)
+
+    # Normalize
+    if isinstance(result, str):
+        try:
+            result = json.loads(result)
+        except json.JSONDecodeError:
+            result = {"status": 0, "message": str(result)}
+
+    tx_data = result.get("data", {}) or {}
+    txstatus = str(tx_data.get("txstatus", "0"))
+
+    logger.info("[SHOP][DEPOSIT][VERIFY_RESULT] TXStatus=%s | Data=%s",
+                txstatus, json.dumps(tx_data, indent=2))
+
+    if txstatus == "1":
+        TransactionService.mark_success(reference, update_wallet=True)
+        messages.success(request, "Deposit verified successfully.", extra_tags="deposit")
+    elif txstatus == "2":
+        TransactionService.mark_failed(reference)
+        messages.error(request, "Deposit failed.", extra_tags="deposit")
+    else:
+        TransactionService.mark_pending(reference)
+        messages.info(request, "Deposit still pending confirmation.", extra_tags="deposit")
+
+    return redirect("finance")
+
+
+@login_required
+def ussd_instruction(request, reference):
+    """
+    Display USSD completion instructions after OTP verification.
+    Allows user to confirm they have completed the MoMo prompt.
+    """
+    tx = TransactionService.get_by_reference(reference)
+    if not tx:
+        messages.error(request, "Transaction not found.", extra_tags="deposit")
+        return redirect("finance")
+
+    amount = tx.amount
+    provider = (tx.raw_data or {}).get("provider", "").capitalize() if isinstance(tx.raw_data, dict) else ""
+    merchant_code = getattr(settings, "MOOLRE_MERCHANT_CODE", "MOOLRE")
+
+    return render(request, "wallet/ussd_instruction.html", {
+        "reference": reference,
+        "amount": amount,
+        "provider": provider,
+        "merchant_code": merchant_code,
+    })
+
+@login_required
+def refresh_balance(request):
+    """AJAX: Refresh wallet balance + reconcile pending tx."""
+    from payments.services.transaction_service import TransactionRefresher
+    summary = TransactionRefresher.refresh_account_balance(request.user, settings.MOOLRE_ACCOUNT_NUMBER)
+    wallet = Wallet.objects.get(user=request.user)
+    return JsonResponse({
+        "balance": float(wallet.balance),
+        "summary": summary
+    })
+
+@login_required
+def refresh_transaction(request, reference):
+    """AJAX: Refresh individual transaction status."""
+    from payments.services.moolre_service import check_payment_status, check_transfer_status
+    tx = TransactionService.get_by_reference(reference)
+    if not tx:
+        return JsonResponse({"error": "Transaction not found"}, status=404)
+    if tx.transaction_type == "deposit":
+        data = check_payment_status(request.user, settings.MOOLRE_ACCOUNT_NUMBER, reference)
+    else:
+        data = check_transfer_status(request.user, settings.MOOLRE_ACCOUNT_NUMBER, reference)
+    return JsonResponse(data)

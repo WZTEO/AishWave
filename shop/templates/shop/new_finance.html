@@ -3,280 +3,226 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'trustbyte/img/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'trustbyte/img/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'trustbyte/img/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'trustbyte/img/site.webmanifest' %}">
-    <title>TrustByte99 - Trade with Trust</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap"
-        rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'trustbyte/css/landing_style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'trustbyte/img/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'trustbyte/img/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'trustbyte/img/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'trustbyte/img/site.webmanifest' %}">
+  <title>TrustByte99 - Trade with Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'trustbyte/css/landing_style.css' %}">
+
+  <style>
+    /* Remove underline from action buttons (Deposit / Withdraw) */
+.action-buttons a {
+  text-decoration: none;
+}
+
+.action-buttons a:hover {
+  text-decoration: none;
+}
+
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: #0b5fff;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 1rem;
+    }
+    .tx-refresh {
+      color: #0b5fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: 10px;
+    }
+    .tx-refresh:hover, .refresh-btn:hover {
+      color: #003c9e;
+    }
+  </style>
 </head>
 
 <body>
-
-
-    <!-- Finance Interface -->
-    <div class="finance-interface" id="finance-interface" style="display: block;">
-        <div class="top-nav">
-            <button class="menu-btn">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        <div class="menu-overlay" id="menu-overlay"></div>
-        <div class="side-menu" id="side-menu">
-            <button class="menu-close" onclick="toggleMenu()" id="menu-close">
-                <i class="fas fa-times"></i>
-            </button>
-            <button class="menu-item">
-                <a style="text-decoration: none;" class="inner" href="{% url 'contact-form' %}">
-                    <div class="top-white"></div>
-                    <i class="fas fa-envelope"></i>
-                    <span class="text">Contact Us</span>
-                </a>
-            </button>
-            <button class="menu-item">
-                <a style="text-decoration: none;" href="{% url 'referral' %}" class="inner">
-                    <div class="top-white"></div>
-                    <i class="fas fa-gift"></i>
-                    <span class="text">Referrals</span>
-                </a>
-            </button>
-            <button class="menu-item profile-btn">
-                <a style="text-decoration: none;" href="{% url 'profile' %}" class="inner">
-                    <div class="top-white"></div>
-                    <i class="fas fa-user"></i>
-                    <span class="text">Profile</span>
-                </a>
-            </button>
-           <!-- Follow Us Button -->
-            <button class="menu-item follow-us-btn" id="followUsButton">
-            <div class="inner">
-                <div class="top-white"></div>
-                <i class="fas fa-heart"></i>
-                <span class="text">Follow Us</span>
-            </div>
-            </button>
-
-<!-- Social Media Icons -->
-            <div class="social-icons" id="socialIcons">
-                <a href="https://youtube.com/channel/UCDmTtd97ZjLdSjNmvqoesqA" target="_blank" class="social-link 5 youtube">
-                    <i class="fab fa-youtube"></i>
-                </a>
-                <a href="https://twitter.com/@trustbyte99" target="_blank" class="social-link twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="https://tiktok.com/@trustbyte99" target="_blank" class="social-link tiktok">
-                    <i class="fab fa-tiktok"></i>
-                </a>
-            </div>
-
-            <!-- Style (respect OG style) -->
-            <style>
-            .social-icons {
-            padding: 15px;
-            display: none;
-            gap: 15px;
-            animation: slideDown 0.3s ease-out;
-            }
-
-
-            .social-icons.show {
-                display: grid; /* You can switch to flex if you prefer that layout */
-                grid-template-columns: repeat(4, auto);
-                margin-top: 10px;
-            }
-            </style>
-
-        </div>
-     
-        <div class="balance-card">
-            <div class="balance-info">
-                <div class="balance-main">
-                    <h2>Total Balance</h2>
-                    <h1>GHS{{ wallet.balance }}</h1>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <a style="text-decoration: none;" class="action-btn withdraw" href="{% url 'withdrawal_request' %}">
-                    <i class="fas fa-arrow-up"></i>
-                    Withdraw
-                </a>
-                <a style="text-decoration: none;" class="action-btn deposit" href="{% url 'wallet_deposit' %}" class="action-btn deposit">
-                    <i class="fas fa-arrow-down"></i>
-                    Deposit
-                </a>
-            </div>
-        </div>
-
-        <div class="recent-transactions">
-            <h3>Transaction History</h3>
-            <div class="transactions-list">
-                <!-- Transactions will be dynamically inserted here -->
-                {% for transaction in transactions %}
-                {% if transaction.transaction_type == 'deposit' %}
-                <div class="transaction">
-                    <div class="transaction-icon deposit">
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <span class="transaction-title">Deposit {{ transaction.status }}</span>
-                        <span class="transaction-date">
-
-                            {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                            Today, {{ transaction.created_at|date:"g:i A" }}
-                            {% else %}
-                            {{ transaction.created_at|date:"M d, Y g:i A" }}
-                            {% endif %}
-
-                        </span>
-                    </div>
-                    <span class="transaction-amount deposit">+GHS{{ transaction.amount}}</span>
-                </div>
-                {% elif transaction.transaction_type == 'withdrawal' %}
-                <div class="transaction">
-                    <div class="transaction-icon withdraw">
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <span class="transaction-title">Withdrawal {{ transaction.status }}</span>
-                        <span class="transaction-date">
-                            {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                            Today, {{ transaction.created_at|date:"g:i A" }}
-                            {% else %}
-                            {{ transaction.created_at|date:"M d, Y g:i A" }}
-                            {% endif %}
-                        </span>
-                    </div>
-                    <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
-                </div>
-                {% elif transaction.transaction_type == 'task_reward' %}
-                <div class="transaction">
-                    <div class="transaction-icon deposit">
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <span class="transaction-title">Task Reward {{ transaction.status }}</span>
-                        <span class="transaction-date">
-
-                            {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                            Today, {{ transaction.created_at|date:"g:i A" }}
-                            {% else %}
-                            {{ transaction.created_at|date:"M d, Y g:i A" }}
-                            {% endif %}
-
-                        </span>
-                    </div>
-                    <span class="transaction-amount deposit">+${{ transaction.amount}}</span>
-                </div>
-                {% elif transaction.transaction_type == 'investment' %}
-                <div class="transaction">
-                    <div class="transaction-icon withdraw">
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <span class="transaction-title">Investment {{ transaction.status }}</span>
-                        <span class="transaction-date">
-                            {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                            Today, {{ transaction.created_at|date:"g:i A" }}
-                            {% else %}
-                            {{ transaction.created_at|date:"M d, Y g:i A" }}
-                            {% endif %}
-                        </span>
-                    </div>
-                    <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
-                </div>
-                {% elif transaction.transaction_type == 'purchase' %}
-                <div class="transaction">
-                    <div class="transaction-icon withdraw">
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <span class="transaction-title">Purchase {{ transaction.status }}</span>
-                        <span class="transaction-date">
-                            {% if transaction.created_at|date:"Y-m-d" == today_date %}
-                            Today, {{ transaction.created_at|date:"g:i A" }}
-                            {% else %}
-                            {{ transaction.created_at|date:"M d, Y g:i A" }}
-                            {% endif %}
-                        </span>
-                    </div>
-                    <span class="transaction-amount withdraw">-GHS{{ transaction.amount}}</span>
-                </div>
-
-                {% endif %}
-
-                {% endfor %}
-
-
-            </div>
-        </div>
-
-    
-        <nav class="bottom-nav">
-            <a style="text-decoration: none;" href="{% url 'finance' %}">
-                <button class="nav-btn active">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </button>
-            </a>
-            <!-- <a style="text-decoration: none;" href="{% url 'create_investment' %}">
-                <button class="nav-btn">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Invest</span>
-                </button>
-            </a> -->
-            <a style="text-decoration: none;" href="{% url 'shop_update' %}">
-                <button class="nav-btn">
-                    <i class="fas fa-store"></i>
-                    <span>Store</span>
-                </button>
-            </a>
-            <a style="text-decoration: none;" href="{% url 'clash' %}">
-                <button class="nav-btn">
-                    <i class="fas fa-trophy"></i>
-                    <span>Tourn</span>
-                </button>
-            </a>
-        </nav>
+  <div class="finance-interface" id="finance-interface" style="display: block;">
+    <div class="top-nav">
+      <button class="menu-btn"><i class="fas fa-bars"></i></button>
     </div>
 
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <div class="side-menu" id="side-menu">
+      <button class="menu-close" onclick="toggleMenu()" id="menu-close"><i class="fas fa-times"></i></button>
 
-</body>
-<script src="{% static 'trustbyte/js/landing_script.js' %}"></script>
+      <button class="menu-item">
+        <a class="inner" style="text-decoration:none;" href="{% url 'contact-form' %}">
+          <div class="top-white"></div><i class="fas fa-envelope"></i><span class="text">Contact Us</span>
+        </a>
+      </button>
 
-<script>
+      <button class="menu-item">
+        <a class="inner" style="text-decoration:none;" href="{% url 'referral' %}">
+          <div class="top-white"></div><i class="fas fa-gift"></i><span class="text">Referrals</span>
+        </a>
+      </button>
+
+      <button class="menu-item profile-btn">
+        <a class="inner" style="text-decoration:none;" href="{% url 'profile' %}">
+          <div class="top-white"></div><i class="fas fa-user"></i><span class="text">Profile</span>
+        </a>
+      </button>
+
+      <button class="menu-item follow-us-btn" id="followUsButton">
+        <div class="inner">
+          <div class="top-white"></div><i class="fas fa-heart"></i><span class="text">Follow Us</span>
+        </div>
+      </button>
+
+      <div class="social-icons" id="socialIcons">
+        <a href="https://youtube.com/channel/UCDmTtd97ZjLdSjNmvqoesqA" target="_blank" class="social-link youtube"><i class="fab fa-youtube"></i></a>
+        <a href="https://twitter.com/@trustbyte99" target="_blank" class="social-link twitter"><i class="fab fa-twitter"></i></a>
+        <a href="https://tiktok.com/@trustbyte99" target="_blank" class="social-link tiktok"><i class="fab fa-tiktok"></i></a>
+      </div>
+
+      <style>
+        .social-icons {padding:15px;display:none;gap:15px;animation:slideDown .3s ease-out;}
+        .social-icons.show {display:grid;grid-template-columns:repeat(4,auto);margin-top:10px;}
+      </style>
+    </div>
+
+    <!-- BALANCE CARD -->
+    <div class="balance-card">
+      <div class="balance-info">
+        <div class="balance-main">
+          <h2>Total Balance</h2>
+          <h1>
+            GHS<span id="walletBalance">{{ wallet.balance }}</span>
+            <button id="refreshBalanceBtn" class="refresh-btn" title="Refresh Balance">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </h1>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <a class="action-btn withdraw" href="{% url 'withdrawal_request' %}">
+          <i class="fas fa-arrow-up"></i> Withdraw
+        </a>
+        <a class="action-btn deposit" href="{% url 'wallet_deposit' %}">
+          <i class="fas fa-arrow-down"></i> Deposit
+        </a>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="recent-transactions">
+      <h3>Transaction History</h3>
+      <div class="transactions-list">
+        {% for transaction in transactions %}
+          <div class="transaction">
+            <div class="transaction-icon {% if transaction.transaction_type in 'deposit task_reward' %}deposit{% else %}withdraw{% endif %}">
+              <i class="fas {% if transaction.transaction_type in 'deposit task_reward' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+            </div>
+            <div class="transaction-details">
+              <span class="transaction-title">
+                {{ transaction.transaction_type|title }} {{ transaction.status }}
+              </span>
+              <span class="transaction-date">
+                {% if transaction.created_at|date:"Y-m-d" == today_date %}
+                Today, {{ transaction.created_at|date:"g:i A" }}
+                {% else %}
+                {{ transaction.created_at|date:"M d, Y g:i A" }}
+                {% endif %}
+              </span>
+            </div>
+            <span class="transaction-amount {% if transaction.transaction_type in 'deposit task_reward' %}deposit{% else %}withdraw{% endif %}">
+              {% if transaction.transaction_type in 'deposit task_reward' %}+{% else %}-{% endif %}GHS{{ transaction.amount }}
+            </span>
+            <i class="fas fa-sync-alt tx-refresh" data-ref="{{ transaction.reference }}" title="Refresh this transaction"></i>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="{% url 'finance' %}" style="text-decoration:none;">
+        <button class="nav-btn active"><i class="fas fa-home"></i><span>Home</span></button>
+      </a>
+      <a href="{% url 'shop_update' %}" style="text-decoration:none;">
+        <button class="nav-btn"><i class="fas fa-store"></i><span>Store</span></button>
+      </a>
+      <a href="{% url 'clash' %}" style="text-decoration:none;">
+        <button class="nav-btn"><i class="fas fa-trophy"></i><span>Tourn</span></button>
+      </a>
+    </nav>
+  </div>
+
+  <script src="{% static 'trustbyte/js/landing_script.js' %}"></script>
+  <script>
     const menuBtn = document.querySelector('.menu-btn');
     const menuCloseBtn = document.getElementById('menu-close');
     const sideMenu = document.getElementById('side-menu');
     const menuOverlay = document.getElementById('menu-overlay');
     const followUsBtn = document.querySelector('.follow-us-btn');
     const socialIcons = document.querySelector('.social-icons');
-
-    // Open Menu
-    menuBtn.addEventListener('click', () => {
-        sideMenu.classList.add('open');
-        menuOverlay.style.display = 'block';
-    });
-
-    // Close Menu
-    function toggleMenu() {
-        sideMenu.classList.remove('open');
-        menuOverlay.style.display = 'none';
-    }
-
+    menuBtn.addEventListener('click', () => {sideMenu.classList.add('open');menuOverlay.style.display = 'block';});
+    function toggleMenu(){sideMenu.classList.remove('open');menuOverlay.style.display = 'none';}
     menuCloseBtn.addEventListener('click', toggleMenu);
     menuOverlay.addEventListener('click', toggleMenu);
+    followUsBtn.addEventListener('click', ()=>{socialIcons.style.display = socialIcons.style.display === 'grid' ? 'none':'grid';});
+  </script>
 
-    // Toggle social icons
-    followUsBtn.addEventListener('click', () => {
-        socialIcons.style.display = socialIcons.style.display === 'grid' ? 'none' : 'grid';
+  <!-- BALANCE + TRANSACTION REFRESH LOGIC -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const balanceEl = document.getElementById("walletBalance");
+      const refreshBtn = document.getElementById("refreshBalanceBtn");
+
+      // ✅ Refresh balance once before displaying
+      try {
+        const res = await fetch("{% url 'refresh_balance' %}");
+        const data = await res.json();
+        if (data.balance) balanceEl.textContent = parseFloat(data.balance).toFixed(2);
+        console.log("[Balance Refresh] Initial update", data);
+      } catch (err) {
+        console.error("Balance refresh failed:", err);
+      }
+
+      // Manual refresh button
+      refreshBtn.addEventListener("click", async () => {
+        refreshBtn.classList.add("fa-spin");
+        try {
+          const res = await fetch("{% url 'refresh_balance' %}");
+          const data = await res.json();
+          if (data.balance) balanceEl.textContent = parseFloat(data.balance).toFixed(2);
+        } catch (err) {
+          alert("Error refreshing balance: " + err.message);
+        } finally {
+          refreshBtn.classList.remove("fa-spin");
+        }
+      });
+
+      // Individual transaction refresh
+      document.querySelectorAll(".tx-refresh").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const ref = btn.dataset.ref;
+          btn.classList.add("fa-spin");
+          try {
+            const res = await fetch(`/wallet/refresh-transaction/${ref}/`);
+            const data = await res.json();
+            if (data.data?.txstatus == "1") {
+              alert("✅ Transaction completed!");
+              location.reload();
+            } else {
+              alert("⏳ Transaction still pending or failed.");
+            }
+          } catch (err) {
+            alert("⚠️ Error refreshing transaction: " + err.message);
+          } finally {
+            btn.classList.remove("fa-spin");
+          }
+        });
+      });
     });
-</script>
-
+  </script>
+</body>
 </html>
