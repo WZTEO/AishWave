@@ -5,7 +5,7 @@ from .models import (
     Order, ExchangeRate,LoginHistory, ReferralAmount, BillBoardImage, Task,Investment,
     Transaction, Referral, WithdrawalRequest, Wallet, Discount, ClashTournament,
     BattleRoyalePlayer, BattleRoyaleTournament, Squad, SquadPlayer, SquadTournament,
-    Product, Crypto, ProductTier
+    Product, Crypto
     )
 from django.contrib.auth.admin import UserAdmin
 from accountAuth.models import CustomUser
@@ -278,11 +278,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'category')   # Show these columns in list view
     list_filter = ('category',)                          # Filter sidebar by category
     search_fields = ['name']              # Enable search by name and description
-    ordering = ('name',)   
-
-@admin.register(ProductTier)
-class ProductTierAdmin(admin.ModelAdmin):
-    list_display = ('product', 'name', 'price', 'price_currency')        
+    ordering = ('name',)           
 
 @admin.register(Wallet)
 class WalletAdmin(StaffSafeAdmin):

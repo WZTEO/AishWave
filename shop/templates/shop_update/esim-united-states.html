@@ -68,17 +68,57 @@
 
                     <!-- Stylized Amount Options -->
                     <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
-                        {% for tier in product_tiers  %}
-                        <div class="amount-option" data-price="{{ tier.price_in_ghs }}" onclick="selectAmount(this, '{{ tier.name }}', '{{ tier.price }}')">
-                            <span>{{ tier.name }}</span>
-                            <!-- <span>GH₵ {{ tier.price_in_ghs }}</span> -->
-                            <span class="original-price">GH₵ {{ tier.price_in_ghs }}</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ tier.price_in_ghs }}</span>
+                        <div class="amount-option" data-price="5" onclick="selectAmount(this, '1GB, 7 days', '5')">
+                            <span>1GB, 7 days</span>
+                            <span class="original-price">$5</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
                         </div>
-                        {% endfor %}
-                                           
+                        <div class="amount-option" data-price="10" onclick="selectAmount(this, '2GB, 15 days', '10')">
+                            <span>2GB, 15 days</span>
+                            <span class="original-price">$10</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="15" onclick="selectAmount(this, '5GB, 30 days', '15')">
+                            <span>5GB, 30 days</span>
+                            <span class="original-price">$15</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
+                        <div class="amount-option" data-price="31" onclick="selectAmount(this, '20GB, 30 days', '31')">
+                            <span>20GB, 30 days</span>
+                            <span class="original-price">$31</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;"></span>
+                        </div>
                     </div>
-                
+
+                    <script>
+                        function updatePrices() {
+                            const container = document.querySelector('.amount-options');
+                            if (!container) return; // Exit if container doesn't exist (yet)
+
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+                            const options = document.querySelectorAll('.amount-option');
+
+                            options.forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        }
+
+                        // Initialize immediately (if DOM is ready)
+                        updatePrices();
+
+                        // Re-run when HTMX injects new content
+                        document.addEventListener('htmx:afterSwap', updatePrices);
+                        document.addEventListener('htmx:load', updatePrices); // For older HTMX versions
+                    </script>
+
                 </form>
 
             </div>
