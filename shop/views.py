@@ -254,65 +254,147 @@ def get_bank_codes():
     banks = response.json().get("data", [])
     return banks  # List of banks with 'name' and 'code'
 
+# @login_required
+# def withdraw_request(request):
+#     if request.method == 'POST':
+#         amount = request.POST.get("amount")
+#         # recipient_code = request.POST.get("recipient_code")
+#         recipient_name = request.POST.get("account_name")
+#         account_number = request.POST.get("account_number")
+#         provider = request.POST.get("provider")
+
+#         if provider in ["mtn", "vodafone"] and int(amount) < 100:
+#             messages.error(request, "Minimum withrawal is GHS 100", extra_tags="withdrawal")
+#             return redirect("withdrawal_request")
+
+#         if provider == "binance" and int(amount) < 10:
+#             messages.error(request, "Minimum withdrawal is $10", extra_tags="withdrawal")
+#             return redirect("withdrawal_request")
+
+
+#         if WithdrawalRequest.objects.filter(user=request.user, status="pending"):
+#             messages.error(request, "You already have a pending withdrawal request!", extra_tags="withdrawal")
+#             return redirect("withdrawal_request")
+#         if not amount or not recipient_name or not account_number:
+#             messages.error(request,"This field is required", extra_tags="withdrawal")
+#             return redirect("withdrawal_request")
+#         user_wallet = Wallet.objects.get(user=request.user)
+#         recipient = PaystackRecipient.objects.create(
+#             user=request.user,
+#             provider_name=provider,
+#             recipient_name=recipient_name,
+#             account_number=account_number,
+#         )
+#         # if not recipient:
+#         #     print("You need to add a payment method first")
+#         #     messages.info(request, "You need to add a recipient to make withdrawals")
+#         #     return redirect("add_recipient")
+
+#         if Decimal(amount) > user_wallet.balance:
+#             print("Insufficient balance")
+#             messages.error(request, "Insufficient balance.", extra_tags="withdrawal")
+#             return redirect("withdrawal_request")
+#         else:
+#             WithdrawalRequest.objects.create(
+#                 user=request.user,
+#                 amount=amount,
+#                 recipient=recipient
+#                 )
+#             print("Request submitted")
+
+#             Transaction.objects.create(
+#                     wallet=user_wallet,
+#                     amount=amount,
+#                     transaction_type="withdrawal",
+#                     status="pending"
+#                 )
+#             messages.success(request, "Withdrawal request submitted.", extra_tags="withdrawal")
+#             return redirect("finance")
+        
+#     momo_recipients = PaystackRecipient.objects.filter(user=request.user)
+#     return render(request, 'wallet/withdraw.html', {"momo_recipients": momo_recipients})
+
+
 @login_required
 def withdraw_request(request):
+    print("🔹 [withdraw_request] Function entered")
+    print(f"➡️ Request method: {request.method}")
+    print(f"➡️ User: {request.user}")
+
     if request.method == 'POST':
         amount = request.POST.get("amount")
-        # recipient_code = request.POST.get("recipient_code")
         recipient_name = request.POST.get("account_name")
         account_number = request.POST.get("account_number")
         provider = request.POST.get("provider")
 
+        print("🧾 [POST DATA RECEIVED]")
+        print(f"  - Amount: {amount}")
+        print(f"  - Recipient Name: {recipient_name}")
+        print(f"  - Account Number: {account_number}")
+        print(f"  - Provider: {provider}")
+
         if provider in ["mtn", "vodafone"] and int(amount) < 100:
+            print("❌ Withdrawal below GHS 100 for MTN/Vodafone")
             messages.error(request, "Minimum withrawal is GHS 100", extra_tags="withdrawal")
             return redirect("withdrawal_request")
 
         if provider == "binance" and int(amount) < 10:
+            print("❌ Withdrawal below $10 for Binance")
             messages.error(request, "Minimum withdrawal is $10", extra_tags="withdrawal")
             return redirect("withdrawal_request")
 
+        existing_pending = WithdrawalRequest.objects.filter(user=request.user, status="pending")
+        print(f"🔍 Pending withdrawals found: {existing_pending.exists()}")
 
-        if WithdrawalRequest.objects.filter(user=request.user, status="pending"):
+        if existing_pending:
+            print("❌ User already has pending withdrawal")
             messages.error(request, "You already have a pending withdrawal request!", extra_tags="withdrawal")
             return redirect("withdrawal_request")
+
         if not amount or not recipient_name or not account_number:
-            messages.error(request,"This field is required", extra_tags="withdrawal")
+            print("⚠️ Missing required fields")
+            messages.error(request, "This field is required", extra_tags="withdrawal")
             return redirect("withdrawal_request")
+
         user_wallet = Wallet.objects.get(user=request.user)
+        print(f"💰 User wallet balance: {user_wallet.balance}")
+
         recipient = PaystackRecipient.objects.create(
             user=request.user,
             provider_name=provider,
             recipient_name=recipient_name,
             account_number=account_number,
         )
-        # if not recipient:
-        #     print("You need to add a payment method first")
-        #     messages.info(request, "You need to add a recipient to make withdrawals")
-        #     return redirect("add_recipient")
+        print(f"✅ Recipient created: {recipient}")
 
         if Decimal(amount) > user_wallet.balance:
-            print("Insufficient balance")
+            print("❌ Insufficient balance for withdrawal")
             messages.error(request, "Insufficient balance.", extra_tags="withdrawal")
             return redirect("withdrawal_request")
         else:
-            WithdrawalRequest.objects.create(
+            withdrawal = WithdrawalRequest.objects.create(
                 user=request.user,
                 amount=amount,
                 recipient=recipient
-                )
-            print("Request submitted")
+            )
+            print(f"✅ Withdrawal request created: {withdrawal}")
 
-            Transaction.objects.create(
-                    wallet=user_wallet,
-                    amount=amount,
-                    transaction_type="withdrawal",
-                    status="pending"
-                )
+            transaction = Transaction.objects.create(
+                wallet=user_wallet,
+                amount=amount,
+                transaction_type="withdrawal",
+                status="pending"
+            )
+            print(f"✅ Transaction recorded: {transaction}")
+
             messages.success(request, "Withdrawal request submitted.", extra_tags="withdrawal")
+            print("🎉 Withdrawal process completed successfully.")
             return redirect("finance")
-        
+
     momo_recipients = PaystackRecipient.objects.filter(user=request.user)
+    print(f"📋 Loaded {momo_recipients.count()} MoMo recipients for display")
     return render(request, 'wallet/withdraw.html', {"momo_recipients": momo_recipients})
+
 
 @login_required
 def finalize_withdrawal(request, transfer_code):
