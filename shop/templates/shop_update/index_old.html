@@ -1,0 +1,801 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>trustbyte99 shop update </title>
+  <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css}">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> trustbyte99</title>
+    <link rel="stylesheet" href="{% static 'trustbyte/css/shop-update_style.css}">
+    <script type="importmap">
+    {
+        "imports": {
+            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="app">
+        <div v-if="showCryptoView" class="crypto-view">
+            <div class="crypto-header">
+                <button class="back-button" @click="closeCryptoView">←</button>
+                <div class="crypto-title">Buy Cryptocurrency</div>
+                <div style="width: 24px;"></div>
+            </div>
+            
+            <div class="crypto-dropdown">
+                <div class="crypto-selected" @click="toggleCryptoDropdown">
+                    <div class="crypto-icon" :style="{ background: cryptos.find(c => c.symbol === selectedCrypto).color }">
+                        <img v-if="cryptos.find(c => c.symbol === selectedCrypto).image" :src="cryptos.find(c => c.symbol === selectedCrypto).image" :alt="selectedCrypto">
+                        <template v-else>{{ selectedCrypto }}</template>
+                    </div>
+                    <div class="crypto-option-label">
+                        <span class="crypto-option-name">{{ cryptos.find(c => c.symbol === selectedCrypto).name }}</span>
+                        <span class="crypto-option-symbol">{{ selectedCrypto }}</span>
+                    </div>
+                    <div class="crypto-dropdown-arrow">
+                        <svg width="12" height="12" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M7,10L12,15L17,10H7Z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="crypto-dropdown-menu" :class="{ open: showCryptoDropdown }">
+                    <div 
+                        v-for="crypto in cryptos" 
+                        :key="crypto.symbol"
+                        class="crypto-dropdown-item"
+                        @click="selectCryptoFromDropdown(crypto.symbol)"
+                    >
+                        <div class="crypto-icon" :style="{ background: crypto.color }">
+                            <img v-if="crypto.image" :src="crypto.image" :alt="crypto.symbol">
+                            <template v-else>{{ crypto.symbol }}</template>
+                        </div>
+                        <div class="crypto-option-label">
+                            <span class="crypto-option-name">{{ crypto.name }}</span>
+                            <span class="crypto-option-symbol">{{ crypto.symbol }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="crypto-card">
+                <div class="conversion-display">
+                    <div class="currency-row">
+                        <div class="currency-label">USD</div>
+                        <div class="currency-amount">
+                            $<input 
+                                type="number" 
+                                v-model="cryptoAmount" 
+                                class="amount-input" 
+                                min="1" 
+                                step="0.01"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div class="currency-row">
+                        <div class="currency-label">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="crypto-icon" :style="{ background: cryptos.find(c => c.symbol === selectedCrypto).color, width: '24px', height: '24px' }">
+                                    <img v-if="cryptos.find(c => c.symbol === selectedCrypto).image" :src="cryptos.find(c => c.symbol === selectedCrypto).image" :alt="selectedCrypto">
+                                    <template v-else>{{ selectedCrypto }}</template>
+                                </div>
+                                <span>{{ selectedCrypto }}</span>
+                            </div>
+                        </div>
+                        <div class="currency-amount">
+                            {{ getCryptoAmount() }}
+                            <span v-if="fetchingRates" class="loading-indicator">updating...</span>
+                            <svg @click="updateCryptoRates" width="16" height="16" viewBox="0 0 24 24" style="cursor:pointer; margin-left:5px; vertical-align:middle;">
+                                <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <label class="input-label">Wallet Address</label>
+                <input 
+                    type="text" 
+                    v-model="walletAddress" 
+                    class="wallet-input" 
+                    placeholder="Enter your wallet address"
+                >
+                
+                <button @click="purchaseSolana" class="purchase-button">
+                    Buy {{ cryptos.find(c => c.symbol === selectedCrypto).name }}
+                </button>
+                
+                <div style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;" v-if="priceLastUpdated">
+                    Prices last updated: {{ priceLastUpdated }}
+                </div>
+            </div>
+            <div class="how-to-buy">
+                <h3>How to Buy Cryptocurrency</h3>
+                <p>Unlock the world of cryptocurrency on the 'Trustbyte99' platform. Simply create your free account, fund it using our convenient methods, and start buying crypto directly to your address. Aishwave makes getting started quick, easy, and secure.</p>
+            </div>
+            
+            <div class="faq-section">
+                <h3>Frequently Asked Questions</h3>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(0)">Can I buy crypto directly to my wallet?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 0 }">Yes, it's simple and fast! Once you fund your account, you can easily buy crypto and have it sent directly to your wallet.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(1)">What is the minimum amount of cryptocurrency I can buy?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 1 }">You can buy as little as $10 worth of crypto on Aishwave. Additionally, Trustbyte99 allows you to set up recurring buys, so you can regularly accumulate cryptocurrency.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(2)">How can I keep my crypto safe?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 2 }">While the safest option is to store your crypto in your own cold wallet, we strive to maintain transparency and provide top-level security for your assets.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" @click="toggleFaq(3)">Is cryptocurrency safe to buy?</div>
+                    <div class="faq-answer" :class="{ active: activeFaq === 3 }">Cryptocurrency prices can fluctuate significantly based on market conditions. We recommend doing your own research on digital assets before making a purchase.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div v-if="showTradeView" class="trade-view">
+            <div class="crypto-header">
+                <button class="back-button" @click="closeTradeView">←</button>
+                <div class="crypto-title">Trade Gift Cards</div>
+                <div style="width: 24px;"></div>
+            </div>
+            
+            <div class="trade-card">
+                <h3 class="trade-title">Sell Your Gift Card</h3>
+                
+                <div class="gift-cards-grid">
+                    <div 
+                        v-for="card in ['Apple', 'Google Play', 'Amazon', 'eBay', 'PlayStation', 'Steam', 'iTunes', 'Razer']"
+                        :key="card"
+                        class="gift-card-option"
+                        :class="{ selected: selectedGiftCard === card }"
+                        @click.prevent="selectGiftCard(card)"
+                    >
+                        <div class="gift-card-icon">
+                            <img :src="giftCardImages[card]" :alt="card">
+                        </div>
+                        <span>{{ card }}</span>
+                    </div>
+                </div>
+                
+                <div class="trade-filters">
+                    <div class="trade-filter">
+                        <label class="input-label">Currency</label>
+                        <select class="trade-select">
+                            <option>USD</option>
+                            <option>EUR</option>
+                            <option>GBP</option>
+                        </select>
+                    </div>
+                    <div class="trade-filter">
+                        <label class="input-label">Amount</label>
+                        <input 
+                            type="text" 
+                            v-model="tradeAmount" 
+                            class="trade-select" 
+                            placeholder="Enter amount"
+                        >
+                    </div>
+                    <div class="trade-filter">
+                        <label class="input-label">Card Type</label>
+                        <select class="trade-select">
+                            <option>Physical</option>
+                            <option>E-code</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <label class="input-label">Card Code</label>
+                <input 
+                    type="text" 
+                    v-model="tradeCardCode" 
+                    class="wallet-input" 
+                    placeholder="Enter your gift card code"
+                >
+                
+                <div class="file-upload">
+                    <label class="file-upload-label">
+                        <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M14,13V17H10V13H7L12,8L17,13M22,12C22,6.48 17.52,2 12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12M11,7V13L16.25,16.15L17,14.92L12.5,12.25V7H11Z"/>
+                        </svg>
+                        <span>Click to upload card image</span>
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            class="file-upload-input"
+                            @change="handleFileUpload"
+                        >
+                    </label>
+                    <div class="file-name" :class="{ visible: uploadedFileName }">
+                        {{ uploadedFileName }}
+                    </div>
+                </div>
+                
+                <button @click="submitTrade" class="purchase-button">
+                    Sell Gift Card
+                </button>
+            </div>
+            
+            <div class="trade-description">
+                <h3>How to Sell Gift Cards</h3>
+                <p>Select your gift card type, enter the card details including the code, and submit. We'll verify your card and process the payment to your account. Fast, secure, and hassle-free.</p>
+            </div>
+        </div>
+        
+        <div v-if="showOrderView" class="order-view">
+            <div class="order-header">
+                <button class="back-button" @click="closeOrderView">←</button>
+                <div class="crypto-title">Orders</div>
+                <div style="width: 24px;"></div>
+            </div>
+            
+            <div v-if="!selectedOrder">
+                <div class="order-filters">
+                    <button 
+                        class="filter-button" 
+                        :class="{ active: orderStatusFilter === 'all' }"
+                        @click="filterOrders('all')"
+                    >
+                        All Orders
+                    </button>
+                    <button 
+                        class="filter-button" 
+                        :class="{ active: orderStatusFilter === 'pending' }"
+                        @click="filterOrders('pending')"
+                    >
+                        Pending
+                    </button>
+                    <button 
+                        class="filter-button" 
+                        :class="{ active: orderStatusFilter === 'approved' }"
+                        @click="filterOrders('approved')"
+                    >
+                        Approved
+                    </button>
+                    <button 
+                        class="filter-button" 
+                        :class="{ active: orderStatusFilter === 'rejected' }"
+                        @click="filterOrders('rejected')"
+                    >
+                        Rejected
+                    </button>
+                </div>
+                
+                <div class="order-search">
+                    <div class="search-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M11,7V13L16.25,16.15L17,14.92L12.5,12.25V7H11Z"/>
+                        </svg>
+                    </div>
+                    <input 
+                        type="text" 
+                        v-model="orderSearchQuery" 
+                        @input="searchOrders" 
+                        class="search-input" 
+                        placeholder="Search orders"
+                    >
+                    <div class="refresh-icon" @click="refreshOrders">
+                        <svg width="18" height="18" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="orders-list" v-if="filteredOrders.length > 0">
+                <div 
+                    v-for="order in filteredOrders" 
+                    :key="order.id"
+                    class="order-item"
+                    @click="viewOrderDetails(order)"
+                >
+                    <div 
+                        class="order-status-indicator" 
+                        :style="{ backgroundColor: getOrderStatusColor(order.status) }"
+                    ></div>
+                    <div class="order-content" style="margin-left: 8px;">
+                        <div class="order-top-row">
+                            <span class="order-id">{{ order.id }}</span>
+                            <span class="order-date">{{ formatDate(order.date) }}</span>
+                        </div>
+                        <div class="order-details">
+                            <span class="order-type">{{ order.type }}</span>
+                            <span class="order-amount">${{ order.amount }} {{ order.currency }}</span>
+                            <span class="order-payment">{{ order.paymentMethod }}</span>
+                            <span 
+                                class="order-status" 
+                                :class="`status-${order.status}`"
+                            >
+                                {{ order.status.charAt(0).toUpperCase() + order.status.slice(1) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div v-else class="no-orders-message">
+                No orders found. Completed transactions will appear here.
+            </div>
+        </div>
+        
+        <div v-else class="order-detail-view">
+            <div class="detail-header">
+                <div>
+                    <h3 style="margin-bottom: 5px;">Order Details</h3>
+                    <span class="order-date">{{ formatDate(selectedOrder.date) }}</span>
+                </div>
+                <span 
+                    class="detail-status" 
+                    :class="`status-${selectedOrder.status}`"
+                    :style="{ backgroundColor: `${getOrderStatusColor(selectedOrder.status)}20` }"
+                >
+                    {{ selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1) }}
+                </span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Order ID</span>
+                <span class="detail-value">{{ selectedOrder.id }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Type</span>
+                <span class="detail-value">{{ selectedOrder.type }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Amount</span>
+                <span class="detail-value">${{ selectedOrder.amount }} {{ selectedOrder.currency }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Payment Method</span>
+                <span class="detail-value">{{ selectedOrder.paymentMethod }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.crypto">
+                <span class="detail-label">Cryptocurrency</span>
+                <span class="detail-value">{{ selectedOrder.cryptoAmount }} {{ selectedOrder.crypto }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.walletAddress">
+                <span class="detail-label">Wallet Address</span>
+                <span class="detail-value">{{ selectedOrder.walletAddress }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.cardType">
+                <span class="detail-label">Card Type</span>
+                <span class="detail-value">{{ selectedOrder.cardType }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.cardCode">
+                <span class="detail-label">Card Code</span>
+                <span class="detail-value">{{ selectedOrder.cardCode }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.provider">
+                <span class="detail-label">Provider</span>
+                <span class="detail-value">{{ selectedOrder.provider }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.phoneNumber">
+                <span class="detail-label">Phone Number</span>
+                <span class="detail-value">{{ selectedOrder.phoneNumber }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.region">
+                <span class="detail-label">Region</span>
+                <span class="detail-value">{{ selectedOrder.region }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.dataAmount">
+                <span class="detail-label">Data Amount</span>
+                <span class="detail-value">{{ selectedOrder.dataAmount }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.validity">
+                <span class="detail-label">Validity</span>
+                <span class="detail-value">{{ selectedOrder.validity }}</span>
+            </div>
+            
+            <div class="detail-row" v-if="selectedOrder.reason">
+                <span class="detail-label">Rejection Reason</span>
+                <span class="detail-value" style="color: #FF3B30;">{{ selectedOrder.reason }}</span>
+            </div>
+            
+            <div class="back-to-list" @click="selectedOrder = null">
+                ← Back to orders list
+            </div>
+        </div>
+    <   /div>
+
+    <!-- Products -->
+    <div v-if="showProductDetailView" class="product-detail-view">
+        <div class="product-detail-header">
+            <button class="back-button" @click="closeProductDetailView">←</button>
+            <div class="product-detail-title">{{ selectedProduct.name }} {{ selectedProduct.category === 'games' ? 'Direct Top Up' : 
+                selectedProduct.category === 'esim' ? 'eSIM' : 'Gift Card' }}</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="product-detail-image">
+            <div class="discount-badge-large" v-if="selectedProduct && selectedProduct.category === 'games'" style="background: #2D7BD7;">-{{discountPercentage}}% OFF</div>
+            <img v-if="selectedProduct && selectedProduct.category === 'games'" :src="gameImages[selectedProduct.name]" :alt="selectedProduct.name">
+            <img v-if="selectedProduct && selectedProduct.category === 'ecommerce'" :src="ecommerceImages[selectedProduct.name]" :alt="selectedProduct.name">
+            <img v-if="selectedProduct && selectedProduct.category === 'amazon'" :src="amazonImages[selectedProduct.name]" :alt="selectedProduct.name">
+            <img v-if="selectedProduct && selectedProduct.category === 'esim'" :src="eSimImages[selectedProduct.name]" :alt="selectedProduct.name">
+        </div>
+        
+        <div class="product-detail-options">
+            <div class="product-detail-option">
+                <div class="product-detail-label">Recipient Details</div>
+                <div class="custom-amount">
+                    <input 
+                        v-if="selectedProduct && selectedProduct.category === 'games'"
+                        type="text" 
+                        v-model="playerId" 
+                        placeholder="Enter your Play ID" 
+                    >
+                    <input 
+                        v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')"
+                        type="email" 
+                        v-model="recipientEmail" 
+                        placeholder="Enter valid email for voucher" 
+                    >
+                    <input 
+                        v-if="selectedProduct && selectedProduct.category === 'esim'"
+                        type="email" 
+                        v-model="recipientEmail" 
+                        placeholder="Enter valid email for eSIM details" 
+                    >
+                </div>
+                
+                <div class="product-detail-label" style="margin-top: 15px;">Select Amount</div>
+                <div class="amount-options">
+                    <div 
+                        v-if="selectedProduct && selectedProduct.category === 'games'"
+                        v-for="(amount, index) in gameAmounts[selectedProduct.name]" 
+                        :key="index"
+                        class="amount-option"
+                        :class="{ selected: selectedAmount === amount }"
+                        @click="selectAmount(amount)"
+                    >
+                        <span>{{ getOriginalAmountText(amount) }}</span>
+                        <span class="original-price">{{ getPriceFromAmount(amount) }}</span>
+                        <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ getDiscountedPrice(getPriceFromAmount(amount)) }}</span>
+                    </div>
+                    <div 
+                        v-if="selectedProduct && selectedProduct.category === 'ecommerce'"
+                        v-for="(amount, index) in ecommerceAmounts[selectedProduct.name]" 
+                        :key="index"
+                        class="amount-option"
+                        :class="{ selected: selectedAmount === amount }"
+                        @click="selectAmount(amount)"
+                    >
+                        <span>{{ getOriginalAmountText(amount) }}</span>
+                        <span class="original-price">{{ getPriceFromAmount(amount) }}</span>
+                        <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ getDiscountedPrice(getPriceFromAmount(amount)) }}</span>
+                    </div>
+                    <div 
+                        v-if="selectedProduct && selectedProduct.category === 'amazon'"
+                        v-for="(amount, index) in amazonAmounts[selectedProduct.name]" 
+                        :key="index"
+                        class="amount-option"
+                        :class="{ selected: selectedAmount === amount }"
+                        @click="selectAmount(amount)"
+                    >
+                        <span>{{ getOriginalAmountText(amount) }}</span>
+                        <span class="original-price">{{ getPriceFromAmount(amount) }}</span>
+                        <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ getDiscountedPrice(getPriceFromAmount(amount)) }}</span>
+                    </div>
+                    <div 
+                        v-if="selectedProduct && selectedProduct.category === 'esim'"
+                        v-for="(amount, index) in eSimAmounts[selectedProduct.name]" 
+                        :key="index"
+                        class="amount-option"
+                        :class="{ selected: selectedAmount === amount }"
+                        @click="selectAmount(amount)"
+                    >
+                        <span>{{ getOriginalAmountText(amount) }}</span>
+                        <span class="original-price">{{ amount }}</span>
+                        <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">{{ getDiscountedEsimPrice(amount) }}</span>
+                    </div>
+                    <div v-if="selectedProduct && selectedProduct.category === 'ecommerce' && (selectedProduct.name === 'Binance Gift Card' || selectedProduct.name === 'PayPal Top-Up')" class="custom-amount-container">
+                        <div class="custom-amount">
+                            <label>{{ selectedProduct.name === 'Binance Gift Card' ? 'Enter amount ($5-$500)' : 'Enter amount ($10-$250)' }}</label>
+                            <div class="custom-amount-input-container">
+                                <span>$</span>
+                                <input 
+                                    type="number" 
+                                    v-model="customAmount" 
+                                    @input="updateCustomAmount($event, selectedProduct)"
+                                    :min="selectedProduct.name === 'Binance Gift Card' ? 5 : 10"
+                                    :max="selectedProduct.name === 'Binance Gift Card' ? 500 : 250"
+                                    placeholder="0.00"
+                                >
+                            </div>
+                            <div v-if="customAmount" class="estimated-price">
+                                Estimated price: GH₵{{ (parseFloat(customAmount) * 15.8).toFixed(2) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <template v-if="selectedProduct && selectedProduct.category === 'games'">
+                Purchase {{ selectedProduct.name }} virtual currency quickly and securely. Simply select the amount you want, enter your Play ID, and complete your purchase to receive your code instantly.
+            </template>
+            <template v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')">
+                Purchase {{ selectedProduct.name }} quickly and securely. Simply select the amount you want, enter your email, and complete your purchase to receive your digital voucher instantly.
+            </template>
+            <template v-if="selectedProduct && selectedProduct.category === 'esim'">
+                {{ eSimDescriptions[selectedProduct.name] }}
+            </template>
+        </div>
+        
+        <button v-if="selectedProduct && selectedProduct.category === 'games'" @click="purchaseGameProduct" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+        <button v-if="selectedProduct && (selectedProduct.category === 'ecommerce' || selectedProduct.category === 'amazon')" @click="purchaseEcommerceProduct" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+        <button v-if="selectedProduct && selectedProduct.category === 'esim'" @click="purchaseEsimProduct" class="purchase-button">
+            Confirm Purchase
+        </button>
+        
+        <div v-if="selectedProduct && selectedProduct.name === 'Fortnite'" class="faq-section">
+            <h3>Fortnite V-Bucks Card FAQ</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaq(10)">What Are Fortnite V-Bucks?</div>
+                <div class="faq-answer" :class="{ active: activeFaq === 10 }">
+                    V-Bucks are the virtual currency used in Fortnite. Players can spend them on various in-game items, including skins, pickaxes, wraps, emotes, and Battle Passes.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaq(11)">How to Redeem a Fortnite V-Bucks Card</div>
+                <div class="faq-answer" :class="{ active: activeFaq === 11 }">
+                    <p><strong>To successfully redeem your V-Bucks card, follow these steps:</strong></p>
+                    <p><strong>Log in to Your Epic Games Account</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Visit the official Epic Games website and sign in.</li>
+                        <li>If you're redeeming for a console, use your console login credentials.</li>
+                    </ul>
+                    
+                    <p><strong>Access the Redemption Page</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Click on your display name at the top right.</li>
+                        <li>Select V-Bucks Card from the dropdown menu.</li>
+                        <li>Alternatively, go directly to: Fortnite V-Bucks Card Redemption.</li>
+                    </ul>
+                    
+                    <p><strong>Begin the Redemption Process</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Click Get Started to proceed.</li>
+                    </ul>
+                    
+                    <p><strong>Enter Your V-Bucks Card Code</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Retrieve the PIN from your email or physical card.</li>
+                        <li>Input the code exactly as shown (without dashes).</li>
+                        <li>Click Next to continue.</li>
+                    </ul>
+                    
+                    <p><strong>Choose Your Platform</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Select the gaming platform where you want to redeem the V-Bucks.</li>
+                        <li>Click Next to proceed.</li>
+                    </ul>
+                    
+                    <p><strong>Review and Confirm</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>Ensure the Epic Games account, chosen platform, and updated balance are correct.</li>
+                        <li>Click Confirm to finalize the redemption.</li>
+                    </ul>
+                    
+                    <p><strong>Note:</strong> If the platform you want isn't listed, double-check that you are signed into the correct Epic Games account.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaq(12)">Redeeming on Xbox & PlayStation</div>
+                <div class="faq-answer" :class="{ active: activeFaq === 12 }">
+                    <p>For Xbox and PlayStation users, an additional step is required:</p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>After confirming the redemption, a 12-character or 25-character code will be generated.</li>
+                        <li>This code will also be sent to your registered email.</li>
+                        <li>Follow the on-screen instructions to sign in to the appropriate platform (Sony or Microsoft).</li>
+                        <li>Enter the generated code to complete the redemption process.</li>
+                    </ul>
+                    <p><strong>Important:</strong> Ensure you're logged into the correct PlayStation or Xbox account linked to your Epic Games profile before entering the code.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div v-if="selectedProduct && selectedProduct.category === 'ecommerce'" class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('description')">Description</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                    {{ ecommerceDescriptions[selectedProduct.name] }}
+                </div>
+            </div>
+            
+            <div v-if="ecommerceRedemption[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('redemption')">How to Redeem</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p style="white-space: pre-line">{{ ecommerceRedemption[selectedProduct.name] }}</p>
+                </div>
+            </div>
+            
+            <div v-if="ecommerceTerms[selectedProduct.name]" class="faq-item">
+                <div class="faq-question" @click="toggleFaqEcommerce('terms')">Terms & Conditions</div>
+                <div class="faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p style="white-space: pre-line">{{ ecommerceTerms[selectedProduct.name] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div v-if="selectedProduct && selectedProduct.category === 'esim'" class="esim-faq-section">
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('description')">Description</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'description' }">
+                    <p v-html="eSimDetailedInfo[selectedProduct.name].description.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' target=\'_blank\'>$1</a>')"></p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('redemption')">How to Redeem</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'redemption' }">
+                    <p v-html="eSimDetailedInfo[selectedProduct.name].redemption.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href=\'$2\' target=\'_blank\'>$1</a>')"></p>
+                </div>
+            </div>
+            
+            <div class="esim-faq-item">
+                <div class="esim-faq-question" @click="toggleEsimFaq('terms')">Terms and Conditions</div>
+                <div class="esim-faq-answer" :class="{ active: activeFaqEcommerce === 'terms' }">
+                    <p>{{ eSimDetailedInfo[selectedProduct.name].terms }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="showTermsView" class="terms-view">
+        <div class="crypto-header">
+            <button class="back-button" @click="closeTermsView">←</button>
+            <div class="crypto-title">Terms & Policy</div>
+            <div style="width: 24px;"></div>
+        </div>
+        
+        <div class="terms-container">
+            <section 
+                v-for="(section, index) in terms" 
+                :key="index" 
+                class="terms-section"
+                :class="{ active: activePolicySection === index }"
+                @click="togglePolicy(index)"
+            >
+                <h2>{{ section.title }}</h2>
+                <div class="terms-content">
+                    <template v-if="section.bullets">
+                        <ul>
+                            <li v-for="(bullet, bIndex) in section.bullets" :key="bIndex">{{ bullet }}</li>
+                        </ul>
+                    </template>
+                    <template v-else>
+                        <p>{{ section.content }}</p>
+                    </template>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div v-if="!showCryptoView && !showTradeView && !showOrderView && !showProductDetailView && !showTermsView">
+        <!-- Bill board-->
+        <div class="billboard">
+            <div class="billboard-slider">
+                <div v-for="(slide, index) in billboardSlides" :key="index" 
+                     class="billboard-slide" :class="'slide-' + (index + 1)" style="background: linear-gradient(rgba(45, 123, 215, 0.8), rgba(45, 123, 215, 0.9));">
+                    <img :src="slide.image" :alt="slide.title" class="billboard-bg" style="opacity: 0.7;">
+                    <div class="billboard-content">
+                        <h1>{{ slide.title }}</h1>
+                        <p>{{ slide.description }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="categories">
+            <div class="category" v-for="(items, category) in products" :key="category" style="box-shadow: 0 2px 8px rgba(45, 123, 215, 0.1); border: 1px solid #e6f0ff;">
+                <h2>{{ category === 'esim' ? 'eSIM Products' : 
+                       category === 'topup' ? 'Mobile Top-Up' :
+                       category.charAt(0).toUpperCase() + category.slice(1) }}</h2>
+                <div class="products">
+                    <div 
+                        :class="['product-slider', `${category}-slider`]"
+                        @touchstart="startTouchSlide(category, $event)"
+                        @touchmove="moveTouchSlide(category, $event)"
+                        @touchend="endTouchSlide(category)"
+                    >
+                        <a v-for="product in items" 
+                           :key="product.name"
+                           :href="product.link"
+                           class="product"
+                           @click.prevent="handleProductClick(Object.assign({category}, product))">
+                            <div class="discount-badge" style="background: #2D7BD7;">-{{discounts[category]}}%</div>
+                            <div class="product-icon">
+                                <img v-if="product.image" :src="product.image" :alt="product.name">
+                                <template v-else>
+                                    <template v-if="category === 'esim'">🌍</template>
+                                    <svg v-else viewBox="0 0 24 24" :class="product.name.toLowerCase().replace(' ', '-')">
+                                        <path v-if="category === 'amazon'" fill="#FF9900" d="M15.93,17.09C15.75,17.25 15.5,17.26 15.3,17.15C14.41,16.41 14.25,16.07 13.76,15.36C12.29,16.86 11.25,17.31 9.34,17.31C7.09,17.31 5.33,15.92 5.33,13.14C5.33,10.96 6.5,9.5 8.19,8.76C9.65,8.12 11.68,8 13.23,7.83V7.5C13.23,6.84 13.28,6.09 12.9,5.54C12.58,5.05 11.95,4.84 11.4,4.84C10.38,4.84 9.47,5.37 9.25,6.45C9.2,6.69 9,6.93 8.78,6.94L6.18,6.66C5.96,6.61 5.72,6.43 5.78,6.11C6.38,2.95 9.23,2 11.78,2C13.08,2 14.78,2.35 15.81,3.23C17.11,4.3 17,5.8 17,7.5V12.18C17,13.35 17.38,13.9 18.02,14.72C18.19,14.94 18.21,15.21 18,15.43C17.34,16.04 16.7,16.66 16.04,17.26L15.93,17.09Z"/>
+                                        <path v-else fill="#000" d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,1 5,21H19A2,2 0 0,1 21,19V5C21,3.89 20.1,3 19,3M12,7L7,12H10V16H14V12H17L12,7M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z"/>
+                                    </svg>
+                                </template>
+                            </div>
+                            <span>{{ product.name }}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Buttom nav -->
+        <nav class="bottom-nav">
+            <div class="nav-item" :class="{ active: activeTab === 'shop' }" @click="setActiveTab('shop')">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12,3L2,12H5V20H19V12H22L12,3M12,8.75A2.25,2.25 0 0,1 14.25,11A2.25,2.25 0 0,1 12,13.25A2.25,2.25 0 0,1 9.75,11A2.25,2.25 0 0,1 12,8.75Z" />
+                </svg>
+                <span>Shop</span>
+            </div>
+            <div class="nav-item" :class="{ active: activeTab === 'orders' }" @click="setActiveTab('orders')">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M7,7H17V5H19V19H5V5H7V7Z" />
+                </svg>
+                <span>Orders</span>
+            </div>
+            <div class="nav-item" :class="{ active: activeTab === 'crypto' }" @click="setActiveTab('crypto')">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M17,16H15V8H17M13,16H11V8H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+                </svg>
+                <span>Crypto</span>
+            </div>
+            <div class="nav-item" :class="{ active: activeTab === 'trade' }" @click="setActiveTab('trade')">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M21,9V11H18V9H21M16,9V11H13V9H16M12,9V11H9V9H12M8,9V11H5V9H8M22,5V7H2V5H22M13,14H11V17H8V19H11V22H13V19H16V17H13V14Z" />
+                </svg>
+                <span>Trade</span>
+            </div>
+            <div class="nav-item" :class="{ active: activeTab === 'terms' }" @click="setActiveTab('terms')">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M14,10H10V12H14V10M14,14H10V16H14V14M14,6H10V8H14V6M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2Z" />
+                </svg>
+                <span>Terms&P</span>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
+<!-- partial -->
+  <script type="module" src="{% static 'trustbyte/js/shop-update_script.js}"></script>
+
+</body>
+</html>
