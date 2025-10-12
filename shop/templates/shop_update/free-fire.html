@@ -73,17 +73,45 @@
 
                     <!-- Stylized Amount Options -->
                     <div class="amount-options" data-discount="{{ product.discount|default:0 }}">
-                        {% for tier in product_tiers  %}
-                        <div class="amount-option" data-price="{{ tier.price_in_ghs }}" onclick="selectAmount(this, '{{ tier.name }}', '{{ tier.price }}')">
-                            <span>{{ tier.name }}</span>
-                            <!-- <span>GH₵ {{ tier.price_in_ghs }}</span> -->
-                            <span class="original-price">GH₵ {{ tier.price_in_ghs }}</span>
-                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">GH₵{{ tier.price_in_ghs }}</span>
+                        <div class="amount-option" data-price="1" onclick="selectAmount(this, '100 💎', '1')">
+                            <span>100 Diamonds</span>
+                            <span class="original-price">$1</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$1</span>
                         </div>
-                        {% endfor %}
-                                
+                        <div class="amount-option" data-price="2" onclick="selectAmount(this, '210 💎', '2')">
+                            <span>210 Diamonds</span>
+                            <span class="original-price">$2</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$2</span>
+                        </div>
+                        <div class="amount-option" data-price="5" onclick="selectAmount(this, '530 💎', '5')">
+                            <span>530 Diamonds</span>
+                            <span class="original-price">$5</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$5</span>
+                        </div>
+                        <div class="amount-option" data-price="20" onclick="selectAmount(this, '2100 💎', '20')">
+                            <span>2100 Diamonds</span>
+                            <span class="original-price">$20</span>
+                            <span class="discount-price" style="color: #2D7BD7; font-weight: bold;">$20</span>
+                        </div>
                     </div>
-                   
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const container = document.querySelector('.amount-options');
+                            const discountPercent = parseFloat(container.dataset.discount || 0);
+
+                            document.querySelectorAll('.amount-option').forEach(option => {
+                                const originalPrice = parseFloat(option.dataset.price);
+                                const discounted = (originalPrice * (1 - discountPercent / 100)).toFixed(2);
+                                const discountElem = option.querySelector('.discount-price');
+
+                                if (discountPercent > 0) {
+                                    discountElem.textContent = `$${discounted}`;
+                                } else {
+                                    discountElem.textContent = `$${originalPrice}`;
+                                }
+                            });
+                        });
+                    </script>
                 </form>
 
             </div>
