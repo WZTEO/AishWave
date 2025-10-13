@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const acc = accEl.value.trim();
     const provider = providerEl.value;
 
-    if (isNaN(amount) || amount < 1) {
+    if (isNaN(amount) || amount < 10) {
       showMessage("Minimum withdrawal is GHS 10.", { error: true });
       return false;
     }

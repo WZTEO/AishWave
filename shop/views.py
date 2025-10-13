@@ -264,8 +264,8 @@ def withdraw_request(request):
         account_number = request.POST.get("account_number")
         provider = request.POST.get("provider")
 
-        if provider in ["mtn", "vodafone"] and int(amount) < 1:
-            messages.error(request, "Minimum withrawal is GHS 100", extra_tags="withdrawal")
+        if provider in ["mtn", "vodafone"] and int(amount) < 10:
+            messages.error(request, "Minimum withrawal is GHS 10", extra_tags="withdrawal")
             return redirect("withdrawal_request")
 
         if provider == "binance" and int(amount) < 10:
