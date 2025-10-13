@@ -513,37 +513,99 @@ class DataPurchaseAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "beneficiary_number", "reference")
     actions = ["approve_purchases", "reject_purchases"]
 
+    # ---------------------------------------------------------------
+    # ✅ BULK ACTION: APPROVE SELECTED PURCHASES
+    # ---------------------------------------------------------------
     @admin.action(description="✅ Approve selected data purchases")
     def approve_purchases(self, request, queryset):
-        logger.info(f"shop/admin.py - Approving {queryset.count()} DataPurchases")
+        logger.info(f"[ADMIN][DataPurchase] Bulk approving {queryset.count()} items")
         count = 0
         for purchase in queryset.filter(status="pending"):
-            result = purchase.approve()
-            if result:
-                count += 1
-                logger.info(f"shop/admin.py - DataPurchase {purchase.id} approved successfully")
-            else:
-                logger.warning(f"shop/admin.py - DataPurchase {purchase.id} failed to approve")
+            try:
+                result = purchase.approve()
+                if result:
+                    count += 1
+                    logger.info(
+                        f"[ADMIN][DataPurchase] ID={purchase.id} | User={purchase.user.username} | "
+                        f"Bundle={purchase.bundle_size} | Amount={purchase.price_ghs} approved successfully"
+                    )
+                else:
+                    logger.warning(
+                        f"[ADMIN][DataPurchase] ID={purchase.id} | User={purchase.user.username} approval failed"
+                    )
+            except Exception as e:
+                logger.exception(
+                    f"[ADMIN][DataPurchase] Error approving ID={purchase.id}: {e}"
+                )
         self.message_user(
             request,
             f"{count} data purchases approved successfully.",
             level=messages.SUCCESS,
         )
 
+    # ---------------------------------------------------------------
+    # ❌ BULK ACTION: REJECT SELECTED PURCHASES
+    # ---------------------------------------------------------------
     @admin.action(description="❌ Reject selected data purchases")
     def reject_purchases(self, request, queryset):
-        logger.info(f"shop/admin.py - Rejecting {queryset.count()} DataPurchases")
+        logger.info(f"[ADMIN][DataPurchase] Bulk rejecting {queryset.count()} items")
         count = 0
         for purchase in queryset.filter(status="pending"):
-            purchase.reject("Rejected manually by admin.")
-            count += 1
+            try:
+                purchase.reject("Rejected manually by admin.")
+                count += 1
+                logger.info(
+                    f"[ADMIN][DataPurchase] ID={purchase.id} | User={purchase.user.username} rejected"
+                )
+            except Exception as e:
+                logger.exception(
+                    f"[ADMIN][DataPurchase] Error rejecting ID={purchase.id}: {e}"
+                )
         self.message_user(
             request,
             f"{count} data purchases rejected.",
             level=messages.WARNING,
         )
 
+    # ---------------------------------------------------------------
+    # 💾 SAVE HOOK — DEDUCT WALLET WHEN STATUS CHANGES TO APPROVED
+    # ---------------------------------------------------------------
+    def save_model(self, request, obj, form, change):
+        try:
+            if change:
+                old_obj = DataPurchase.objects.get(pk=obj.pk)
+                if old_obj.status != "approved" and obj.status == "approved":
+                    logger.info(
+                        f"[ADMIN][DataPurchase] Triggering wallet deduction | "
+                        f"User={obj.user.username} | ID={obj.id} | Price={obj.price_ghs}"
+                    )
+                    wallet, _ = Wallet.objects.get_or_create(user=obj.user)
+                    if wallet.balance >= obj.price_ghs:
+                        wallet.balance -= obj.price_ghs
+                        wallet.save()
+
+                        Transaction.objects.create(
+                            wallet=wallet,
+                            amount=obj.price_ghs,
+                            transaction_type="Data Purchase",
+                            status="completed",
+                            reference=f"data_{obj.pk}",
+                        )
+
+                        logger.info(
+                            f"[ADMIN][DataPurchase] Wallet deduction successful | "
+                            f"User={obj.user.username} | NewBalance={wallet.balance:.2f}"
+                        )
+                    else:
+                        logger.warning(
+                            f"[ADMIN][DataPurchase] Insufficient balance | "
+                            f"User={obj.user.username} | Balance={wallet.balance:.2f} | "
+                            f"Price={obj.price_ghs:.2f}"
+                        )
+        except Exception as e:
+            logger.exception(f"[ADMIN][DataPurchase] save_model error: {e}")
+
+        super().save_model(request, obj, form, change)
+
+    # ---------------------------------------------------------------
     logger.info("shop/admin.py - Registered DataPurchaseAdmin")
-
-
-logger.info("shop/admin.py - All admin models registered successfully")
