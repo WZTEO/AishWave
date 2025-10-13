@@ -264,7 +264,7 @@ def withdraw_request(request):
         account_number = request.POST.get("account_number")
         provider = request.POST.get("provider")
 
-        if provider in ["mtn", "vodafone"] and int(amount) < 100:
+        if provider in ["mtn", "vodafone"] and int(amount) < 1:
             messages.error(request, "Minimum withrawal is GHS 100", extra_tags="withdrawal")
             return redirect("withdrawal_request")
 
@@ -296,10 +296,10 @@ def withdraw_request(request):
             messages.error(request, "Insufficient balance.", extra_tags="withdrawal")
             return redirect("withdrawal_request")
         else:
-            WithdrawalRequest.objects.create(
+            withdrawal = WithdrawalRequest.objects.create(
                 user=request.user,
                 amount=amount,
-                recipient=recipient
+                recipient=recipient,
                 )
             print("Request submitted")
 
@@ -307,8 +307,11 @@ def withdraw_request(request):
                     wallet=user_wallet,
                     amount=amount,
                     transaction_type="withdrawal",
-                    status="pending"
+                    status="pending",
+                    reference=str(withdrawal.reference),  # ✅ link directly
+
                 )
+            
             messages.success(request, "Withdrawal request submitted.", extra_tags="withdrawal")
             return redirect("finance")
         

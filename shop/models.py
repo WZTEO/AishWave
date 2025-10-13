@@ -91,124 +91,120 @@ class WithdrawalRequest(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("approved", "Approved"),
-        ("rejected", "Rejected")
+        ("rejected", "Rejected"),
     ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     recipient = models.ForeignKey(PaystackRecipient, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
     processed_at = models.DateTimeField(null=True, blank=True)
+    reference = models.CharField(
+        max_length=100,
+        unique=True,
+        default=uuid.uuid4,
+        editable=False
+    )
 
+    # -----------------------------------------------------------------------
+    # APPROVE LOGIC
+    # -----------------------------------------------------------------------
     def approve(self):
-        """Deduct balance and mark as approved safely."""
-        logger.info(f"models.py - WithdrawalRequest.approve() called for withdrawal {self.id}, user: {self.user.username}, amount: {self.amount}")
-        
+        """Approve a pending withdrawal and deduct from wallet + update transaction."""
+        logger.info(f"[WITHDRAW] Approve called | id={self.id} | ref={self.reference} | user={self.user.username}")
+
         if self.status != "pending":
-            logger.warning(f"models.py - Withdrawal {self.id} already processed — status={self.status}, cannot approve")
-            print(f"[WARN] Withdrawal {self.id} already processed — status={self.status}")
+            logger.warning(f"[WITHDRAW] Withdrawal {self.id} already processed (status={self.status})")
             return False
 
         try:
-            logger.info(f"models.py - Attempting to get wallet for user {self.user.username}")
             wallet = Wallet.objects.get(user=self.user)
-            logger.info(f"models.py - Wallet found for user {self.user.username}, current balance: {wallet.balance}")
         except Wallet.DoesNotExist:
-            logger.error(f"models.py - No wallet found for user {self.user.username} (ID: {self.user.id})")
-            print(f"[ERROR] No wallet found for user {self.user}")
-            return False
-        except Exception as e:
-            logger.error(f"models.py - Unexpected error getting wallet for user {self.user.username}: {str(e)}")
-            print(f"[ERROR] Unexpected error getting wallet: {str(e)}")
+            logger.error(f"[WITHDRAW] Wallet not found for {self.user.username}")
             return False
 
-        # Attempt to find matching transaction
-        logger.info(f"models.py - Searching for matching transaction for withdrawal {self.id}")
-        transaction = Transaction.objects.filter(
+        amount = Decimal(str(self.amount)).quantize(Decimal("0.01"))
+        if wallet.balance < amount:
+            logger.error(f"[WITHDRAW] Insufficient funds | balance={wallet.balance} | amount={amount}")
+            return False
+
+        tx = Transaction.objects.filter(
             wallet=wallet,
-            amount=self.amount,
             transaction_type="withdrawal",
+            reference=str(self.reference),
         ).first()
 
-        if transaction:
-            logger.info(f"models.py - Found matching transaction: {transaction.reference}, status: {transaction.status}")
-        else:
-            logger.warning(f"models.py - No matching transaction found for withdrawal {self.id}")
-
-        # Check wallet balance
-        logger.info(f"models.py - Checking wallet balance for withdrawal {self.id}")
-        logger.info(f"models.py - Wallet balance: {wallet.balance}, Withdrawal amount: {self.amount}")
-        
-        if wallet.balance < self.amount:
-            logger.error(f"models.py - Insufficient funds for user {self.user.username}. Wallet={wallet.balance}, Amount={self.amount}, Difference={wallet.balance - self.amount}")
-            print(f"[ERROR] Insufficient funds for {self.user.username}. "
-                f"Wallet={wallet.balance}, Amount={self.amount}")
+        if not tx:
+            logger.error(f"[WITHDRAW] ❌ No matching transaction for ref={self.reference}")
             return False
-        else:
-            logger.info(f"models.py - Sufficient funds available for withdrawal {self.id}")
 
-        # Deduct funds
-        logger.info(f"models.py - Deducting {self.amount} from wallet for user {self.user.username}")
+        if tx.status.lower() == "completed":
+            logger.warning(f"[WITHDRAW] Transaction {tx.reference} already completed.")
+            return False
+
+        if tx.amount != amount:
+            logger.error(f"[WITHDRAW] Amount mismatch | Expected={amount} | Found={tx.amount}")
+            return False
+
+        # ✅ Deduct funds and update wallet
         old_balance = wallet.balance
-        wallet.balance -= self.amount
+        wallet.balance -= amount
         wallet.save(update_fields=["balance"])
-        logger.info(f"models.py - Wallet updated for {self.user.username}: old balance={old_balance}, new balance={wallet.balance}")
-        print(f"[INFO] Wallet updated for {self.user.username}: new balance={wallet.balance}")
+        logger.info(f"[WITHDRAW] Wallet updated | {old_balance} → {wallet.balance}")
 
-        # Update withdrawal record
-        logger.info(f"models.py - Updating withdrawal request {self.id} status to 'approved'")
+        # ✅ Update transaction
+        tx.status = "completed"
+        tx.save(update_fields=["status", "updated_at"])
+        logger.info(f"[WITHDRAW] Transaction {tx.reference} marked completed")
+
+        # ✅ Update withdrawal
         self.status = "approved"
         self.processed_at = timezone.now()
         self.save(update_fields=["status", "processed_at"])
-        logger.info(f"models.py - WithdrawalRequest {self.id} approved for {self.user.username}, processed at: {self.processed_at}")
-        print(f"[INFO] WithdrawalRequest {self.id} approved for {self.user.username}")
+        logger.info(f"[WITHDRAW] Withdrawal {self.id} approved successfully | ref={self.reference}")
 
-        # Safely handle transaction
-        if transaction:
-            logger.info(f"models.py - Updating existing transaction {transaction.reference} status to 'completed'")
-            old_transaction_status = transaction.status
-            transaction.status = "completed"
-            transaction.save(update_fields=["status"])
-            logger.info(f"models.py - Transaction {transaction.reference} status updated from '{old_transaction_status}' to 'completed'")
-            print(f"[INFO] Existing transaction marked as completed: ref={transaction.reference}")
-        else:
-            logger.warning(f"models.py - No matching transaction found for withdrawal {self.id}. Creating new transaction record")
-            print(f"[WARN] No matching transaction found. Auto-creating for {self.user.username}")
-            try:
-                new_transaction = Transaction.objects.create(
-                    wallet=wallet,
-                    amount=self.amount,
-                    transaction_type="withdrawal",
-                    status="completed",
-                )
-                logger.info(f"models.py - New transaction created successfully: {new_transaction.reference} for withdrawal {self.id}")
-            except Exception as e:
-                logger.error(f"models.py - Failed to create new transaction for withdrawal {self.id}: {str(e)}")
-                print(f"[ERROR] Failed to create transaction: {str(e)}")
-                # Continue anyway since the withdrawal was already processed
+        # # ✅ Safety re-sync (atomic update)
+        # TransactionService.update_transaction_status(
+        #     reference=str(self.reference),
+        #     new_status="completed",
+        #     update_wallet=False,
+        # )
 
-        logger.info(f"models.py - WithdrawalRequest.approve() completed successfully for withdrawal {self.id}")
         return True
 
+    # -----------------------------------------------------------------------
+    # REJECT LOGIC
+    # -----------------------------------------------------------------------
     def reject(self):
-        """Mark as rejected and update transaction."""
-        logger.info(f"models.py - WithdrawalRequest.reject() called for user {self.user.username}, amount: {self.amount}")
-        if self.status == "pending":
-            self.status = "rejected"
-            self.processed_at = timezone.now()
-            self.save()
-            logger.info(f"models.py - WithdrawalRequest rejected and saved")
+        """Reject a pending withdrawal and update transaction if found."""
+        logger.info(f"[WITHDRAW] Reject called | id={self.id} | ref={self.reference} | user={self.user.username}")
 
-            # Also update the transaction status
-            transaction = Transaction.objects.filter(
-                wallet__user=self.user, amount=self.amount, transaction_type="withdrawal"
-            ).first()
-            if transaction:
-                transaction.status = "rejected"
-                transaction.save()
-                logger.info(f"models.py - Transaction status updated to rejected")
-            else:
-                logger.warning(f"models.py - No transaction found for withdrawal rejection")
+        if self.status != "pending":
+            logger.warning(f"[WITHDRAW] Withdrawal {self.id} cannot be rejected (status={self.status})")
+            return False
+
+        self.status = "rejected"
+        self.processed_at = timezone.now()
+        self.save(update_fields=["status", "processed_at"])
+        logger.info(f"[WITHDRAW] Withdrawal {self.id} marked rejected")
+
+        tx = Transaction.objects.filter(
+            wallet__user=self.user,
+            transaction_type="withdrawal",
+            reference=str(self.reference),
+        ).first()
+
+        if tx:
+            tx.status = "failed"
+            tx.save(update_fields=["status", "updated_at"])
+            logger.info(f"[WITHDRAW] Linked transaction {tx.reference} marked failed")
+        else:
+            logger.warning(f"[WITHDRAW] No linked transaction found for ref={self.reference}")
+
+        return True
+
+
             
 class Discount(models.Model):
     pubg = models.IntegerField()
