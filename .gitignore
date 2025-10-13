@@ -1,17 +1,71 @@
-.env
-/createpass
-/forgotpass
-backup./**.json*/
-/venv
-/.venv
-# Python/Django cache files
+# Environment files (keep template, ignore actual secrets)
+.env.local
+.env.production
+*.env
+!/.env.example  # Keep example file
+
+# Python/Django
 __pycache__/
 *.py[cod]
 *$py.class
-.vscode/
-backup.json
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.codes
+.pytest_cache/
 
-# Django-specific
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
 *.sqlite3
-*.pyc
+*.db
 db.sqlite3
+
+# Django
+media/
+staticfiles/
+*.log
+local_settings.py
+
+# Firebase
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+backup.json
+*.backup
+*.bak
