@@ -1108,3 +1108,15 @@ def refresh_transaction(request, reference):
     else:
         data = check_transfer_status(request.user, settings.MOOLRE_ACCOUNT_NUMBER, reference)
     return JsonResponse(data)
+
+@login_required
+def update_data(request):
+    data_options = [
+        ("1GB", "4.70"), ("2GB", "9.20"), ("3GB", "15.00"),
+        ("4GB", "20.00"), ("5GB", "25.00"), ("6GB", "30.00"),
+        ("7GB", "34.50"), ("8GB", "39.50"), ("10GB", "46.50"),
+        ("15GB", "70.00"), ("20GB", "95.00"), ("25GB", "115.00"),
+        ("30GB", "135.00"), ("40GB", "180.00"), ("50GB", "220.00"),
+        ("100GB", "380.00"),
+    ]
+    return render(request, 'shop_update/data.html', {'data_options': data_options})

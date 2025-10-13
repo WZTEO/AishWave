@@ -156,3 +156,38 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 {% endblock %}
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // --- QUICK BALANCE REFRESH ---
+  try {
+    const balanceRes = await fetch("/wallet/refresh-balance/");
+    const balanceData = await balanceRes.json();
+    console.log("💰 Wallet refreshed:", balanceData);
+  } catch (err) {
+    console.warn("Balance refresh failed:", err);
+  }
+
+  // --- QUICK TRANSACTION REFRESH (FAILED + PENDING) ---
+  try {
+    // fetch all transaction cards if you render them on this page
+    const pendingOrFailedEls = document.querySelectorAll("[data-tx-status='pending'], [data-tx-status='failed']");
+    for (const el of pendingOrFailedEls) {
+      const ref = el.dataset.txRef;
+      if (!ref) continue;
+
+      const res = await fetch(`/wallet/refresh-transaction/${ref}/`);
+      const data = await res.json();
+      console.log(`🔁 Refreshed TX ${ref}:`, data);
+      
+      // optional: update visual indicator if you have status element
+      const status = data?.data?.txstatus === "1" ? "success" :
+                     data?.data?.txstatus === "2" ? "failed" : "pending";
+      el.dataset.txStatus = status;
+      const label = el.querySelector(".tx-status-label");
+      if (label) label.textContent = status.toUpperCase();
+    }
+  } catch (err) {
+    console.warn("Transaction refresh failed:", err);
+  }
+});
+</script>

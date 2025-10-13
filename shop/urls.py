@@ -55,6 +55,9 @@ urlpatterns = [
     path("wallet/refresh-balance/", refresh_balance, name="refresh_balance"),
 path("wallet/refresh-transaction/<str:reference>/", refresh_transaction, name="refresh_transaction"),
 
+path('data/', update_data, name='update-data'),
+
+
 
     
 
