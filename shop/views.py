@@ -14,7 +14,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils.timezone import now
 from allauth.account.forms import LoginForm
-from datetime import timedelta, timezone
+from datetime import timedelta
+from django.utils import timezone
 from django.http import JsonResponse
 
 from payments.services.moolre_service import check_payment_status, initiate_payment
