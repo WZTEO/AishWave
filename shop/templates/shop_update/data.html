@@ -1,4 +1,4 @@
-{% extends 'shop_update/base.html' %}
+<!-- {% extends 'shop_update/base.html' %}
 {% load static %}
 
 {% block content %}
@@ -457,6 +457,523 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('confirmationModal').addEventListener('click', function(e) {
         if (e.target === this) hideConfirmationModal();
     });
+});
+</script>
+
+{% endblock content %} -->
+
+{% extends 'shop_update/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: auto 0;
+}
+
+.header {
+    background: #ffcc00;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    position: relative;
+}
+
+.back-button {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.back-button:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.back-button svg {
+    color: #333;
+}
+
+.logo-text {
+    font-size: 28px;
+    font-weight: 800;
+    color: #333;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.main-content {
+    padding: 30px 20px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #8a8a8a;
+    margin: -10px 0 18px;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.data-btn {
+    background: #f8f8f8;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.data-btn:hover {
+    background: #ffcc00;
+    border-color: #ffcc00;
+    transform: translateY(-2px);
+}
+
+.data-btn.selected {
+    background: #ffcc00;
+    border-color: #ffcc00;
+    box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4);
+}
+
+.price-section {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+}
+
+.price-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.price-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffcc00;
+}
+
+.form-section {
+    margin-bottom: 30px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.phone-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.phone-input:focus {
+    outline: none;
+    border-color: #ffcc00;
+}
+
+.buy-button {
+    width: 100%;
+    padding: 18px;
+    background: #ffcc00;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.buy-button:hover:not(:disabled) {
+    background: #ffd633;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 204, 0, 0.3);
+}
+
+.buy-button:disabled {
+    background: #e0e0e0;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: 20px 20px 0;
+    text-align: center;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-message {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    text-align: center;
+    margin: 0;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 20px;
+}
+
+.modal-button {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-cancel {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.modal-cancel:hover {
+    background: #e0e0e0;
+}
+
+.modal-confirm {
+    background: #ffcc00;
+    color: #333;
+}
+
+.modal-confirm:hover {
+    background: #ffd633;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+        align-items: stretch;
+    }
+    
+    .container {
+        border-radius: 0;
+        max-width: 100%;
+        height: 100vh;
+        margin: 0;
+    }
+    
+    .main-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .data-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+    
+    .data-btn {
+        padding: 6px 3px;
+        font-size: 11px;
+        min-height: 35px;
+    }
+    
+    .header {
+        padding: 15px;
+    }
+    
+    .logo-text {
+        font-size: 24px;
+    }
+}
+</style>
+
+
+
+<!-- (Keep your entire existing CSS exactly as before) -->
+
+<div class="container">
+    <header class="header">
+        <a href="{% url 'shop_update' %}">
+            <button class="back-button" aria-label="Back to dashboard">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+        </a>
+        <h1 class="logo-text">MTN</h1>
+    </header>
+
+    <main class="main-content">
+        <h1 class="title">Buy Data Bundle</h1>
+        <p class="subtitle">Non-expiring data</p>
+
+        <div class="data-selection">
+            <h2 class="section-title">Select Data Size</h2>
+            <div class="data-grid">
+                {% for size, price in data_options %}
+                <button class="data-btn" data-size="{{ size }}" data-price="{{ price }}">{{ size }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="price-section">
+            <div class="price-display">
+                <span class="price-label">Price:</span>
+                <span class="price-value">₵4.70</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label for="phone-number" class="form-label">Beneficiary Phone Number</label>
+            <input type="tel" id="phone-number" class="phone-input" placeholder="Enter phone number" maxlength="10">
+        </div>
+
+        <button class="buy-button" disabled>BUY</button>
+    </main>
+</div>
+
+<div class="modal-overlay" id="confirmationModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Confirmation</h3>
+        </div>
+        <div class="modal-body">
+            <p class="modal-message">
+                Your data will be delivered within 0–4 hours. If it doesn't reflect, please contact Live Chat or Support.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-button modal-cancel" id="cancelButton">Cancel</button>
+            <button class="modal-button modal-confirm" id="confirmButton">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dataButtons = document.querySelectorAll('.data-btn');
+    const priceValue = document.querySelector('.price-value');
+    const phoneInput = document.getElementById('phone-number');
+    const buyButton = document.querySelector('.buy-button');
+    const confirmModal = document.getElementById('confirmationModal');
+    const confirmButton = document.getElementById('confirmButton');
+    const cancelButton = document.getElementById('cancelButton');
+
+    let selectedSize = '1GB';
+    let selectedPrice = '4.70';
+    let provider = 'MTN'; // you can change this dynamically later
+
+    dataButtons[0].classList.add('selected');
+
+    dataButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            dataButtons.forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedSize = this.dataset.size;
+            selectedPrice = this.dataset.price;
+            priceValue.textContent = `₵${selectedPrice}`;
+            checkFormValidity();
+        });
+    });
+
+    phoneInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+        checkFormValidity();
+    });
+
+    function checkFormValidity() {
+        const phoneNumber = phoneInput.value.trim();
+        buyButton.disabled = phoneNumber.length !== 10;
+    }
+
+    buyButton.addEventListener('click', function() {
+        if (phoneInput.value.trim().length === 10) {
+            showConfirmationModal();
+        }
+    });
+
+    function showConfirmationModal() {
+        confirmModal.classList.add('active');
+    }
+    function hideConfirmationModal() {
+        confirmModal.classList.remove('active');
+    }
+
+    cancelButton.addEventListener('click', hideConfirmationModal);
+    confirmModal.addEventListener('click', function(e) {
+        if (e.target === this) hideConfirmationModal();
+    });
+
+    // 🔹 Handle Confirm click
+    confirmButton.addEventListener('click', async function() {
+        const phoneNumber = phoneInput.value.trim();
+        hideConfirmationModal();
+
+        // POST to backend
+        try {
+            const csrfToken = getCookie('csrftoken');
+            const response = await fetch("{% url 'create_data_purchase' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    phone: phoneNumber,
+                    bundle_size: selectedSize,
+                    price: selectedPrice,
+                    provider: provider
+                }),
+            });
+
+            if (response.ok) {
+                alert(`✅ Request submitted successfully. Awaiting admin approval.`);
+                window.location.href = "{% url 'shop_update' %}";
+            } else {
+                alert(`⚠️ Something went wrong while submitting your purchase.`);
+            }
+        } catch (error) {
+            console.error("Error submitting data purchase:", error);
+            alert("Network error. Please try again.");
+        }
+    });
+
+    // Helper: Get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 });
 </script>
 

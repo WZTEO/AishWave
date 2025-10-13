@@ -14,13 +14,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils.timezone import now
 from allauth.account.forms import LoginForm
-from datetime import timedelta
+from datetime import timedelta, timezone
 from django.http import JsonResponse
 
 from payments.services.moolre_service import check_payment_status, initiate_payment
 from payments.services.transaction_service import TransactionService
 from .models import  (
-    BattleRoyalePlayer, Wallet, Task, TaskCompletion, ReferralAmount, Transaction, BillBoardImage, 
+    BattleRoyalePlayer, DataPurchase, Wallet, Task, TaskCompletion, ReferralAmount, Transaction, BillBoardImage, 
     LoginHistory,PaystackRecipient, Order, Investment, Referral, WithdrawalRequest, Crypto,
     Discount, ExchangeRate, ReferralCode, ClashTournament, BattleRoyalePlayer, Squad, Product, Trade,
     ProductTier )
@@ -1120,3 +1120,50 @@ def update_data(request):
         ("100GB", "380.00"),
     ]
     return render(request, 'shop_update/data.html', {'data_options': data_options})
+
+@login_required
+def create_data_purchase(request):
+    """
+    Handles 'Buy Data' form submission from frontend.
+    Creates a pending DataPurchase entry; wallet is not deducted.
+    """
+    if request.method != "POST":
+        messages.error(request, "Invalid request method.")
+        return redirect("shop_update")  # your dashboard or fallback page
+
+    try:
+        phone = request.POST.get("phone")
+        bundle_size = request.POST.get("bundle_size")
+        price = request.POST.get("price")
+        provider = request.POST.get("provider", "mtn")
+
+        # Quick input validation
+        if not all([phone, bundle_size, price]):
+            messages.error(request, "Missing required fields.")
+            return redirect("shop_update")
+
+        wallet = Wallet.objects.get(user=request.user)
+
+        # Optional: check if user can afford (but don't deduct yet)
+        if wallet.balance < float(price):
+            messages.warning(request, "Insufficient wallet balance to initiate purchase.")
+            return redirect("shop_update")
+
+        # Create DataPurchase record
+        DataPurchase.objects.create(
+            user=request.user,
+            beneficiary_number=phone,
+            provider=provider,
+            bundle_size=bundle_size,
+            price_ghs=price,
+            status="pending",
+            created_at=timezone.now(),
+        )
+        messages.success(request, "Your data purchase has been submitted for admin approval.")
+        logger.info(f"shop/views/data_purchase.py - DataPurchase created for user {request.user.username}")
+
+    except Exception as e:
+        logger.error(f"shop/views/data_purchase.py - Error creating DataPurchase: {e}")
+        messages.error(request, "Something went wrong while submitting your request.")
+
+    return redirect("shop_update")

@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.core.mail import send_mail
 from django.contrib import messages
 from .models import (
-    Order, ExchangeRate,LoginHistory, ReferralAmount, BillBoardImage, Task,Investment,
+    DataPurchase, Order, ExchangeRate,LoginHistory, ReferralAmount, BillBoardImage, Task,Investment,
     Transaction, Referral, WithdrawalRequest, Wallet, Discount, ClashTournament,
     BattleRoyalePlayer, BattleRoyaleTournament, Squad, SquadPlayer, SquadTournament,
     Product, Crypto, ProductTier
@@ -411,5 +411,139 @@ class TradeAdmin(admin.ModelAdmin):
     card_image_preview.allow_tags = True
     card_image_preview.short_description = "Card Image"
     logger.info("shop/admin.py - Registered TradeAdmin")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@admin.register(DataPurchase)
+class DataPurchaseAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "provider",
+        "bundle_size",
+        "price_ghs",
+        "beneficiary_number",
+        "status",
+        "created_at",
+        "processed_at",
+    )
+    list_filter = ("provider", "status", "created_at")
+    search_fields = ("user__username", "beneficiary_number", "reference")
+    actions = ["approve_purchases", "reject_purchases"]
+
+    @admin.action(description="✅ Approve selected data purchases")
+    def approve_purchases(self, request, queryset):
+        logger.info(f"shop/admin.py - Approving {queryset.count()} DataPurchases")
+        count = 0
+        for purchase in queryset.filter(status="pending"):
+            result = purchase.approve()
+            if result:
+                count += 1
+                logger.info(f"shop/admin.py - DataPurchase {purchase.id} approved successfully")
+            else:
+                logger.warning(f"shop/admin.py - DataPurchase {purchase.id} failed to approve")
+        self.message_user(
+            request,
+            f"{count} data purchases approved successfully.",
+            level=messages.SUCCESS,
+        )
+
+    @admin.action(description="❌ Reject selected data purchases")
+    def reject_purchases(self, request, queryset):
+        logger.info(f"shop/admin.py - Rejecting {queryset.count()} DataPurchases")
+        count = 0
+        for purchase in queryset.filter(status="pending"):
+            purchase.reject("Rejected manually by admin.")
+            count += 1
+        self.message_user(
+            request,
+            f"{count} data purchases rejected.",
+            level=messages.WARNING,
+        )
+
+    logger.info("shop/admin.py - Registered DataPurchaseAdmin")
+
 
 logger.info("shop/admin.py - All admin models registered successfully")

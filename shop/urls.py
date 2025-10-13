@@ -53,9 +53,10 @@ urlpatterns = [
     path("wallet/ussd/<str:reference>/", ussd_instruction, name="ussd_instruction"),
         path("wallet/ussd/<str:reference>/", ussd_instruction, name="ussd_instruction"),
     path("wallet/refresh-balance/", refresh_balance, name="refresh_balance"),
-path("wallet/refresh-transaction/<str:reference>/", refresh_transaction, name="refresh_transaction"),
+    path("wallet/refresh-transaction/<str:reference>/", refresh_transaction, name="refresh_transaction"),
 
-path('data/', update_data, name='update-data'),
+    path('data/', update_data, name='update-data'),
+    path("data/purchase/", create_data_purchase, name="create_data_purchase"),
 
 
 

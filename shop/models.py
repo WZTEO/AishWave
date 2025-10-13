@@ -636,3 +636,173 @@ class Squad(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.tournament.name}"
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class DataPurchase(models.Model):
+    """
+    Represents a user’s request to buy a data bundle.
+    NOTE: Wallet is NOT deducted at creation time. Admin will approve/reject later.
+    """
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+        ("canceled", "Canceled"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="data_purchases")
+    beneficiary_number = models.CharField(max_length=20)         # the target phone number
+    provider = models.CharField(max_length=20, default="mtn")    # e.g., mtn, vodafone, airteltigo
+    bundle_size = models.CharField(max_length=20)                 # e.g., "1GB", "10GB"
+    price_ghs = models.DecimalField(max_digits=10, decimal_places=2)  # final price in GHS
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
+
+    reference = models.CharField(max_length=100, unique=True, default=uuid.uuid4)  # for tracking
+    notes = models.TextField(blank=True, null=True)                # optional admin/user notes
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(blank=True, null=True)     # set when approved/rejected
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return f"DataPurchase #{self.id} - {self.user.username} - {self.status}"
+    
+
+
+    def approve(self):
+        """
+        Approve this data purchase:
+        - Deduct wallet balance.
+        - Mark as approved.
+        - Create a Transaction record.
+        """
+        logger.info(f"models.py - DataPurchase.approve() called for {self.id} ({self.user.username})")
+
+        # Prevent re-approval
+        if self.status != "pending":
+            logger.warning(f"models.py - DataPurchase {self.id} already processed (status={self.status})")
+            return False
+
+        # Try fetching wallet
+        try:
+            wallet = Wallet.objects.get(user=self.user)
+            logger.info(f"models.py - Wallet found for user {self.user.username}: balance={wallet.balance}")
+        except Wallet.DoesNotExist:
+            logger.error(f"models.py - Wallet not found for user {self.user.username}")
+            return False
+
+        # Check sufficient balance
+        if wallet.balance < self.price_ghs:
+            logger.error(
+                f"models.py - Insufficient funds for {self.user.username}: "
+                f"wallet={wallet.balance}, price={self.price_ghs}"
+            )
+            self.status = "canceled"
+            self.notes = "Insufficient wallet balance at approval time."
+            self.processed_at = timezone.now()
+            self.save(update_fields=["status", "notes", "processed_at"])
+            return False
+
+        # Deduct wallet and save
+        old_balance = wallet.balance
+        wallet.balance -= self.price_ghs
+        wallet.save(update_fields=["balance"])
+        logger.info(f"models.py - Wallet updated: {old_balance} -> {wallet.balance}")
+
+        # Create transaction record
+        Transaction.objects.create(
+            wallet=wallet,
+            amount=self.price_ghs,
+            transaction_type="data_purchase",
+            status="completed",
+            raw_data={"bundle_size": self.bundle_size, "provider": self.provider},
+        )
+        logger.info(f"models.py - Transaction created for DataPurchase {self.id}")
+
+        # Update purchase
+        self.status = "approved"
+        self.processed_at = timezone.now()
+        self.save(update_fields=["status", "processed_at"])
+        logger.info(f"models.py - DataPurchase {self.id} marked as approved")
+
+        return True
+
+def reject(self, reason="Rejected by admin"):
+    """
+    Reject a pending data purchase without touching wallet.
+    """
+    logger.info(f"models.py - DataPurchase.reject() called for {self.id} ({self.user.username})")
+
+    if self.status != "pending":
+        logger.warning(f"models.py - DataPurchase {self.id} cannot be rejected (status={self.status})")
+        return False
+
+    self.status = "rejected"
+    self.notes = reason
+    self.processed_at = timezone.now()
+    self.save(update_fields=["status", "notes", "processed_at"])
+    logger.info(f"models.py - DataPurchase {self.id} marked as rejected")
+
+    return True
+
