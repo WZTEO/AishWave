@@ -81,9 +81,7 @@ def validate_recipient_name(
     currency: str = "GHS",
     sublistid: Optional[str] = None
 ) -> Dict[str, Any]:
-    """
-    Validate recipient name for bank or mobile account.
-    """
+    """Validate recipient name for bank or mobile account."""
     url = _build_url("open/transact/validate")
     payload: Dict[str, Any] = {
         "type": 1,
@@ -122,9 +120,7 @@ def initiate_transfer(
     currency: str = "GHS",
     externalref: Optional[str] = None
 ) -> Dict[str, Any]:
-    """
-    Send money (payout) from Moolre wallet to recipient (bank/MoMo).
-    """
+    """Send money (payout) from Moolre wallet to recipient (bank/MoMo)."""
     url = _build_url("open/transact/transfer")
     externalref = externalref or f"tr_{uuid.uuid4().hex[:12]}"
     amt = _quantize(amount)
@@ -172,9 +168,7 @@ def check_transfer_status(
     identifier: str,
     by: str = "external"
 ) -> Dict[str, Any]:
-    """
-    Re-query transfer status and sync Transaction model.
-    """
+    """Re-query transfer status and sync Transaction model."""
     url = _build_url("open/transact/status")
     payload = {
         "type": 1,
@@ -223,9 +217,7 @@ def initiate_payment(
     currency: str = "GHS",
     otpcode: str = ""
 ) -> Dict[str, Any]:
-    """
-    Initiate a mobile money payment (collection).
-    """
+    """Initiate a mobile money payment (collection)."""
     url = _build_url("open/transact/payment")
     amt = _quantize(amount)
 
@@ -267,10 +259,18 @@ def initiate_payment(
         logger.exception("[MOOLRE][PAYMENT] ❌ Error: %s", e)
         return {"status": 0, "message": str(e)}
 
-def check_payment_status(user: AbstractUser, account_number: str, reference: str, by: str = "external") -> Dict[str, Any]:
-    """
-    Re-check incoming payment status and update wallet + transaction safely.
-    """
+def check_payment_status(
+    user: AbstractUser,
+    account_number: str,
+    reference: str,
+    by: str = "external"
+) -> Dict[str, Any]:
+    """Re-check incoming payment status and update wallet + transaction safely."""
+    # 🚫 Skip non-deposit references (e.g., data purchases)
+    if not reference or reference.startswith("data_"):
+        logger.info("[MOOLRE][PAYMENT_STATUS] Skipping non-deposit ref=%s", reference)
+        return {"status": 0, "message": "Skipped non-deposit reference"}
+
     url = _build_url("open/transact/status")
     payload = {
         "type": 1,
@@ -288,7 +288,7 @@ def check_payment_status(user: AbstractUser, account_number: str, reference: str
         status_map = {0: "pending", 1: "completed", 2: "failed"}
         status = status_map.get(txstatus, "pending")
 
-        # Let TransactionService handle the wallet effect atomically
+        # Let TransactionService handle wallet effects atomically
         TransactionService.record_transaction(
             user=user,
             amount=_quantize(tx_data.get("amount", 0)),

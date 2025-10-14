@@ -1,4 +1,6 @@
 {% load static %}
+{% load format_filters %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -133,13 +135,17 @@
       <h3>Transaction History</h3>
       <div class="transactions-list">
         {% for transaction in transactions %}
-        <div class="transaction">
+        <div class="transaction"
+     data-ref="{{ transaction.reference }}"
+     data-status="{{ transaction.status }}">
+
           <div class="transaction-icon {% if transaction.transaction_type in 'deposit task_reward' %}deposit{% else %}withdraw{% endif %}">
             <i class="fas {% if transaction.transaction_type in 'deposit task_reward' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
           </div>
           <div class="transaction-details">
             <span class="transaction-title">
-              {{ transaction.transaction_type|title }} {{ transaction.status }}
+              {{ transaction.transaction_type|pretty_name }} {{ transaction.status|title }}
+
             </span>
             <span class="transaction-date">
               {% if transaction.created_at|date:"Y-m-d" == today_date %}
@@ -173,44 +179,69 @@
 
   <script src="{% static 'trustbyte/js/landing_script.js' %}"></script>
   <script>
-    // Menu handling
-    const menuBtn = document.querySelector('.menu-btn');
-    const menuCloseBtn = document.getElementById('menu-close');
-    const sideMenu = document.getElementById('side-menu');
-    const menuOverlay = document.getElementById('menu-overlay');
-    const followUsBtn = document.querySelector('.follow-us-btn');
-    const socialIcons = document.querySelector('.social-icons');
+document.addEventListener("DOMContentLoaded", async () => {
+  const balanceEl = document.getElementById("walletBalance");
 
-    menuBtn.addEventListener('click', () => {
-      sideMenu.classList.add('open');
-      menuOverlay.style.display = 'block';
-    });
-    function toggleMenu() {
-      sideMenu.classList.remove('open');
-      menuOverlay.style.display = 'none';
+  // ===============================
+  // 💰 BALANCE REFRESH
+  // ===============================
+  try {
+    const res = await fetch("{% url 'refresh_balance' %}");
+    const data = await res.json();
+    if (data.balance) {
+      balanceEl.textContent = parseFloat(data.balance).toFixed(2);
+      console.log("[Auto Refresh] ✅ Balance updated:", data.balance);
     }
-    menuCloseBtn.addEventListener('click', toggleMenu);
-    menuOverlay.addEventListener('click', toggleMenu);
-    followUsBtn.addEventListener('click', () => {
-      socialIcons.style.display = socialIcons.style.display === 'grid' ? 'none' : 'grid';
-    });
+  } catch (err) {
+    console.error("[Auto Refresh] ❌ Balance refresh failed:", err);
+  }
 
-    // ==================================
-    // 💰 ISOLATED AUTO BALANCE REFRESH
-    // ==================================
-    document.addEventListener("DOMContentLoaded", async () => {
-      const balanceEl = document.getElementById("walletBalance");
-      try {
-        const res = await fetch("{% url 'refresh_balance' %}");
-        const data = await res.json();
-        if (data.balance) {
-          balanceEl.textContent = parseFloat(data.balance).toFixed(2);
-          console.log("[Auto Refresh] Balance updated:", data.balance);
-        }
-      } catch (err) {
-        console.error("Auto balance refresh failed:", err);
+  // ===============================
+  // 🔁 PENDING TRANSACTIONS REFRESH
+  // ===============================
+  const pendingTxEls = Array.from(document.querySelectorAll(".transaction"))
+    .filter(tx => tx.dataset.status === "pending")
+    .slice(0, 10);
+
+  if (pendingTxEls.length === 0) {
+    console.log("[TX][AUTO_REFRESH] No pending transactions to refresh.");
+    return;
+  }
+
+  console.group("[TX][AUTO_REFRESH] Refreshing pending transactions...");
+  for (const txEl of pendingTxEls) {
+    const ref = txEl.dataset.ref;
+    if (!ref) continue;
+
+    console.log(`→ Checking ${ref} ...`);
+    try {
+      const res = await fetch(`/wallet/refresh-transaction/${ref}/`);
+      const data = await res.json();
+
+      if (data.error) {
+        console.warn(`⚠️  Ref ${ref}: ${data.error}`);
+        continue;
       }
-    });
-  </script>
+
+      // Log result summary
+      console.log(`✅ Ref ${ref} | Result:`, data);
+
+      // Optionally, visually mark completed transactions
+      //if (data.data?.txstatus === "1") {
+        // txEl.querySelector(".transaction-title").textContent += " ✅ Completed";
+      //   txEl.dataset.status = "completed";
+      // } else if (data.data?.txstatus === "2") {
+      //   txEl.querySelector(".transaction-title").textContent += " ❌ Failed";
+      //   txEl.dataset.status = "failed";
+      // }
+
+    } catch (error) {
+      console.error(`❌ Ref ${ref} refresh failed:`, error);
+    }
+  }
+  console.groupEnd();
+});
+</script>
+
 </body>
 </html>

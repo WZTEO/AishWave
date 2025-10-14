@@ -234,37 +234,43 @@ logger = logging.getLogger(__name__)
 class TransactionRefresher:
     """
     Reconciles only DEPOSITS via Moolre.
-    Withdrawals are skipped (manual approval only).
+    Withdrawals and other transaction types are skipped.
     """
 
     @staticmethod
     def refresh_account_balance(user: AbstractUser, account_number: str):
         from payments.services import moolre_service
 
-        refreshed, completed, failed = 0, 0, 0
+        refreshed = completed = failed = 0
         window = timezone.now() - timedelta(days=7)
 
         pending_txs = Transaction.objects.filter(
             wallet__user=user,
             status=TX_STATUS_PENDING,
-            created_at__gte=window
+            created_at__gte=window,
         )
 
-        logger.info("[TX][REFRESH_USER] User=%s | Pending=%d", user.username, pending_txs.count())
+        logger.info("[TX][REFRESH_USER] User=%s | Pending=%d",
+                    user.username, pending_txs.count())
 
         for tx in pending_txs:
             refreshed += 1
 
-            # 🚫 skip withdrawals completely
-            if tx.transaction_type == TX_TYPE_WITHDRAWAL:
-                logger.info("[TX][REFRESH_USER] Skipped withdrawal Ref=%s (manual approval)", tx.reference)
+            # 🚫 Skip non-deposit types
+            if tx.transaction_type != TX_TYPE_DEPOSIT:
+                logger.info("[TX][REFRESH_USER] Skipped non-deposit Ref=%s (type=%s)",
+                            tx.reference, tx.transaction_type)
                 continue
 
             try:
-                result = moolre_service.check_payment_status(user, account_number, tx.reference)
+                result = moolre_service.check_payment_status(
+                    user, account_number, tx.reference
+                )
                 tx_data = result.get("data", {}) or {}
                 txstatus = str(tx_data.get("txstatus", "0"))
-                status_map = {"0": TX_STATUS_PENDING, "1": TX_STATUS_COMPLETED, "2": TX_STATUS_FAILED}
+                status_map = {"0": TX_STATUS_PENDING,
+                              "1": TX_STATUS_COMPLETED,
+                              "2": TX_STATUS_FAILED}
                 new_status = status_map.get(txstatus, TX_STATUS_PENDING)
 
                 if new_status == TX_STATUS_COMPLETED:
@@ -273,7 +279,7 @@ class TransactionRefresher:
                         reference=tx.reference,
                         new_status=TX_STATUS_COMPLETED,
                         raw_data=result,
-                        update_wallet=True
+                        update_wallet=True,
                     )
                 elif new_status == TX_STATUS_FAILED:
                     failed += 1
@@ -281,10 +287,11 @@ class TransactionRefresher:
                         reference=tx.reference,
                         new_status=TX_STATUS_FAILED,
                         raw_data=result,
-                        update_wallet=False
+                        update_wallet=False,
                     )
                 else:
                     logger.info("[TX][REFRESH_USER] Ref=%s still pending", tx.reference)
+
             except Exception as e:
                 logger.exception("[TX][REFRESH_USER] Ref=%s error: %s", tx.reference, e)
 
@@ -302,34 +309,37 @@ class TransactionRefresher:
     def refresh_pending_transactions(days: int = 7):
         from payments.services import moolre_service
 
-        refreshed, completed, failed = 0, 0, 0
+        refreshed = completed = failed = 0
         window = timezone.now() - timedelta(days=days)
 
         pending_txs = Transaction.objects.filter(
             status=TX_STATUS_PENDING,
-            created_at__gte=window
+            created_at__gte=window,
+            transaction_type=TX_TYPE_DEPOSIT,  # ✅ Only deposits
         ).select_related("wallet__user")
 
-        logger.info("[TX][REFRESH_ALL] Pending count=%d", pending_txs.count())
+        logger.info("[TX][REFRESH_ALL] Pending deposits=%d", pending_txs.count())
 
         for tx in pending_txs:
             refreshed += 1
             user = tx.wallet.user
-
-            # 🚫 ignore all withdrawals
-            if tx.transaction_type == TX_TYPE_WITHDRAWAL:
-                logger.info("[TX][REFRESH_ALL] Skipped withdrawal Ref=%s (manual approval only)", tx.reference)
-                continue
-
             try:
-                account_number = Wallet.objects.filter(user=user).values_list("account_number", flat=True).first()
+                account_number = (
+                    Wallet.objects.filter(user=user)
+                    .values_list("account_number", flat=True)
+                    .first()
+                )
                 if not account_number:
                     continue
 
-                result = moolre_service.check_payment_status(user, account_number, tx.reference)
+                result = moolre_service.check_payment_status(
+                    user, account_number, tx.reference
+                )
                 tx_data = result.get("data", {}) or {}
                 txstatus = str(tx_data.get("txstatus", "0"))
-                status_map = {"0": TX_STATUS_PENDING, "1": TX_STATUS_COMPLETED, "2": TX_STATUS_FAILED}
+                status_map = {"0": TX_STATUS_PENDING,
+                              "1": TX_STATUS_COMPLETED,
+                              "2": TX_STATUS_FAILED}
                 new_status = status_map.get(txstatus, TX_STATUS_PENDING)
 
                 if new_status == TX_STATUS_COMPLETED:
@@ -338,7 +348,7 @@ class TransactionRefresher:
                         reference=tx.reference,
                         new_status=TX_STATUS_COMPLETED,
                         raw_data=result,
-                        update_wallet=True
+                        update_wallet=True,
                     )
                 elif new_status == TX_STATUS_FAILED:
                     failed += 1
@@ -346,8 +356,9 @@ class TransactionRefresher:
                         reference=tx.reference,
                         new_status=TX_STATUS_FAILED,
                         raw_data=result,
-                        update_wallet=False
+                        update_wallet=False,
                     )
+
             except Exception as e:
                 logger.exception("[TX][REFRESH_ALL] Ref=%s error: %s", tx.reference, e)
 

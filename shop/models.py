@@ -302,7 +302,9 @@ class Transaction(models.Model):
         ('withdrawal', 'Withdrawal'),
         ('investment', 'Investment'),
         ('refund', 'Refund'),
-        ('task_reward', 'Task Reward')
+        ('task_reward', 'Task Reward'),
+        ('data_purchase', 'Data Purchase'),  # ✅ add this
+
     ]
 
     order = models.ForeignKey(
@@ -725,13 +727,14 @@ class DataPurchase(models.Model):
         return f"DataPurchase #{self.id} - {self.user.username} - {self.status}"
     
 
-
+    # @Transaction.atomic
     def approve(self):
         """
         Approve this data purchase:
-        - Deduct wallet balance.
-        - Mark as approved.
-        - Create a Transaction record.
+        - Locate the existing pending Transaction by this purchase's reference
+        - Deduct wallet balance
+        - Mark the found Transaction as completed (no new Transaction is created)
+        - Mark this purchase as approved
         """
         logger.info(f"models.py - DataPurchase.approve() called for {self.id} ({self.user.username})")
 
@@ -740,7 +743,7 @@ class DataPurchase(models.Model):
             logger.warning(f"models.py - DataPurchase {self.id} already processed (status={self.status})")
             return False
 
-        # Try fetching wallet
+        # Fetch wallet
         try:
             wallet = Wallet.objects.get(user=self.user)
             logger.info(f"models.py - Wallet found for user {self.user.username}: balance={wallet.balance}")
@@ -748,7 +751,30 @@ class DataPurchase(models.Model):
             logger.error(f"models.py - Wallet not found for user {self.user.username}")
             return False
 
-        # Check sufficient balance
+        # Find the existing pending transaction created at request time
+        tx = Transaction.objects.filter(
+            wallet=wallet,
+            reference=str(self.reference),
+        ).first()
+
+        if not tx:
+            logger.error(f"models.py - No pending Transaction found for DataPurchase ref={self.reference}")
+            return False
+
+        # Optional: sanity checks
+        if tx.status.lower() == "completed":
+            logger.warning(f"models.py - Transaction {tx.reference} already completed.")
+            return False
+
+        # (Optional) ensure amounts align; if not, either update or fail fast
+        if tx.amount != self.price_ghs:
+            logger.warning(
+                f"models.py - Amount mismatch for ref={tx.reference} | tx.amount={tx.amount} "
+                f"| price_ghs={self.price_ghs} — updating tx.amount to match."
+            )
+            tx.amount = self.price_ghs
+
+        # Check sufficient balance before deducting
         if wallet.balance < self.price_ghs:
             logger.error(
                 f"models.py - Insufficient funds for {self.user.username}: "
@@ -760,21 +786,22 @@ class DataPurchase(models.Model):
             self.save(update_fields=["status", "notes", "processed_at"])
             return False
 
-        # Deduct wallet and save
+        # Deduct wallet
         old_balance = wallet.balance
         wallet.balance -= self.price_ghs
         wallet.save(update_fields=["balance"])
         logger.info(f"models.py - Wallet updated: {old_balance} -> {wallet.balance}")
 
-        # Create transaction record
-        Transaction.objects.create(
-            wallet=wallet,
-            amount=self.price_ghs,
-            transaction_type="data_purchase",
-            status="completed",
-            raw_data={"bundle_size": self.bundle_size, "provider": self.provider},
-        )
-        logger.info(f"models.py - Transaction created for DataPurchase {self.id}")
+        # Mark the existing transaction as completed; DO NOT create a new one
+        tx.transaction_type = tx.transaction_type or "data_purchase"  # keep or set
+        tx.status = "completed"
+        # Optionally append structured context
+        raw = tx.raw_data or {}
+        if isinstance(raw, dict):
+            raw.update({"bundle_size": self.bundle_size, "provider": self.provider})
+            tx.raw_data = raw
+        tx.save(update_fields=["amount", "transaction_type", "status", "raw_data", "updated_at"])
+        logger.info(f"models.py - Transaction {tx.reference} marked completed")
 
         # Update purchase
         self.status = "approved"
@@ -783,6 +810,7 @@ class DataPurchase(models.Model):
         logger.info(f"models.py - DataPurchase {self.id} marked as approved")
 
         return True
+
 
 def reject(self, reason="Rejected by admin"):
     """

@@ -1102,7 +1102,6 @@ def refresh_balance(request):
 
 @login_required
 def refresh_transaction(request, reference):
-    """AJAX: Refresh individual transaction status."""
     from payments.services.moolre_service import check_payment_status, check_transfer_status
     tx = TransactionService.get_by_reference(reference)
     if not tx:
@@ -1112,6 +1111,7 @@ def refresh_transaction(request, reference):
     else:
         data = check_transfer_status(request.user, settings.MOOLRE_ACCOUNT_NUMBER, reference)
     return JsonResponse(data)
+
 
 @login_required
 def update_data(request):
@@ -1127,34 +1127,29 @@ def update_data(request):
 
 @login_required
 def create_data_purchase(request):
-    """
-    Handles 'Buy Data' form submission from frontend.
-    Creates a pending DataPurchase entry; wallet is not deducted.
-    """
+    """Handles 'Buy Data' form submission from frontend."""
     if request.method != "POST":
-        messages.error(request, "Invalid request method.")
-        return redirect("shop_update")  # your dashboard or fallback page
+        return redirect("shop_update")
+
+    phone = request.POST.get("phone")
+    bundle_size = request.POST.get("bundle_size")
+    price = request.POST.get("price")
+    provider = request.POST.get("provider", "mtn")
+
+    if not all([phone, bundle_size, price]):
+        messages.error(request, "Missing required fields.")
+        return redirect("shop_update")
 
     try:
-        phone = request.POST.get("phone")
-        bundle_size = request.POST.get("bundle_size")
-        price = request.POST.get("price")
-        provider = request.POST.get("provider", "mtn")
-
-        # Quick input validation
-        if not all([phone, bundle_size, price]):
-            messages.error(request, "Missing required fields.")
-            return redirect("shop_update")
-
+        price = Decimal(price)
         wallet = Wallet.objects.get(user=request.user)
 
-        # Optional: check if user can afford (but don't deduct yet)
-        if wallet.balance < float(price):
-            messages.warning(request, "Insufficient wallet balance to initiate purchase.")
+        if wallet.balance < price:
+            messages.error(request, "Insufficient wallet balance.")
             return redirect("shop_update")
 
-        # Create DataPurchase record
-        DataPurchase.objects.create(
+        # ✅ Create DataPurchase first
+        purchase = DataPurchase.objects.create(
             user=request.user,
             beneficiary_number=phone,
             provider=provider,
@@ -1163,11 +1158,25 @@ def create_data_purchase(request):
             status="pending",
             created_at=timezone.now(),
         )
+
+        # ✅ Immediately create pending transaction linked to this purchase
+        Transaction.objects.create(
+            wallet=wallet,
+            amount=price,
+            transaction_type="data_purchase",
+            status="pending",
+            reference=str(purchase.reference),
+            raw_data={
+                "bundle_size": bundle_size,
+                "provider": provider,
+                "beneficiary_number": phone,
+            },
+        )
+
         messages.success(request, "Your data purchase has been submitted for admin approval.")
-        logger.info(f"shop/views/data_purchase.py - DataPurchase created for user {request.user.username}")
+        return redirect("finance")
 
     except Exception as e:
-        logger.error(f"shop/views/data_purchase.py - Error creating DataPurchase: {e}")
+        logger.exception(f"[create_data_purchase] Error: {e}")
         messages.error(request, "Something went wrong while submitting your request.")
-
-    return redirect("shop_update")
+        return redirect("shop_update")
